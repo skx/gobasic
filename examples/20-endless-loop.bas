@@ -1,0 +1,2 @@
+10 print "STEVE IS AWESOME"
+20 goto 10

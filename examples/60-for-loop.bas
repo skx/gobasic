@@ -1,0 +1,12 @@
+10 REM This program tests for-loops a little.
+15 REM
+
+20 PRINT "IN ONES\n"
+30 FOR I = 1 to 10 STEP 1
+40 PRINT "",I
+50 NEXT I
+
+100 PRINT "IN TWOS\n"
+110 FOR I = 0 to 10 STEP 2
+120 PRINT "",I
+130 NEXT I
