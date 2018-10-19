@@ -47,6 +47,30 @@ func TestGoSub(t *testing.T) {
 	}
 }
 
+// TestGoTo ensures a value is set.  It is naive.
+func TestGoTo(t *testing.T) {
+	input := `
+ 10 GOTO 100
+ 20 GOTO 90
+ 30 GOTO 80
+ 40 GOTO 70
+ 50 LET a=333333
+ 60 END
+ 70 GOTO 50
+ 80 GOTO 40
+ 90 GOTO 30
+100 GOTO 20
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	out := obj.GetVariable("a")
+	if out != 333333 {
+		t.Errorf("Value not expected!")
+	}
+}
+
 // TestMaths does some simple sums
 func TestMaths(t *testing.T) {
 	input := `
