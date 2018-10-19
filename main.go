@@ -85,5 +85,8 @@ func main() {
 	// OK we're running the code.  Do it.
 	//
 	e := eval.New(t)
-	e.Run()
+	err = e.Run()
+	if err != nil {
+		fmt.Printf("Error running program: %s\n", err.Error())
+	}
 }

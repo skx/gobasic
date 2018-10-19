@@ -3,6 +3,7 @@
 package eval
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/skx/gobasic/tokenizer"
@@ -47,6 +48,26 @@ func TestGoSub(t *testing.T) {
 	}
 }
 
+// TestBogusGoSub ensures that bogus-gosubs are found
+func TestBogusGoSub(t *testing.T) {
+
+	txt := []string{"10 GOSUB A\n",
+		"10 GOSUB 1000\n"}
+
+	for _, prg := range txt {
+
+		obj := Compile(prg)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("Expected to receive an error in the program - but didn't")
+		}
+		if !strings.Contains(err.Error(), "GOSUB") {
+			t.Errorf("Received error, but the wrong thing?")
+		}
+	}
+}
+
 // TestGoTo ensures a value is set.  It is naive.
 func TestGoTo(t *testing.T) {
 	input := `
@@ -68,6 +89,26 @@ func TestGoTo(t *testing.T) {
 	out := obj.GetVariable("a")
 	if out != 333333 {
 		t.Errorf("Value not expected!")
+	}
+}
+
+// TestBogusGoTO ensures that bogus-gotos are found
+func TestBogusGoTO(t *testing.T) {
+
+	txt := []string{"10 GOTO A\n",
+		"10 GOTO 1000\n"}
+
+	for _, prg := range txt {
+
+		obj := Compile(prg)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("Expected to receive an error in the program - but didn't")
+		}
+		if !strings.Contains(err.Error(), "GOTO") {
+			t.Errorf("Received error, but the wrong thing?")
+		}
 	}
 }
 
@@ -140,6 +181,32 @@ func TestFor(t *testing.T) {
 	}
 }
 
+// TestBogusFor ensures that bogus-FOR-loops are found
+func TestBogusFor(t *testing.T) {
+
+	txt := []string{"10 FOR \n",
+		"10 FOR I\n",
+		"10 FOR I=\n",
+		"10 FOR I=1\n",
+		"10 FOR I=1 TO\n",
+		"10 FOR I=1 TO N\n",
+		"10 FOR I=1 TO 10 STEP STEP\n",
+	}
+
+	for _, prg := range txt {
+
+		obj := Compile(prg)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("Expected to receive an error in the program '%s' - but didn't", prg)
+		}
+		if !strings.Contains(err.Error(), "FOR") {
+			t.Errorf("Received error, but the wrong thing?")
+		}
+	}
+}
+
 // TestPrint runs some prints.
 func TestPrint(t *testing.T) {
 	input := `
@@ -147,6 +214,7 @@ func TestPrint(t *testing.T) {
 20 PRINT a
 30 PRINT "Test\n"
 40 PRINT ( 3 * ( 3 + 4  ) ) "\n"
+50 PRINT "OK","OK"
 `
 
 	obj := Compile(input)
@@ -156,4 +224,21 @@ func TestPrint(t *testing.T) {
 	// unless we use an I/O writer..?
 	//
 	// TODO: Reconsider
+}
+
+// TestREM ensures that REM is handled.
+func TestREM(t *testing.T) {
+
+	txt := []string{"10 REM\n",
+		"10 REM"}
+
+	for _, prg := range txt {
+
+		obj := Compile(prg)
+		err := obj.Run()
+
+		if err != nil {
+			t.Errorf("Error parsing program '%s'", prg)
+		}
+	}
 }

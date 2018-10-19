@@ -255,7 +255,7 @@ func (e *Interpreter) expr() int {
 ////
 
 // runGOSUB handles a control-flow change
-func (e *Interpreter) runGOSUB() {
+func (e *Interpreter) runGOSUB() error {
 
 	// Skip the GOSUB-instruction itself
 	e.offset++
@@ -266,8 +266,7 @@ func (e *Interpreter) runGOSUB() {
 	// We expect the next token to be an int
 	// If we had variables ..
 	if target.Type != token.INT {
-		fmt.Printf("ERROR: GOSUB should be followed by an integer\n")
-		os.Exit(2)
+		return (fmt.Errorf("ERROR: GOSUB should be followed by an integer\n"))
 	}
 
 	//
@@ -295,17 +294,16 @@ func (e *Interpreter) runGOSUB() {
 			// Does it match?
 			if e.program[i].Literal == target.Literal {
 				e.offset = i
-				return
+				return nil
 			}
 		}
 	}
 
-	fmt.Printf("Failed to GOSUB %s\n", target.Literal)
-	os.Exit(1)
+	return (fmt.Errorf("Failed to GOSUB %s\n", target.Literal))
 }
 
 // runForLoop handles a FOR loop
-func (e *Interpreter) runForLoop() {
+func (e *Interpreter) runForLoop() error {
 	// we expect "ID = NUM to NUM [STEP NUM]"
 
 	// Bump past the FOR token
@@ -315,50 +313,45 @@ func (e *Interpreter) runForLoop() {
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
-		fmt.Printf("Expected IDENT after FOR, got %v\n", target)
-		os.Exit(1)
+		return fmt.Errorf("Expected IDENT after FOR, got %v\n", target)
 	}
 
 	// Now an EQUALS
 	eq := e.program[e.offset]
 	e.offset++
 	if eq.Type != token.ASSIGN {
-		fmt.Printf("Expected = after 'FOR %s' , got %v\n", target.Literal, eq)
-		os.Exit(1)
+		return fmt.Errorf("Expected = after 'FOR %s' , got %v\n", target.Literal, eq)
 	}
 
 	// Now an integer
 	startI := e.program[e.offset]
 	e.offset++
 	if startI.Type != token.INT {
-		fmt.Printf("Expected INT after 'FOR %s=', got %v\n", target.Literal, startI)
-		os.Exit(1)
+		return fmt.Errorf("Expected INT after 'FOR %s=', got %v\n", target.Literal, startI)
 	}
 
 	start, err := strconv.Atoi(startI.Literal)
 	if err != nil {
-		fmt.Printf("Failed to convert %s to an int %s\n", startI.Literal, err.Error())
+		return fmt.Errorf("Failed to convert %s to an int %s\n", startI.Literal, err.Error())
 	}
 
 	// Now TO
 	to := e.program[e.offset]
 	e.offset++
 	if to.Type != token.TO {
-		fmt.Printf("Expected TO after 'FOR %s=%s', got %v\n", target.Literal, startI, to)
-		os.Exit(1)
+		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v\n", target.Literal, startI, to)
 	}
 
 	// Now an integer
 	endI := e.program[e.offset]
 	e.offset++
 	if endI.Type != token.INT {
-		fmt.Printf("Expected INT after 'FOR %s=%s TO', got %v\n", target.Literal, startI, endI)
-		os.Exit(1)
+		return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v\n", target.Literal, startI, endI)
 	}
 
 	end, err := strconv.Atoi(endI.Literal)
 	if err != nil {
-		fmt.Printf("Failed to convert %s to an int %s\n", endI.Literal, err.Error())
+		return fmt.Errorf("Failed to convert %s to an int %s\n", endI.Literal, err.Error())
 	}
 
 	// Default step is 1.
@@ -371,15 +364,14 @@ func (e *Interpreter) runForLoop() {
 		s := e.program[e.offset]
 		e.offset++
 		if s.Type != token.INT {
-			fmt.Printf("Expected INT after 'FOR %s=%s TO %s STEP', got %v\n", target.Literal, startI, endI, s)
-			os.Exit(1)
+			return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v\n", target.Literal, startI, endI, s)
 		}
 		stepI = s.Literal
 	}
 
 	step, err := strconv.Atoi(stepI)
 	if err != nil {
-		fmt.Printf("Failed to convert %s to an int %s\n", stepI, err.Error())
+		fmt.Errorf("Failed to convert %s to an int %s\n", stepI, err.Error())
 	}
 
 	//
@@ -421,10 +413,12 @@ func (e *Interpreter) runForLoop() {
 	// Did I say this is elegent?
 	//
 	AddForLoop(f)
+
+	return nil
 }
 
 // runGOTO handles a control-flow change
-func (e *Interpreter) runGOTO() {
+func (e *Interpreter) runGOTO() error {
 
 	// Skip the GOTO-instruction
 	e.offset++
@@ -434,8 +428,7 @@ func (e *Interpreter) runGOTO() {
 
 	// We expect the next token to be an int
 	if target.Type != token.INT {
-		fmt.Printf("ERROR: GOTO should be followed by an integer\n")
-		os.Exit(2)
+		return fmt.Errorf("ERROR: GOTO should be followed by an integer\n")
 	}
 
 	//
@@ -451,17 +444,16 @@ func (e *Interpreter) runGOTO() {
 			// Does it match the target we're aiming for?
 			if e.program[i].Literal == target.Literal {
 				e.offset = i
-				return
+				return nil
 			}
 		}
 	}
 
-	fmt.Printf("Failed to GOTO %s\n", target.Literal)
-	os.Exit(1)
+	return fmt.Errorf("Failed to GOTO %s\n", target.Literal)
 }
 
 // runNEXT handles the NEXT statement
-func (e *Interpreter) runNEXT() {
+func (e *Interpreter) runNEXT() error {
 	// Bump past the NEXT token
 	e.offset++
 
@@ -469,8 +461,7 @@ func (e *Interpreter) runNEXT() {
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
-		fmt.Printf("Expected IDENT after NEXT, got %v\n", target)
-		os.Exit(1)
+		return fmt.Errorf("Expected IDENT after NEXT, got %v\n", target)
 	}
 
 	// OK we've found the tail of a loop
@@ -501,7 +492,7 @@ func (e *Interpreter) runNEXT() {
 	//
 	if data.finished {
 		RemoveForLoop(target.Literal)
-		return
+		return nil
 	}
 
 	//
@@ -520,11 +511,11 @@ func (e *Interpreter) runNEXT() {
 	// Otherwise loop again
 	//
 	e.offset = data.offset
-
+	return nil
 }
 
 // runLET handles variable creation/updating.
-func (e *Interpreter) runLET() {
+func (e *Interpreter) runLET() error {
 
 	// Bump past the LET token
 	e.offset++
@@ -533,15 +524,13 @@ func (e *Interpreter) runLET() {
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
-		fmt.Printf("Expected IDENT after LET, got %v\n", target)
-		os.Exit(1)
+		return fmt.Errorf("Expected IDENT after LET, got %v\n", target)
 	}
 
 	// Now "="
 	assign := e.program[e.offset]
 	if assign.Type != token.ASSIGN {
-		fmt.Printf("Expected assignment after LET x, got %v\n", assign)
-		os.Exit(1)
+		return fmt.Errorf("Expected assignment after LET x, got %v\n", assign)
 	}
 	e.offset++
 
@@ -549,11 +538,11 @@ func (e *Interpreter) runLET() {
 	res := e.expr()
 
 	e.vars.Set(target.Literal, res)
-
+	return nil
 }
 
 // runPRINT handles a print!
-func (e *Interpreter) runPRINT() {
+func (e *Interpreter) runPRINT() error {
 
 	// Bump past the PRINT token
 	e.offset++
@@ -566,7 +555,7 @@ func (e *Interpreter) runPRINT() {
 
 		// End of the line?
 		if tok.Type == token.NEWLINE {
-			return
+			return nil
 		}
 
 		// We expect to handle "int", "string", and ",".
@@ -604,10 +593,12 @@ func (e *Interpreter) runPRINT() {
 		}
 		e.offset++
 	}
+
+	return nil
 }
 
 // REM handles a REM statement
-func (e *Interpreter) runREM() {
+func (e *Interpreter) runREM() error {
 
 	// Skip over all content until we hit the end
 	// of the program, or a newline.
@@ -617,30 +608,31 @@ func (e *Interpreter) runREM() {
 	for e.offset < len(e.program) {
 		tok := e.program[e.offset]
 		if tok.Type == token.NEWLINE {
-			return
+			return nil
 		}
 		e.offset++
 	}
+
+	return nil
 }
 
 // RETURN handles a control-flow operation
-func (e *Interpreter) runRETURN() {
+func (e *Interpreter) runRETURN() error {
 
 	// Stack can't be empty
 	if e.gstack.Empty() {
-		fmt.Printf("RETURN without GOSUB\n")
-		os.Exit(1)
+		return fmt.Errorf("RETURN without GOSUB\n")
 	}
 
 	// Get the return address
 	ret, err := e.gstack.Pop()
 	if err != nil {
-		fmt.Printf("Error handling RETURN: %s\n", err.Error())
-		os.Exit(1)
+		return fmt.Errorf("Error handling RETURN: %s\n", err.Error())
 	}
 
 	// Return execution where we left off.
 	e.offset = ret
+	return nil
 }
 
 ////
@@ -650,7 +642,7 @@ func (e *Interpreter) runRETURN() {
 ////
 
 // Run launches our program!
-func (e *Interpreter) Run() {
+func (e *Interpreter) Run() error {
 
 	//
 	// We walk our series of tokens.
@@ -662,6 +654,8 @@ func (e *Interpreter) Run() {
 		//
 		tok := e.program[e.offset]
 
+		var err error
+
 		//
 		// Handle this token
 		//
@@ -671,32 +665,37 @@ func (e *Interpreter) Run() {
 		case token.LINENO:
 			// NOP
 		case token.END:
-			return
+			return nil
 		case token.FOR:
-			e.runForLoop()
+			err = e.runForLoop()
 		case token.GOSUB:
-			e.runGOSUB()
+			err = e.runGOSUB()
 		case token.GOTO:
-			e.runGOTO()
+			err = e.runGOTO()
 		case token.LET:
-			e.runLET()
+			err = e.runLET()
 		case token.NEXT:
-			e.runNEXT()
+			err = e.runNEXT()
 		case token.PRINT:
-			e.runPRINT()
+			err = e.runPRINT()
 		case token.REM:
-			e.runREM()
+			err = e.runREM()
 		case token.RETURN:
-			e.runRETURN()
+			err = e.runRETURN()
 		default:
-			fmt.Printf("Token not handled: %v\n", tok)
+			err = fmt.Errorf("Token not handled: %v\n", tok)
 		}
 
+		if err != nil {
+			return err
+		}
 		//
 		// Handle the next statement.
 		//
 		e.offset++
 	}
+
+	return nil
 }
 
 // GetVariable returns the contents of the given variable.
