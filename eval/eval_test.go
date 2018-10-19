@@ -33,12 +33,9 @@ func TestGoSub(t *testing.T) {
 	input := `
 10 LET A=33
 20 GOSUB 300
-40 REM END won't work here because it'll call os.Exit()
-50 REM TODO: Bug to be filed
-60 GOTO 1000
+30 END
 300 LET A = 1002
 310 RETURN
-1000 REM End of program!
 `
 
 	obj := Compile(input)

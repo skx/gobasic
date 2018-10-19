@@ -671,7 +671,7 @@ func (e *Interpreter) Run() {
 		case token.LINENO:
 			// NOP
 		case token.END:
-			os.Exit(0)
+			return
 		case token.FOR:
 			e.runForLoop()
 		case token.GOSUB:
