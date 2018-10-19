@@ -190,3 +190,36 @@ func TestComparisons(t *testing.T) {
 		}
 	}
 }
+
+// TestNumber tests that positive and negative numbers are OK.
+func TestNumber(t *testing.T) {
+	input := `10 PRINT -4
+20 PRINT 5 - 3`
+
+	tests := []struct {
+		expectedType    token.Type
+		expectedLiteral string
+	}{
+		// implicit newline which is a pain.
+		{token.NEWLINE, "N"},
+		{token.LINENO, "10"},
+		{token.PRINT, "PRINT"},
+		{token.INT, "-4"},
+		{token.NEWLINE, "N"},
+		{token.LINENO, "20"},
+		{token.PRINT, "PRINT"},
+		{token.INT, "5"},
+		{token.MINUS, "-"},
+		{token.INT, "3"},
+	}
+	l := New(input)
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong, expected=%q, got=%v", i, tt.expectedType, tok)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - Literal wrong, expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}

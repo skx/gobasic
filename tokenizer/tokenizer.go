@@ -67,7 +67,20 @@ func (l *Tokenizer) NextToken() token.Token {
 	case rune('+'):
 		tok = newToken(token.PLUS, l.ch)
 	case rune('-'):
-		tok = newToken(token.MINUS, l.ch)
+		// -3 is "-3".  "3 - 4" is -1.
+		if isDigit(l.peekChar()) {
+			// swallow the -
+			l.readChar()
+
+			// read the number
+			tok.Literal = l.readNumber()
+			tok.Type = token.INT
+
+			tok.Literal = "-" + tok.Literal
+
+		} else {
+			tok = newToken(token.MINUS, l.ch)
+		}
 	case rune('/'):
 		tok = newToken(token.SLASH, l.ch)
 	case rune('%'):

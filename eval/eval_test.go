@@ -121,7 +121,7 @@ func TestMaths(t *testing.T) {
 40 LET D = 100 / 5
 50 LET E = 5 % 2
 60 LET F = ( ( 3 + 1 ) / 2 ) + ( 3 * 33 ) - 1
-70 LET G = ABS(3)
+70 LET G = ABS(-3)
 80 LET H = 10 - 20
 90 LET H = ABS(H)
 95 LET H = 33

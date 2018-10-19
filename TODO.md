@@ -32,8 +32,7 @@ Rough plan, which might change over time.
 * [x] Handle FOR loops both with and without step-offsets
       * FOR i=1 TO 10
       * FOR i=0 TO 10 STEP 2
-        * NOTE we can't parse negative numbers, so this fails "FOR I=10 TO 1 STEP -1".
-          * Oops
+      * FOR i=10 TO 0 STEP -1
 * [ ] Handle IF statements and conditionals
   * I'm going to decide "IF COND THEN STATEMENT [ELSE STATEMENT] FI"
 
