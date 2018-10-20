@@ -37,7 +37,9 @@ Currently the following primitives work:
 * `REM`
   * A single-line comment (BASIC has no notion of multi-line comments).
 
-(Specifically we have no "functions", and no other primitives.)
+Most of the maths-related primitives I'm familiar with from my days
+coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS,
+however __none__ of the string-related primitives are present.
 
 
 
@@ -47,10 +49,10 @@ This is a quick hack, so there are some (important) limitations:
 
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
-  * I allow assignment, prints, loops, and the use of GOSUB/GOTO/RETURN for control-flow.
-  * All string operations are missing, as are all the math-related operations such as SIN(), COS(), etc.
-* Only integer and string values are parsed.
-  * There is currently no support for floating-point numbers.
+  * I allow assignment, prints, loops, and control-flow primitives.
+  * All string operations are missing.
+  * Most of the math-related operations are present, but there may be omissions depending upon the BASIC dialect you're familiar with.
+* Only floating-point and string values are parsed.
   * Strings can only be used literally, not stored in a variable.
 
 The handling of the IF statement is perhaps a little unusual, since I'm
@@ -122,6 +124,8 @@ As is common with early 8-bit home-computers this implementation is a little mor
     * [eval/for_loop.go](eval/for_loop.go) holds a simple data-structure for handling `FOR`/`NEXT` loops.
     * [eval/stack.go](eval/stack.go) holds a call-stack to handle `GOSUB`/`RETURN`
     * [eval/vars.go](eval/vars.go) holds all our variable references.
+    * We have a facility to allow golang code to be made available to BASIC programs, and we use that facility to implement a bunch of our functions.
+    * Specifically we use [eval/builtin-support.go](eval/builtin-support.go) to define a lot of functions in [eval/builtins.go](eval/builtins.go) which allow BASIC to call SIN, ABS, PI, etc.
 
 As there is no AST step errors cannot be detected prior to the execution of programs - because we only hit them after we've started running.
 
@@ -134,6 +138,35 @@ There are a small number of sample-programs located beneath [examples/](examples
 Perhaps the best demonstration of the code is the "guessing game" program:
 
 * [examples/99-game.bas](examples/99-game.bas)
+
+
+
+## Embedding
+
+The interpreter is designed to be easy to embed into your application(s)
+if you're crazy enough to want to do that!  You can see an example
+in the file [embed/main.go](embed/main.go).
+
+The embed function uses the registration facility to declare the new
+built-in functions "PEEK" and "POKE".  This means that a BASIC script
+could read:
+
+    10 LET r = PEEK 30
+    20 PRINT "The contents of address 30 are ", r, "\n"
+
+Making your own functions available to BASIC scripts is pretty simple, and
+this is how SIN, COS, etc are implemented in the complete interpreter.
+
+A caveat of the current implementation of the embedded functions is that
+they only work if called in an expression-context.  So this fails:
+
+   10 POKE 3,33
+
+But this succeeds:
+
+    10 LET x = POKE 3,33
+
+This might be fixed in the future.
 
 
 

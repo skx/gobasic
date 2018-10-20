@@ -996,6 +996,11 @@ func (e *Interpreter) Run() error {
 	return nil
 }
 
+// SetVariable sets a variable in the environment.
+func (e *Interpreter) SetVariable(id string, val float64) {
+	e.vars.Set(id, val)
+}
+
 // GetVariable returns the contents of the given variable.
 // Useful for testing/embedding.
 func (e *Interpreter) GetVariable(id string) float64 {
@@ -1015,4 +1020,8 @@ func (e *Interpreter) GetVariable(id string) float64 {
 
 	// FAKE
 	return 1
+}
+
+func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft BuiltinSig) {
+	e.functions.Register(name, nArgs, ft)
 }
