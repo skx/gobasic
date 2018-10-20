@@ -27,6 +27,9 @@ type Interpreter struct {
 	// The program we execute is nothing more than an array of tokens.
 	program []token.Token
 
+	// Should we finish execution?
+	finished bool
+
 	// We execute from the given offset.
 	//
 	// Sequential exection just means bumping this up by one each
@@ -788,7 +791,6 @@ func (e *Interpreter) RunOnce() error {
 	// Get the current token
 	//
 	tok := e.program[e.offset]
-
 	var err error
 
 	//
@@ -800,6 +802,7 @@ func (e *Interpreter) RunOnce() error {
 	case token.LINENO:
 		// NOP
 	case token.END:
+		e.finished = true
 		return nil
 	case token.FOR:
 		err = e.runForLoop()
@@ -851,6 +854,9 @@ func (e *Interpreter) Run() error {
 			return err
 		}
 
+		if e.finished {
+			return nil
+		}
 	}
 
 	return nil
