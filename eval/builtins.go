@@ -45,7 +45,7 @@ func ABS(env Interpreter, args []token.Token) (float64, error) {
 		return iVal, nil
 	}
 
-	return 0, fmt.Errorf("Invalid type in input argument: %v\n", args[0])
+	return 0, fmt.Errorf("Invalid type in input argument: %v", args[0])
 }
 
 // INT implements INT
@@ -69,7 +69,7 @@ func INT(env Interpreter, args []token.Token) (float64, error) {
 		return float64(int(val)), nil
 	}
 
-	return 0, fmt.Errorf("Invalid type in input argument: %v\n", args[0])
+	return 0, fmt.Errorf("Invalid type in input argument: %v", args[0])
 }
 
 // RND implements RND
@@ -104,7 +104,7 @@ func SGN(env Interpreter, args []token.Token) (float64, error) {
 	return 1.0, nil
 }
 
-// SQR: Square root
+// SQR implements square root.
 func SQR(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
@@ -123,13 +123,13 @@ func SQR(env Interpreter, args []token.Token) (float64, error) {
 	return math.Sqrt(i), nil
 }
 
-// PI: Return PI
+// PI returns the value of PI
 func PI(env Interpreter, args []token.Token) (float64, error) {
 
 	return math.Pi, nil
 }
 
-// COS
+// COS implements the COS function..
 func COS(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
@@ -148,7 +148,7 @@ func COS(env Interpreter, args []token.Token) (float64, error) {
 	return math.Cos(i), nil
 }
 
-// SIN.
+// SIN operats the sin function.
 func SIN(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
@@ -168,7 +168,7 @@ func SIN(env Interpreter, args []token.Token) (float64, error) {
 	return math.Sin(i), nil
 }
 
-// TAN.
+// TAN implements the tan function.
 func TAN(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64

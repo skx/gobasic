@@ -19,20 +19,19 @@ type Builtins struct {
 	// lock holds a mutex to prevent corruption.
 	lock sync.Mutex
 
-	// arg_registry holds the number of arguments the given
-	// name requires.
-	arg_registry map[string]int
+	// argRegistry holds the number of arguments the given name requires.
+	argRegistry map[string]int
 
-	// fn_registry holds a reference to the golang function which
+	// fnRegistry holds a reference to the golang function which
 	// implements the builtin.
-	fn_registry map[string]BuiltinSig
+	fnRegistry map[string]BuiltinSig
 }
 
 // NewBuiltins returns a new helper/holder for builtin functions.
 func NewBuiltins() *Builtins {
 	t := &Builtins{}
-	t.arg_registry = make(map[string]int)
-	t.fn_registry = make(map[string]BuiltinSig)
+	t.argRegistry = make(map[string]int)
+	t.fnRegistry = make(map[string]BuiltinSig)
 
 	return t
 }
@@ -47,8 +46,8 @@ func (b *Builtins) Register(name string, nArgs int, ft BuiltinSig) {
 	defer b.lock.Unlock()
 
 	// Register our arg-count and function
-	b.arg_registry[name] = nArgs
-	b.fn_registry[name] = ft
+	b.argRegistry[name] = nArgs
+	b.fnRegistry[name] = ft
 }
 
 // Exists tests if the given name exists as a built-in function.
@@ -57,7 +56,7 @@ func (b *Builtins) Exists(name string) bool {
 	defer b.lock.Unlock()
 
 	// Does it exist?
-	return (b.fn_registry[name] != nil)
+	return (b.fnRegistry[name] != nil)
 }
 
 // Get the values associated with the given built-in.
@@ -65,5 +64,5 @@ func (b *Builtins) Get(name string) (int, BuiltinSig) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	return b.arg_registry[name], b.fn_registry[name]
+	return b.argRegistry[name], b.fnRegistry[name]
 }

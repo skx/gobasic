@@ -358,45 +358,45 @@ func (e *Interpreter) runForLoop() error {
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after FOR, got %v\n", target)
+		return fmt.Errorf("Expected IDENT after FOR, got %v", target)
 	}
 
 	// Now an EQUALS
 	eq := e.program[e.offset]
 	e.offset++
 	if eq.Type != token.ASSIGN {
-		return fmt.Errorf("Expected = after 'FOR %s' , got %v\n", target.Literal, eq)
+		return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
 	}
 
 	// Now an integer
 	startI := e.program[e.offset]
 	e.offset++
 	if startI.Type != token.INT {
-		return fmt.Errorf("Expected INT after 'FOR %s=', got %v\n", target.Literal, startI)
+		return fmt.Errorf("Expected INT after 'FOR %s=', got %v", target.Literal, startI)
 	}
 
 	start, err := strconv.ParseFloat(startI.Literal, 64)
 	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s\n", startI.Literal, err.Error())
+		return fmt.Errorf("Failed to convert %s to an int %s", startI.Literal, err.Error())
 	}
 
 	// Now TO
 	to := e.program[e.offset]
 	e.offset++
 	if to.Type != token.TO {
-		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v\n", target.Literal, startI, to)
+		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
 	}
 
 	// Now an integer
 	endI := e.program[e.offset]
 	e.offset++
 	if endI.Type != token.INT {
-		return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v\n", target.Literal, startI, endI)
+		return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
 	}
 
 	end, err := strconv.ParseFloat(endI.Literal, 64)
 	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s\n", endI.Literal, err.Error())
+		return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
 	}
 
 	// Default step is 1.
@@ -409,14 +409,14 @@ func (e *Interpreter) runForLoop() error {
 		s := e.program[e.offset]
 		e.offset++
 		if s.Type != token.INT {
-			return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v\n", target.Literal, startI, endI, s)
+			return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v", target.Literal, startI, endI, s)
 		}
 		stepI = s.Literal
 	}
 
 	step, err := strconv.ParseFloat(stepI, 64)
 	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s\n", stepI, err.Error())
+		return fmt.Errorf("Failed to convert %s to an int %s", stepI, err.Error())
 	}
 
 	//
@@ -480,7 +480,7 @@ func (e *Interpreter) runGOSUB() error {
 	// We expect the next token to be an int
 	// If we had variables ..
 	if target.Type != token.INT {
-		return (fmt.Errorf("ERROR: GOSUB should be followed by an integer\n"))
+		return (fmt.Errorf("ERROR: GOSUB should be followed by an integer"))
 	}
 
 	//
@@ -508,7 +508,7 @@ func (e *Interpreter) runGOSUB() error {
 		return nil
 	}
 
-	return fmt.Errorf("Failed to GOSUB %s\n", target.Literal)
+	return fmt.Errorf("Failed to GOSUB %s", target.Literal)
 }
 
 // runGOTO handles a control-flow change
@@ -522,7 +522,7 @@ func (e *Interpreter) runGOTO() error {
 
 	// We expect the next token to be an int
 	if target.Type != token.INT {
-		return fmt.Errorf("ERROR: GOTO should be followed by an integer\n")
+		return fmt.Errorf("ERROR: GOTO should be followed by an integer")
 	}
 
 	//
@@ -538,7 +538,7 @@ func (e *Interpreter) runGOTO() error {
 		return nil
 	}
 
-	return fmt.Errorf("Failed to GOTO %s\n", target.Literal)
+	return fmt.Errorf("Failed to GOTO %s", target.Literal)
 }
 
 // runINPUT handles input of numbers from the user.
@@ -555,14 +555,14 @@ func (e *Interpreter) runINPUT() error {
 	comma := e.program[e.offset]
 	e.offset++
 	if comma.Type != token.COMMA {
-		return fmt.Errorf("ERROR: INPUT should be : INPUT \"prompt\",var\n")
+		return fmt.Errorf("ERROR: INPUT should be : INPUT \"prompt\",var")
 	}
 
 	// Now the ID
 	ident := e.program[e.offset]
 	e.offset++
 	if ident.Type != token.IDENT {
-		return fmt.Errorf("ERROR: INPUT should be : INPUT \"prompt\",var\n")
+		return fmt.Errorf("ERROR: INPUT should be : INPUT \"prompt\",var")
 	}
 
 	//
@@ -615,7 +615,7 @@ func (e *Interpreter) runIF() error {
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.THEN {
-		return fmt.Errorf("Expected THEN after IF EXPR, got %v\n", target)
+		return fmt.Errorf("Expected THEN after IF EXPR, got %v", target)
 	}
 
 	//
@@ -705,13 +705,13 @@ func (e *Interpreter) runLET() error {
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after LET, got %v\n", target)
+		return fmt.Errorf("Expected IDENT after LET, got %v", target)
 	}
 
 	// Now "="
 	assign := e.program[e.offset]
 	if assign.Type != token.ASSIGN {
-		return fmt.Errorf("Expected assignment after LET x, got %v\n", assign)
+		return fmt.Errorf("Expected assignment after LET x, got %v", assign)
 	}
 	e.offset++
 
@@ -731,7 +731,7 @@ func (e *Interpreter) runNEXT() error {
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after NEXT in FOR loop, got %v\n", target)
+		return fmt.Errorf("Expected IDENT after NEXT in FOR loop, got %v", target)
 	}
 
 	// OK we've found the tail of a loop
@@ -882,13 +882,13 @@ func (e *Interpreter) runRETURN() error {
 
 	// Stack can't be empty
 	if e.gstack.Empty() {
-		return fmt.Errorf("RETURN without GOSUB\n")
+		return fmt.Errorf("RETURN without GOSUB")
 	}
 
 	// Get the return address
 	ret, err := e.gstack.Pop()
 	if err != nil {
-		return fmt.Errorf("Error handling RETURN: %s\n", err.Error())
+		return fmt.Errorf("Error handling RETURN: %s", err.Error())
 	}
 
 	// Return execution where we left off.
@@ -960,7 +960,7 @@ func (e *Interpreter) RunOnce() error {
 	case token.IDENT:
 		_, err = e.callBuiltin(tok.Literal)
 	default:
-		err = fmt.Errorf("Token not handled: %v\n", tok)
+		err = fmt.Errorf("Token not handled: %v", tok)
 	}
 
 	//
@@ -977,7 +977,11 @@ func (e *Interpreter) RunOnce() error {
 	return nil
 }
 
-// Run launches our program!
+// Run launches the users' program, and does not return until it
+// is complete.
+//
+// A program will terminate when the control reaches the end of the
+// final-line, or when the "END" token is encountered.
 func (e *Interpreter) Run() error {
 
 	//
@@ -999,7 +1003,8 @@ func (e *Interpreter) Run() error {
 	return nil
 }
 
-// SetVariable sets a variable in the environment.
+// SetVariable sets the contents of a variable in the interpreterr environment.
+// Useful for testing/embedding.
 func (e *Interpreter) SetVariable(id string, val float64) {
 	e.vars.Set(id, val)
 }
@@ -1042,6 +1047,8 @@ func (e *Interpreter) GetVariable(id string) float64 {
 	return 1
 }
 
+// RegisterBuiltin registers a function as a built-in, so that it can
+// be called from the users' BASIC program.
 func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft BuiltinSig) {
 	e.functions.Register(name, nArgs, ft)
 }
