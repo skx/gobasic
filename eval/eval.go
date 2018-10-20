@@ -379,7 +379,7 @@ func (e *Interpreter) runForLoop() error {
 
 	step, err := strconv.Atoi(stepI)
 	if err != nil {
-		fmt.Errorf("Failed to convert %s to an int %s\n", stepI, err.Error())
+		return fmt.Errorf("Failed to convert %s to an int %s\n", stepI, err.Error())
 	}
 
 	//
