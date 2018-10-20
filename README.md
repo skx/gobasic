@@ -14,14 +14,16 @@ Currently the following primitives work:
 
 * `END`
   * Exit the program.
-* `LET`
-  * Assign an integer value to a variable.
-* `FOR` & `NEXT`
-  * Looping constructs.
 * `GOTO`
   * Jump to the given line.
 * `GOSUB` / `RETURN`
   * Used to call subroutines, via line-indexes.
+* `IF` / `THEN` / `ELSE`
+  * Conditional execution.
+* `LET`
+  * Assign an integer value to a variable.
+* `FOR` & `NEXT`
+  * Looping constructs.
 * `PRINT`
   * Print a string, an integer, or variable.
   * Multiple arguments may be separated by comma.
@@ -43,6 +45,19 @@ This is a quick hack, so there are some (important) limitations:
   * There is currently no support for floating-point numbers.
   * Strings can only be used literally, not stored in a variable.
 
+The handling of the IF statement is perhaps a little unusual, since I'm
+used to the BASIC provided by the ZX Spectrum which had no ELSE clause!
+
+The general form of the IF statement is:
+
+    IF $CONDITIONAL THEN $STATEMENT1 [ELSE $STATEMENT2]
+
+Only a single statement is permitted between "THEN" and "ELSE", and again between "ELSE" and NEWLINE.  These are valid IF statements:
+
+    IF 1 > 0 THEN PRINT "OK"
+    IF 1 > 3 THEN PRINT "SOMETHING IS BROKEN": ELSE PRINT "Weird!"
+
+In that second example you see that "`:`" was used to terminate the `PRINT` statement, which otherwise would have tried to consume all input until it hit a newline.
 
 
 ## Installation

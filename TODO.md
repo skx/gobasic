@@ -33,7 +33,7 @@ Rough plan, which might change over time.
       * FOR i=1 TO 10
       * FOR i=0 TO 10 STEP 2
       * FOR i=10 TO 0 STEP -1
-* [ ] Handle IF statements and conditionals
+* [x] Handle IF statements and conditionals
   * I'm going to decide "IF COND THEN STATEMENT [ELSE STATEMENT] FI"
 
 
@@ -64,11 +64,6 @@ That might be too horrid to imagine; I'm not sure.
 
 
 ## Missing Features
-
-Obvious missing features:
-
-* IF
-   * This requires conditionals.
 
 Storing strings in variables is doesn't let them come out again, except
 for in PRINT.

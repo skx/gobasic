@@ -63,7 +63,7 @@ const (
 	LBRACKET = "("
 	RBRACKET = ")"
 
-	// Unimplemented operators/comparitors
+	// Comparison functions.
 	GT         = ">"
 	GT_EQUALS  = ">="
 	LT         = "<"

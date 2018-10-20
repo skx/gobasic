@@ -248,9 +248,50 @@ func (e *Interpreter) expr() int {
 	return t1
 }
 
+// compare runs a comparision function (!)
 func (e *Interpreter) compare() bool {
+
+	// Get the first statement
+	t1 := e.expr()
+
+	// Get the comparison function
+	op := e.program[e.offset]
 	e.offset++
-	return true
+
+	// Get the second expression
+	t2 := e.expr()
+
+	switch op.Type {
+	case token.ASSIGN:
+		if t1 == t2 {
+			return true
+		}
+
+	case token.GT:
+		if t1 > t2 {
+			return true
+		}
+	case token.GT_EQUALS:
+		if t1 >= t2 {
+			return true
+		}
+	case token.LT:
+		if t1 < t2 {
+			return true
+		}
+
+	case token.LT_EQUALS:
+		if t1 <= t2 {
+			return true
+		}
+
+	case token.NOT_EQUALS:
+		if t1 != t2 {
+			return true
+		}
+
+	}
+	return false
 }
 
 // runForLoop handles a FOR loop
