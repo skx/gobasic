@@ -62,6 +62,8 @@ func (l *Tokenizer) NextToken() token.Token {
 	switch l.ch {
 	case rune('='):
 		tok = newToken(token.ASSIGN, l.ch)
+	case rune(':'):
+		tok = newToken(token.COLON, l.ch)
 	case rune(','):
 		tok = newToken(token.COMMA, l.ch)
 	case rune('+'):

@@ -45,6 +45,11 @@ const (
 	STEP = "STEP"
 	TO   = "TO"
 
+	// And conditionals?
+	IF   = "IF"
+	THEN = "THEN"
+	ELSE = "ELSE"
+
 	// Woo-operators
 	ASSIGN   = "=" // LET x = 3
 	ASTERISK = "*" // integer multiplication
@@ -54,6 +59,7 @@ const (
 	PLUS     = "+" // integer addition
 	SLASH    = "/" // integer division
 
+	COLON    = ":"
 	LBRACKET = "("
 	RBRACKET = ")"
 
@@ -67,16 +73,19 @@ const (
 
 // reversed keywords
 var keywords = map[string]Type{
+	"else":   ELSE,
 	"end":    END,
 	"for":    FOR,
 	"gosub":  GOSUB,
 	"goto":   GOTO,
+	"if":     IF,
 	"let":    LET,
 	"next":   NEXT,
 	"print":  PRINT,
 	"rem":    REM,
 	"return": RETURN,
 	"step":   STEP,
+	"then":   THEN,
 	"to":     TO,
 }
 

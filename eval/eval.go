@@ -248,6 +248,11 @@ func (e *Interpreter) expr() int {
 	return t1
 }
 
+func (e *Interpreter) compare() bool {
+	e.offset++
+	return true
+}
+
 // runForLoop handles a FOR loop
 func (e *Interpreter) runForLoop() error {
 	// we expect "ID = NUM to NUM [STEP NUM]"
@@ -453,6 +458,99 @@ func (e *Interpreter) runGOTO() error {
 }
 
 // runIF handles conditional testing.
+//
+// There are a lot of choices to be made when it comes to IF, such as
+// whether to support an ELSE section or not.  And what to allow
+// inside the matching section generally:
+//
+// A single statement?
+// A block?
+//
+// Here we _only_ allow:
+//
+//  IF $EXPR THEN $STATEMENT ELSE $STATEMENT NEWLINE
+//
+// $STATEMENT will only be a single expression
+//
+func (e *Interpreter) runIF() error {
+
+	// Bump past the IF token
+	e.offset++
+
+	// Handle the conditional-result
+	result := e.compare()
+
+	// We now expect THEN
+	target := e.program[e.offset]
+	e.offset++
+	if target.Type != token.THEN {
+		return fmt.Errorf("Expected THEN after IF EXPR, got %v\n", target)
+	}
+
+	//
+	// OK so if our comparison succeeded we can execute the single
+	// statement between THEN + ELSE
+	//
+	// Otherwise between ELSE + Newline
+	//
+	if result {
+
+		//
+		// Execute single statement
+		//
+		e.RunOnce()
+
+		//
+		// We get the next token, it should either be ELSE
+		// or newline.  Handle the newline first.
+		//
+		tmp := e.program[e.offset]
+		e.offset++
+		if tmp.Type == token.NEWLINE {
+			return nil
+		}
+
+		//
+		// OK then we hit else so we skip forward until we
+		// hit the newline.
+		//
+		for tmp.Type != token.NEWLINE {
+			tmp = e.program[e.offset]
+			e.offset++
+		}
+	} else {
+
+		//
+		// Here the test failed.
+		//
+		// Skip over the truthy-condition until we either
+		// hit ELSE, or the newline that will terminate our
+		// IF-statement.
+		//
+		//
+		for {
+			tmp := e.program[e.offset]
+			e.offset++
+
+			// If we hit the newline then we're done
+			if tmp.Type == token.NEWLINE {
+				return nil
+			}
+
+			// Otherwise did we hit the else?
+			if tmp.Type == token.ELSE {
+
+				// Execute the single statement
+				e.RunOnce()
+
+				// Then return.
+			}
+		}
+	}
+
+	return nil
+}
+
 // runLET handles variable creation/updating.
 func (e *Interpreter) runLET() error {
 
@@ -554,8 +652,8 @@ func (e *Interpreter) runPRINT() error {
 		// Get the token
 		tok := e.program[e.offset]
 
-		// End of the line?
-		if tok.Type == token.NEWLINE {
+		// End of the line, or statement?
+		if tok.Type == token.NEWLINE || tok.Type == token.COLON {
 			return nil
 		}
 
@@ -642,6 +740,62 @@ func (e *Interpreter) runRETURN() error {
 //
 ////
 
+// Run once executes a single statement
+func (e *Interpreter) RunOnce() error {
+
+	//
+	// Get the current token
+	//
+	tok := e.program[e.offset]
+
+	var err error
+
+	//
+	// Handle this token
+	//
+	switch tok.Type {
+	case token.NEWLINE:
+		// NOP
+	case token.LINENO:
+		// NOP
+	case token.END:
+		return nil
+	case token.FOR:
+		err = e.runForLoop()
+	case token.GOSUB:
+		err = e.runGOSUB()
+	case token.GOTO:
+		err = e.runGOTO()
+	case token.IF:
+		err = e.runIF()
+	case token.LET:
+		err = e.runLET()
+	case token.NEXT:
+		err = e.runNEXT()
+	case token.PRINT:
+		err = e.runPRINT()
+	case token.REM:
+		err = e.runREM()
+	case token.RETURN:
+		err = e.runRETURN()
+	default:
+		err = fmt.Errorf("Token not handled: %v\n", tok)
+	}
+
+	//
+	// Ready for the next instruction
+	//
+	e.offset++
+
+	//
+	// Error?
+	//
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Run launches our program!
 func (e *Interpreter) Run() error {
 
@@ -650,50 +804,12 @@ func (e *Interpreter) Run() error {
 	//
 	for e.offset < len(e.program) {
 
-		//
-		// Get the current token
-		//
-		tok := e.program[e.offset]
-
-		var err error
-
-		//
-		// Handle this token
-		//
-		switch tok.Type {
-		case token.NEWLINE:
-			// NOP
-		case token.LINENO:
-			// NOP
-		case token.END:
-			return nil
-		case token.FOR:
-			err = e.runForLoop()
-		case token.GOSUB:
-			err = e.runGOSUB()
-		case token.GOTO:
-			err = e.runGOTO()
-		case token.LET:
-			err = e.runLET()
-		case token.NEXT:
-			err = e.runNEXT()
-		case token.PRINT:
-			err = e.runPRINT()
-		case token.REM:
-			err = e.runREM()
-		case token.RETURN:
-			err = e.runRETURN()
-		default:
-			err = fmt.Errorf("Token not handled: %v\n", tok)
-		}
+		err := e.RunOnce()
 
 		if err != nil {
 			return err
 		}
-		//
-		// Handle the next statement.
-		//
-		e.offset++
+
 	}
 
 	return nil
