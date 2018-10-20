@@ -29,6 +29,7 @@ type Interpreter struct {
 	program []token.Token
 
 	// Should we finish execution?
+	// This is set by the `END` statement.
 	finished bool
 
 	// We execute from the given offset.
@@ -38,7 +39,7 @@ type Interpreter struct {
 	// one.
 	//
 	// But set it to 17, or some other random value, and you've got
-	// a GOTO implemented.
+	// a GOTO implemented!
 	offset int
 
 	// A stack for handling GOSUB/RETURN calls
@@ -47,11 +48,16 @@ type Interpreter struct {
 	// vars holds the variables set in the program, via LET.
 	vars *Variables
 
-	// STDIN is used for the INPUT statement
+	// STDIN is an input-reader used for the INPUT statement
 	STDIN *bufio.Reader
 
 	// Hack: Was the previous statement a GOTO?
 	jump bool
+
+	// lines is a lookup table - the key is the line-number of
+	// the source program, and the value is the offset in our
+	// program-array that this is located at.
+	lines map[string]int
 }
 
 // New is our constructor.
@@ -70,13 +76,39 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
 
-	// save the tokens one by one, until we hit the end.
+	//
+	// Setup a map to hold our jump-targets
+	//
+	t.lines = make(map[string]int)
+
+	//
+	// Save the tokens that our program consists of, one by one,
+	// until we hit the end.
+	//
+	// We also record the offset at which each line starts, which
+	// means that the GOTO & GOSUB statements don't need to scan
+	// the program from start to finish to find the destination
+	// to jump to.
+	//
+	offset := 0
 	for {
 		tok := stream.NextToken()
 		if tok.Type == token.EOF {
 			break
 		}
+
+		// Did we find a line-number?
+		if tok.Type == token.LINENO {
+
+			// Save the offset in the map
+			line := tok.Literal
+			t.lines[line] = offset
+		}
+
+		// Regardless append the token to our array
 		t.program = append(t.program, tok)
+
+		offset++
 	}
 
 	return t
@@ -458,24 +490,19 @@ func (e *Interpreter) runGOSUB() error {
 	e.gstack.Push(e.offset)
 
 	//
-	// Scan the whole program from the beginning.
+	// Lookup the offset of the given line-number in our program/
 	//
-	// TODO: Build a lookup-table at load-time.
+	offset := e.lines[target.Literal]
+
 	//
-	for i := 0; i < len(e.program); i++ {
-
-		// Did we find a line-number?
-		if e.program[i].Type == token.LINENO {
-
-			// Does it match?
-			if e.program[i].Literal == target.Literal {
-				e.offset = i
-				return nil
-			}
-		}
+	// If we found it then use it.
+	//
+	if offset >= 0 {
+		e.offset = offset
+		return nil
 	}
 
-	return (fmt.Errorf("Failed to GOSUB %s\n", target.Literal))
+	return fmt.Errorf("Failed to GOSUB %s\n", target.Literal)
 }
 
 // runGOTO handles a control-flow change
@@ -493,21 +520,16 @@ func (e *Interpreter) runGOTO() error {
 	}
 
 	//
-	// Scan the whole program from the beginning.
+	// Lookup the offset of the given line-number in our program/
 	//
-	// TODO: Build a lookup-table at load-time.
+	offset := e.lines[target.Literal]
+
 	//
-	for i := 0; i < len(e.program); i++ {
-
-		// Did we find a line-number?
-		if e.program[i].Type == token.LINENO {
-
-			// Does it match the target we're aiming for?
-			if e.program[i].Literal == target.Literal {
-				e.offset = i
-				return nil
-			}
-		}
+	// If we found it then use it.
+	//
+	if offset >= 0 {
+		e.offset = offset
+		return nil
 	}
 
 	return fmt.Errorf("Failed to GOTO %s\n", target.Literal)

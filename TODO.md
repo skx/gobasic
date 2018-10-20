@@ -35,6 +35,9 @@ Rough plan, which might change over time.
       * FOR i=10 TO 0 STEP -1
 * [x] Handle IF statements and conditionals
   * I'm going to decide "IF COND THEN STATEMENT [ELSE STATEMENT] FI"
+* [x] Consider the use of a function to find line-numbers
+  * Ideally we'd scan the program once, at load-time, to find line-numbers.
+  * Since we do this for both GOTO & GOSUB.
 
 
 
@@ -73,8 +76,5 @@ for in PRINT.
 
 ## Improvements
 
-* [ ] Consider the use of a function to find line-numbers
-      * Ideally we'd scan the program once, at load-time, to find line-numbers.
-         * Since we do this for both GOTO & GOSUB.
 * [ ] Allow registering functions so we can easily add CHRS$, LEFT$, ABS, RAND etc.   * Of course CHR$, LEFT$, LEN, etc, all require the use of strings.
       * Here we go again.
