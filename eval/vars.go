@@ -13,7 +13,7 @@ type Variables struct {
 	data map[string]interface{}
 }
 
-// NewVars handles a new varaible-holder.
+// NewVars handles a new variable-holder.
 func NewVars() *Variables {
 	return &Variables{lock: sync.Mutex{}, data: make(map[string]interface{})}
 }

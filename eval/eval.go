@@ -34,7 +34,7 @@ type Interpreter struct {
 
 	// We execute from the given offset.
 	//
-	// Sequential exection just means bumping this up by one each
+	// Sequential execution just means bumping this up by one each
 	// time we execute an instruction, or pick off the arguments to
 	// one.
 	//
@@ -262,7 +262,7 @@ func (e *Interpreter) expr() int {
 	return t1
 }
 
-// compare runs a comparision function (!)
+// compare runs a comparison function (!)
 func (e *Interpreter) compare() bool {
 
 	// Get the first statement
