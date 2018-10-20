@@ -264,3 +264,32 @@ func TestREM(t *testing.T) {
 		}
 	}
 }
+
+// TestIF tests an IF statement
+func TestIf(t *testing.T) {
+	input := `
+10 IF 1 < 10 THEN let a=1 ELSE PRINT "FAIL1\n"
+20 IF 1 <= 10 THEN let b=1 ELSE PRINT "FAIL2\n"
+30 IF 11 > 7 THEN let c=1 ELSE PRINT "FAIL3\n"
+40 IF 11 >= 7 THEN let d=1 ELSE PRINT "FAIL4\n"
+50 IF a = b THEN let e=1 ELSE PRINT "FAIL5\n"
+60 IF a <> b THEN PRINT "FAIL6\n": ELSE let f=1
+
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	//
+	// Get our variables - they should all be equal to one
+	//
+	vars := []string{"a", "b", "c", "d", "e", "f"}
+
+	for _, nm := range vars {
+		out := obj.GetVariable(nm)
+		if out != 1 {
+			t.Errorf("Value not expected - got %d for %s", out, nm)
+		}
+
+	}
+}
