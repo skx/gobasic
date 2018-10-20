@@ -244,9 +244,86 @@ func TAN(env Variables, args []token.Token) (float64, error) {
 	return math.Tan(i), nil
 }
 
+// ASN (arcsine)
+func ASN(env Variables, args []token.Token) (float64, error) {
+
+	var i float64
+
+	// We were given a literal int.
+	if args[0].Type == token.INT {
+		i, _ = strconv.ParseFloat(args[0].Literal, 64)
+	}
+	// We were given a variable as an argument.
+	if args[0].Type == token.IDENT {
+
+		// Get.
+		val := env.Get(args[0].Literal)
+
+		// Cast.
+		var ok bool
+		i, ok = val.(float64)
+		if !ok {
+			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
+		}
+
+	}
+
+	return math.Asin(i), nil
+}
+
+// ACS (arccosine)
+func ACS(env Variables, args []token.Token) (float64, error) {
+
+	var i float64
+
+	// We were given a literal int.
+	if args[0].Type == token.INT {
+		i, _ = strconv.ParseFloat(args[0].Literal, 64)
+	}
+	// We were given a variable as an argument.
+	if args[0].Type == token.IDENT {
+
+		// Get.
+		val := env.Get(args[0].Literal)
+
+		// Cast.
+		var ok bool
+		i, ok = val.(float64)
+		if !ok {
+			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
+		}
+
+	}
+
+	return math.Acos(i), nil
+}
+
+// ATN (arctan)
+func ATN(env Variables, args []token.Token) (float64, error) {
+
+	var i float64
+
+	// We were given a literal int.
+	if args[0].Type == token.INT {
+		i, _ = strconv.ParseFloat(args[0].Literal, 64)
+	}
+	// We were given a variable as an argument.
+	if args[0].Type == token.IDENT {
+
+		// Get.
+		val := env.Get(args[0].Literal)
+
+		// Cast.
+		var ok bool
+		i, ok = val.(float64)
+		if !ok {
+			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
+		}
+
+	}
+
+	return math.Atan(i), nil
+}
+
 // TODO: EXP x=e^x EXP
 // TODO: LN which calculates logarithms to the base e - LN
-
-// TODO: ASN (arcsine)
-// TODO: ACS (arccosine )
-// TODO: ATN (arctan)

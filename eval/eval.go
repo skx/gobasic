@@ -83,6 +83,9 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	// These are implemented in golang in the file builtins.go
 	//
 	t.functions.Register("ABS", 1, ABS)
+	t.functions.Register("ACS", 1, ACS)
+	t.functions.Register("ASN", 1, ASN)
+	t.functions.Register("ATN", 1, ATN)
 	t.functions.Register("COS", 1, COS)
 	t.functions.Register("INT", 1, INT)
 	t.functions.Register("PI", 0, PI)
