@@ -1,4 +1,6 @@
-// stack.go holds a simple stack which can hold strings.
+// stack.go holds a simple stack which can hold ints.
+//
+// (This is used solely for the GOSUB/RETURN handler.)
 
 package eval
 
