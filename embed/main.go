@@ -127,9 +127,9 @@ func main() {
 60 FOR I = 1 TO 200
 70 LET x = RND
 80 LET y = RND
-90 LET bogus = DOT x , y
+90 DOT x , y
 100 NEXT I
-110 LET bogus = SAVE
+110 SAVE
 120 PRINT "OPEN 'out.png' TO VIEW YOUR IMAGE!\n"
 `
 

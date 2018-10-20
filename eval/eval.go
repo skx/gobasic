@@ -193,29 +193,7 @@ func (e *Interpreter) factor() float64 {
 		//
 		if e.functions.Exists(tok.Literal) {
 
-			//
-			// OK the function exists.
-			//
-			// Fetch it, so we know how many arguments
-			// it should expect.
-			//
-			n, fun := e.functions.Get(tok.Literal)
-
-			//
-			// skip past the function-call itself
-			//
-			e.offset++
-
-			var args []token.Token
-			for i := 0; i < n; i++ {
-				args = append(args, e.program[e.offset])
-				e.offset++
-			}
-
-			//
-			// Call the function
-			//
-			out, err := fun(*e.vars, args)
+			out, err := e.callBuiltin(tok.Literal)
 
 			if err != nil {
 				fmt.Printf("Error calling builtin %s - %s\n", tok.Literal, err.Error())
@@ -352,6 +330,42 @@ func (e *Interpreter) compare() bool {
 		os.Exit(32)
 	}
 	return false
+}
+
+func (e *Interpreter) callBuiltin(name string) (float64, error) {
+
+	//
+	// Before we lookup the value of a variable
+	// we'll look for a built-in functin.
+	//
+	if e.functions.Exists(name) {
+
+		//
+		// OK the function exists.
+		//
+		// Fetch it, so we know how many arguments
+		// it should expect.
+		//
+		n, fun := e.functions.Get(name)
+
+		//
+		// skip past the function-call itself
+		//
+		e.offset++
+
+		var args []token.Token
+		for i := 0; i < n; i++ {
+			args = append(args, e.program[e.offset])
+			e.offset++
+		}
+
+		//
+		// Call the function
+		//
+		out, err := fun(*e.vars, args)
+		return out, err
+	}
+	return 0, nil
 }
 
 // runForLoop handles a FOR loop
@@ -821,24 +835,48 @@ func (e *Interpreter) runPRINT() error {
 			fmt.Printf(" ")
 		} else if tok.Type == token.IDENT {
 
-			// Get the contents of the variable.
-			val := e.vars.Get(tok.Literal)
+			//
+			// Before we lookup the value of a variable
+			// we'll look for a built-in functin.
+			//
+			if e.functions.Exists(tok.Literal) {
 
-			// TODO: Type - we just look for "string", then "int".
-			sVal, ok := val.(string)
-			if ok {
-				fmt.Printf("%s", sVal)
+				out, err := e.callBuiltin(tok.Literal)
+
+				if err != nil {
+					fmt.Printf("Error calling builtin %s - %s\n", tok.Literal, err.Error())
+					os.Exit(1)
+				}
+
+				// If the value is basically an
+				// int then cast it to avoid
+				// 3 looking like 3.0000
+				if out == float64(int(out)) {
+					fmt.Printf("%d", int(out))
+				} else {
+					fmt.Printf("%f", out)
+				}
 			} else {
-				iVal, ok := val.(float64)
-				if ok {
 
-					// If the value is basically an
-					// int then cast it to avoid
-					// 3 looking like 3.0000
-					if iVal == float64(int(iVal)) {
-						fmt.Printf("%d", int(iVal))
-					} else {
-						fmt.Printf("%f", iVal)
+				// Get the contents of the variable.
+				val := e.vars.Get(tok.Literal)
+
+				// TODO: Type - we just look for "string", then "int".
+				sVal, ok := val.(string)
+				if ok {
+					fmt.Printf("%s", sVal)
+				} else {
+					iVal, ok := val.(float64)
+					if ok {
+
+						// If the value is basically an
+						// int then cast it to avoid
+						// 3 looking like 3.0000
+						if iVal == float64(int(iVal)) {
+							fmt.Printf("%d", int(iVal))
+						} else {
+							fmt.Printf("%f", iVal)
+						}
 					}
 				}
 			}
@@ -964,6 +1002,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runREM()
 	case token.RETURN:
 		err = e.runRETURN()
+	case token.IDENT:
+		_, err = e.callBuiltin(tok.Literal)
 	default:
 		err = fmt.Errorf("Token not handled: %v\n", tok)
 	}

@@ -165,18 +165,6 @@ Hopefully this example shows that making your own functions available to
 BASIC scripts is pretty simple.  (This is how SIN, COS, etc are implemented
 in the standalone interpreter.)
 
-A caveat of the current implementation of the embedded functions is that
-they only work if called in an expression-context.  So this fails:
-
-   10 POKE 3,33
-
-But this succeeds:
-
-    10 LET bogus = POKE 3,33
-
-This might be fixed in the future.
-
-
 
 ## Bugs?
 
