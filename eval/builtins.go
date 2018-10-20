@@ -7,6 +7,7 @@ package eval
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 
@@ -14,19 +15,19 @@ import (
 )
 
 // ABS implements ABS
-func ABS(env Variables, args []token.Token) (int, error) {
+func ABS(env Variables, args []token.Token) (float64, error) {
 
 	// We were given a literal integer as an argument
 	if args[0].Type == token.INT {
 
 		// Conver from string.  (Yeah.)
-		i, err := strconv.Atoi(args[0].Literal)
+		i, err := strconv.ParseFloat(args[0].Literal, 64)
 		if err != nil {
 			return 0, err
 		}
 
 		if i < 0 {
-			return (-1 * i), nil
+			return (-1.0 * i), nil
 		}
 		return i, nil
 	}
@@ -38,7 +39,7 @@ func ABS(env Variables, args []token.Token) (int, error) {
 		val := env.Get(args[0].Literal)
 
 		// Cast.
-		iVal, ok := val.(int)
+		iVal, ok := val.(float64)
 		if !ok {
 			return 0, fmt.Errorf("Error casting variable '%s' to int", args[0].Literal)
 		}
@@ -54,16 +55,16 @@ func ABS(env Variables, args []token.Token) (int, error) {
 }
 
 // INT implements INT
-func INT(env Variables, args []token.Token) (int, error) {
+func INT(env Variables, args []token.Token) (float64, error) {
 
 	// Truncate the given float to an int.
 	if args[0].Type == token.INT {
-		i, err := strconv.Atoi(args[0].Literal)
+		i, err := strconv.ParseFloat(args[0].Literal, 64)
 		if err != nil {
 			return 0, err
 		}
 
-		return int(i), nil
+		return float64(int(i)), nil
 	}
 
 	// We were given a variable as an argument.
@@ -73,25 +74,25 @@ func INT(env Variables, args []token.Token) (int, error) {
 		val := env.Get(args[0].Literal)
 
 		// Cast.
-		iVal, ok := val.(int)
+		iVal, ok := val.(float64)
 		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to int", args[0].Literal)
+			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
 		}
 
-		return iVal, nil
+		return float64(int(iVal)), nil
 	}
 
 	return 0, fmt.Errorf("Invalid type in input argument: %v\n", args[0])
 }
 
 // RND implements RND
-func RND(env Variables, args []token.Token) (int, error) {
-	return rand.Intn(100), nil
+func RND(env Variables, args []token.Token) (float64, error) {
+	return float64(rand.Intn(100)), nil
 }
 
 // SGN is the sign function (sometimes called signum). It is the first function you have seen that has nothing to do with strings, because both its argument and its result are numbers. The result is +1 if the argument is positive, 0 if the argument is zero, and -1 if the argument is negative.
 // INT implements INT
-func SGN(env Variables, args []token.Token) (int, error) {
+func SGN(env Variables, args []token.Token) (float64, error) {
 
 	var i int
 
@@ -115,21 +116,22 @@ func SGN(env Variables, args []token.Token) (int, error) {
 	}
 
 	if i == 0 {
-		return 0, nil
+		return 0.0, nil
 	}
 	if i < 0 {
-		return -1, nil
+		return -1.0, nil
 	}
-	return 1, nil
+	return 1.0, nil
 }
 
-func SQR(env Variables, args []token.Token) (int, error) {
+// SQR: Square root
+func SQR(env Variables, args []token.Token) (float64, error) {
 
-	var i int
+	var i float64
 
 	// We were given a literal int.
 	if args[0].Type == token.INT {
-		i, _ = strconv.Atoi(args[0].Literal)
+		i, _ = strconv.ParseFloat(args[0].Literal, 64)
 	}
 	// We were given a variable as an argument.
 	if args[0].Type == token.IDENT {
@@ -139,24 +141,20 @@ func SQR(env Variables, args []token.Token) (int, error) {
 
 		// Cast.
 		var ok bool
-		i, ok = val.(int)
+		i, ok = val.(float64)
 		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to int", args[0].Literal)
+			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
 		}
 
 	}
 
-	i++
-	// TODO: Need floats
-	//	return math.Sqrt(i), nil
-	return 0, nil
+	return math.Sqrt(i), nil
 }
 
-func PI(env Variables, args []token.Token) (int, error) {
+// PI: Return PI
+func PI(env Variables, args []token.Token) (float64, error) {
 
-	// TODO: Need floats
-	//	return math.Pi, nil
-	return 0, nil
+	return math.Pi, nil
 }
 
 //

@@ -90,8 +90,8 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.functions.Register("SGN", 1, SGN)
 
 	// square root - need floats.
-	//t.functions.Register("SQR", 1, SQR)
-	//t.functions.Register("PI", 0, PI)
+	t.functions.Register("SQR", 1, SQR)
+	t.functions.Register("PI", 0, PI)
 
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
@@ -147,7 +147,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 ////
 
 // factor
-func (e *Interpreter) factor() int {
+func (e *Interpreter) factor() float64 {
 
 	tok := e.program[e.offset]
 	switch tok.Type {
@@ -169,12 +169,12 @@ func (e *Interpreter) factor() int {
 		// Return the result of the sub-expression
 		return (ret)
 	case token.INT:
-		i, err := strconv.Atoi(tok.Literal)
+		i, err := strconv.ParseFloat(tok.Literal, 64)
 		if err == nil {
 			e.offset++
 			return i
 		}
-		fmt.Printf("Failed to convert %s -> int %s\n", tok.Literal, err.Error())
+		fmt.Printf("Failed to convert %s -> float64 %s\n", tok.Literal, err.Error())
 		os.Exit(3)
 
 	case token.IDENT:
@@ -222,7 +222,7 @@ func (e *Interpreter) factor() int {
 		//
 		val := e.vars.Get(tok.Literal)
 
-		iVal, ok := val.(int)
+		iVal, ok := val.(float64)
 		if ok {
 			e.offset++
 			return iVal
@@ -237,7 +237,7 @@ func (e *Interpreter) factor() int {
 }
 
 // terminal
-func (e *Interpreter) term() int {
+func (e *Interpreter) term() float64 {
 
 	f1 := e.factor()
 
@@ -260,7 +260,7 @@ func (e *Interpreter) term() int {
 			f1 = f1 / f2
 		}
 		if tok.Type == token.MOD {
-			f1 = f1 % f2
+			f1 = float64(int(f1) % int(f2))
 		}
 
 		// repeat?
@@ -270,7 +270,7 @@ func (e *Interpreter) term() int {
 }
 
 // expression
-func (e *Interpreter) expr() int {
+func (e *Interpreter) expr() float64 {
 
 	t1 := e.term()
 
@@ -374,7 +374,7 @@ func (e *Interpreter) runForLoop() error {
 		return fmt.Errorf("Expected INT after 'FOR %s=', got %v\n", target.Literal, startI)
 	}
 
-	start, err := strconv.Atoi(startI.Literal)
+	start, err := strconv.ParseFloat(startI.Literal, 64)
 	if err != nil {
 		return fmt.Errorf("Failed to convert %s to an int %s\n", startI.Literal, err.Error())
 	}
@@ -393,7 +393,7 @@ func (e *Interpreter) runForLoop() error {
 		return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v\n", target.Literal, startI, endI)
 	}
 
-	end, err := strconv.Atoi(endI.Literal)
+	end, err := strconv.ParseFloat(endI.Literal, 64)
 	if err != nil {
 		return fmt.Errorf("Failed to convert %s to an int %s\n", endI.Literal, err.Error())
 	}
@@ -413,7 +413,7 @@ func (e *Interpreter) runForLoop() error {
 		stepI = s.Literal
 	}
 
-	step, err := strconv.Atoi(stepI)
+	step, err := strconv.ParseFloat(stepI, 64)
 	if err != nil {
 		return fmt.Errorf("Failed to convert %s to an int %s\n", stepI, err.Error())
 	}
@@ -440,9 +440,9 @@ func (e *Interpreter) runForLoop() error {
 	//
 	f := ForLoop{id: target.Literal,
 		offset: e.offset,
-		start:  start,
-		end:    end,
-		step:   step}
+		start:  int(start),
+		end:    int(end),
+		step:   int(step)}
 
 	//
 	// Set the variable to the starting-value
@@ -502,7 +502,7 @@ func (e *Interpreter) runGOSUB() error {
 	//
 	// If we found it then use it.
 	//
-	if offset >= 0 {
+	if offset > 0 {
 		e.offset = offset
 		return nil
 	}
@@ -532,7 +532,7 @@ func (e *Interpreter) runGOTO() error {
 	//
 	// If we found it then use it.
 	//
-	if offset >= 0 {
+	if offset > 0 {
 		e.offset = offset
 		return nil
 	}
@@ -574,7 +574,7 @@ func (e *Interpreter) runINPUT() error {
 	//
 	input, _ := e.STDIN.ReadString('\n')
 	input = strings.TrimRight(input, "\n")
-	i, err := strconv.Atoi(input)
+	i, err := strconv.ParseFloat(input, 64)
 	if err != nil {
 		return err
 	}
@@ -748,13 +748,19 @@ func (e *Interpreter) runNEXT() error {
 	// Get the variable value, and increase it.
 	//
 	cur := e.vars.Get(target.Literal)
-	iVal, _ := cur.(int)
+	iVal := 0
+
+	iVal, ok := cur.(int)
+	if !ok {
+		iVal = int(cur.(float64))
+	}
+
 	iVal += data.step
 
 	//
 	// Set it
 	//
-	e.vars.Set(target.Literal, iVal)
+	e.vars.Set(target.Literal, float64(iVal))
 
 	//
 	// Have we finnished?
@@ -815,9 +821,17 @@ func (e *Interpreter) runPRINT() error {
 			if ok {
 				fmt.Printf("%s", sVal)
 			} else {
-				iVal, ok := val.(int)
+				iVal, ok := val.(float64)
 				if ok {
-					fmt.Printf("%d", iVal)
+
+					// If the value is basically an
+					// int then cast it to avoid
+					// 3 looking like 3.0000
+					if iVal == float64(int(iVal)) {
+						fmt.Printf("%d", int(iVal))
+					} else {
+						fmt.Printf("%f", iVal)
+					}
 				}
 			}
 		} else {
@@ -831,7 +845,11 @@ func (e *Interpreter) runPRINT() error {
 			// an expression, and print the result.
 			//
 			out := e.expr()
-			fmt.Printf("%d\n", out)
+			if out == float64(int(out)) {
+				fmt.Printf("%d\n", int(out))
+			} else {
+				fmt.Printf("%f\n", out)
+			}
 		}
 		e.offset++
 	}
@@ -980,13 +998,18 @@ func (e *Interpreter) Run() error {
 
 // GetVariable returns the contents of the given variable.
 // Useful for testing/embedding.
-func (e *Interpreter) GetVariable(id string) int {
+func (e *Interpreter) GetVariable(id string) float64 {
 	n := e.vars.Get(id)
-	nVal, ok := n.(int)
+	nVal, ok := n.(float64)
 	if ok {
 		return nVal
 	}
-	fmt.Printf("Failed to cast result of GetVariable(%s) to int!\n",
+
+	nVal2, ok2 := n.(int)
+	if ok2 {
+		return (float64(nVal2))
+	}
+	fmt.Printf("Failed to cast result of GetVariable(%s) to int/float64!\n",
 		id)
 	os.Exit(1)
 

@@ -142,12 +142,11 @@ func TestMaths(t *testing.T) {
 40 LET D = 100 / 5
 50 LET E = 5 % 2
 60 LET F = ( ( 3 + 1 ) / 2 ) + ( 3 * 33 ) - 1
-70 LET G = ABS(-3)
+70 LET G = ABS -3
 80 LET H = 10 - 20
-90 LET H = ABS(H)
+90 LET H = ABS H
 95 LET H = 33
-99 LET H = ABS(H)
-100 LET I = ABS(0 - 2)
+99 LET H = ABS H
 110 LET R = RND()
 `
 
@@ -198,7 +197,7 @@ func TestFor(t *testing.T) {
 
 	out := obj.GetVariable("SUM")
 	if out != 55 {
-		t.Errorf("Value not expected - got %d", out)
+		t.Errorf("Value not expected - got %f", out)
 	}
 }
 
@@ -291,7 +290,7 @@ func TestIf(t *testing.T) {
 	for _, nm := range vars {
 		out := obj.GetVariable(nm)
 		if out != 1 {
-			t.Errorf("Value not expected - got %d for %s", out, nm)
+			t.Errorf("Value not expected - got %f for %s", out, nm)
 		}
 
 	}
