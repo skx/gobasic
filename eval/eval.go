@@ -521,7 +521,8 @@ func (e *Interpreter) runIF() error {
 	// Bump past the IF token
 	e.offset++
 
-	// Handle the conditional-result
+	// Get the result of the comparison-function
+	// against the two arguments.
 	result := e.compare()
 
 	// We now expect THEN
@@ -588,6 +589,7 @@ func (e *Interpreter) runIF() error {
 				e.RunOnce()
 
 				// Then return.
+				return nil
 			}
 		}
 	}
@@ -814,6 +816,17 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runIF()
 	case token.LET:
 		err = e.runLET()
+		//
+		// NOTE:
+		//
+		//   The LET statement bumps past itself
+		//   So we need to ensure that the increment
+		//   at the end of this case-statement doesn't
+		//   run twice and get us out of sync.
+		//
+		//   This is annoying.
+		//
+		e.offset--
 	case token.NEXT:
 		err = e.runNEXT()
 	case token.PRINT:
