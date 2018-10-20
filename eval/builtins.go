@@ -90,8 +90,7 @@ func RND(env Variables, args []token.Token) (float64, error) {
 	return float64(rand.Intn(100)), nil
 }
 
-// SGN is the sign function (sometimes called signum). It is the first function you have seen that has nothing to do with strings, because both its argument and its result are numbers. The result is +1 if the argument is positive, 0 if the argument is zero, and -1 if the argument is negative.
-// INT implements INT
+// SGN is the sign function (sometimes called signum).
 func SGN(env Variables, args []token.Token) (float64, error) {
 
 	var i int
@@ -156,12 +155,6 @@ func PI(env Variables, args []token.Token) (float64, error) {
 
 	return math.Pi, nil
 }
-
-//
-// Functions I'm missing
-//
-// TODO: Need floats.
-//
 
 // COS
 func COS(env Variables, args []token.Token) (float64, error) {
@@ -352,4 +345,29 @@ func EXP(env Variables, args []token.Token) (float64, error) {
 	return math.Exp(i), nil
 }
 
-// TODO: LN which calculates logarithms to the base e - LN
+// LN calculates logarithms to the base e - LN
+func LN(env Variables, args []token.Token) (float64, error) {
+
+	var i float64
+
+	// We were given a literal int.
+	if args[0].Type == token.INT {
+		i, _ = strconv.ParseFloat(args[0].Literal, 64)
+	}
+	// We were given a variable as an argument.
+	if args[0].Type == token.IDENT {
+
+		// Get.
+		val := env.Get(args[0].Literal)
+
+		// Cast.
+		var ok bool
+		i, ok = val.(float64)
+		if !ok {
+			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
+		}
+
+	}
+
+	return math.Log(i), nil
+}
