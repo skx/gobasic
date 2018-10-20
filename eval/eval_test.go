@@ -29,6 +29,26 @@ func TestLet(t *testing.T) {
 	}
 }
 
+// TestBogusLet tests error-handling in LET
+func TestBogusLet(t *testing.T) {
+
+	txt := []string{"10 LET 3\n",
+		"10 LET a _ 3\n"}
+
+	for _, prg := range txt {
+
+		obj := Compile(prg)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("Expected to receive an error in the program - but didn't")
+		}
+		if !strings.Contains(err.Error(), "LET") {
+			t.Errorf("Received error, but the wrong thing?")
+		}
+	}
+}
+
 // TestGoSub ensures a value is set.  It is naive.
 func TestGoSub(t *testing.T) {
 	input := `
@@ -52,7 +72,8 @@ func TestGoSub(t *testing.T) {
 func TestBogusGoSub(t *testing.T) {
 
 	txt := []string{"10 GOSUB A\n",
-		"10 GOSUB 1000\n"}
+		"10 GOSUB 1000\n",
+		"10 RETURN\n"}
 
 	for _, prg := range txt {
 
@@ -191,6 +212,7 @@ func TestBogusFor(t *testing.T) {
 		"10 FOR I=1 TO\n",
 		"10 FOR I=1 TO N\n",
 		"10 FOR I=1 TO 10 STEP STEP\n",
+		"10 FOR I=1 TO 20\n20NEXT 3\n",
 	}
 
 	for _, prg := range txt {

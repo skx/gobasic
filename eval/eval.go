@@ -631,7 +631,7 @@ func (e *Interpreter) runNEXT() error {
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after NEXT, got %v\n", target)
+		return fmt.Errorf("Expected IDENT after NEXT in FOR loop, got %v\n", target)
 	}
 
 	// OK we've found the tail of a loop
