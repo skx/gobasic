@@ -14,6 +14,6 @@
 
 
 500 PRINT "Backwards\n"
-110 FOR I = 10 to 0 STEP -1
-120 PRINT "",I,"\n"
-130 NEXT I
+510 FOR I = 10 to 0 STEP -1
+520 PRINT "",I,"\n"
+530 NEXT I

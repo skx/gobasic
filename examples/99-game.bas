@@ -22,4 +22,4 @@
 
 2000 PRINT "You guessed my number!\n"
 2010 PRINT "You took", count, "attepts\n"
-2010 END
+2020 END

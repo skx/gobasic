@@ -102,6 +102,12 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 
 			// Save the offset in the map
 			line := tok.Literal
+
+			// Already an offset?  That means we
+			// have duplicate line-numbers
+			if t.lines[line] != 0 {
+				fmt.Printf("WARN: Line %s is duplicated - GOTO/GOSUB behaviour is undefined\n", line)
+			}
 			t.lines[line] = offset
 		}
 
