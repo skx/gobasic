@@ -20,6 +20,8 @@ Currently the following primitives work:
   * Used to call subroutines, via line-indexes.
 * `IF` / `THEN` / `ELSE`
   * Conditional execution.
+* `INPUT`
+  * Allow reading (numeric) input from the user.
 * `LET`
   * Assign an integer value to a variable.
 * `FOR` & `NEXT`
@@ -40,7 +42,8 @@ This is a quick hack, so there are some (important) limitations:
 
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
-  * I expect to allow assignment, prints, loops, and the use of GOSUB/GOTO/RETURN for control-flow.
+  * I allow assignment, prints, loops, and the use of GOSUB/GOTO/RETURN for control-flow.
+  * All string operations are missing, as are all the math-related operations such as SIN(), COS(), etc.
 * Only integer and string values are parsed.
   * There is currently no support for floating-point numbers.
   * Strings can only be used literally, not stored in a variable.
@@ -122,6 +125,10 @@ As there is no AST step errors cannot be detected prior to the execution of prog
 ## Sample Code
 
 There are a small number of sample-programs located beneath [examples/](examples/).   These were written in an adhoc fashion to test various parts of the implementation.
+
+Perhaps the best demonstration of the code is the "guessing game" program:
+
+* [examples/99-game.bas](examples/99-game.bas)
 
 
 
