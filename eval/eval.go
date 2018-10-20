@@ -83,15 +83,18 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	// These are implemented in golang in the file builtins.go
 	//
 	t.functions.Register("ABS", 1, ABS)
+	t.functions.Register("COS", 1, COS)
 	t.functions.Register("INT", 1, INT)
+	t.functions.Register("PI", 0, PI)
 	t.functions.Register("RND", 0, RND)
+	t.functions.Register("SIN", 1, SIN)
+	t.functions.Register("TAN", 1, TAN)
 
 	// Sign extend
 	t.functions.Register("SGN", 1, SGN)
 
-	// square root - need floats.
+	// square root
 	t.functions.Register("SQR", 1, SQR)
-	t.functions.Register("PI", 0, PI)
 
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
