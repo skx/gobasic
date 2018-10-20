@@ -857,7 +857,7 @@ func (e *Interpreter) runRETURN() error {
 //
 ////
 
-// Run once executes a single statement
+// RunOnce executes a single statement.
 func (e *Interpreter) RunOnce() error {
 
 	//
