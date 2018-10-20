@@ -248,60 +248,6 @@ func (e *Interpreter) expr() int {
 	return t1
 }
 
-////
-//
-// Statement-handlers
-//
-////
-
-// runGOSUB handles a control-flow change
-func (e *Interpreter) runGOSUB() error {
-
-	// Skip the GOSUB-instruction itself
-	e.offset++
-
-	// Get the target
-	target := e.program[e.offset]
-
-	// We expect the next token to be an int
-	// If we had variables ..
-	if target.Type != token.INT {
-		return (fmt.Errorf("ERROR: GOSUB should be followed by an integer\n"))
-	}
-
-	//
-	// We want to store the return address on our GOSUB-stack,
-	// so that the next RETURN will continue execution at the
-	// next instruction.
-	//
-	// Because we only support one statement per-line we can
-	// handle that by bumping forward.  That should put us on the
-	// LINENO of the following-line.
-	//
-	e.offset++
-	e.gstack.Push(e.offset)
-
-	//
-	// Scan the whole program from the beginning.
-	//
-	// TODO: Build a lookup-table at load-time.
-	//
-	for i := 0; i < len(e.program); i++ {
-
-		// Did we find a line-number?
-		if e.program[i].Type == token.LINENO {
-
-			// Does it match?
-			if e.program[i].Literal == target.Literal {
-				e.offset = i
-				return nil
-			}
-		}
-	}
-
-	return (fmt.Errorf("Failed to GOSUB %s\n", target.Literal))
-}
-
 // runForLoop handles a FOR loop
 func (e *Interpreter) runForLoop() error {
 	// we expect "ID = NUM to NUM [STEP NUM]"
@@ -417,6 +363,60 @@ func (e *Interpreter) runForLoop() error {
 	return nil
 }
 
+////
+//
+// Statement-handlers
+//
+////
+
+// runGOSUB handles a control-flow change
+func (e *Interpreter) runGOSUB() error {
+
+	// Skip the GOSUB-instruction itself
+	e.offset++
+
+	// Get the target
+	target := e.program[e.offset]
+
+	// We expect the next token to be an int
+	// If we had variables ..
+	if target.Type != token.INT {
+		return (fmt.Errorf("ERROR: GOSUB should be followed by an integer\n"))
+	}
+
+	//
+	// We want to store the return address on our GOSUB-stack,
+	// so that the next RETURN will continue execution at the
+	// next instruction.
+	//
+	// Because we only support one statement per-line we can
+	// handle that by bumping forward.  That should put us on the
+	// LINENO of the following-line.
+	//
+	e.offset++
+	e.gstack.Push(e.offset)
+
+	//
+	// Scan the whole program from the beginning.
+	//
+	// TODO: Build a lookup-table at load-time.
+	//
+	for i := 0; i < len(e.program); i++ {
+
+		// Did we find a line-number?
+		if e.program[i].Type == token.LINENO {
+
+			// Does it match?
+			if e.program[i].Literal == target.Literal {
+				e.offset = i
+				return nil
+			}
+		}
+	}
+
+	return (fmt.Errorf("Failed to GOSUB %s\n", target.Literal))
+}
+
 // runGOTO handles a control-flow change
 func (e *Interpreter) runGOTO() error {
 
@@ -450,6 +450,34 @@ func (e *Interpreter) runGOTO() error {
 	}
 
 	return fmt.Errorf("Failed to GOTO %s\n", target.Literal)
+}
+
+// runIF handles conditional testing.
+// runLET handles variable creation/updating.
+func (e *Interpreter) runLET() error {
+
+	// Bump past the LET token
+	e.offset++
+
+	// We now expect an ID
+	target := e.program[e.offset]
+	e.offset++
+	if target.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after LET, got %v\n", target)
+	}
+
+	// Now "="
+	assign := e.program[e.offset]
+	if assign.Type != token.ASSIGN {
+		return fmt.Errorf("Expected assignment after LET x, got %v\n", assign)
+	}
+	e.offset++
+
+	// now we're at the expression/value/whatever
+	res := e.expr()
+
+	e.vars.Set(target.Literal, res)
+	return nil
 }
 
 // runNEXT handles the NEXT statement
@@ -511,33 +539,6 @@ func (e *Interpreter) runNEXT() error {
 	// Otherwise loop again
 	//
 	e.offset = data.offset
-	return nil
-}
-
-// runLET handles variable creation/updating.
-func (e *Interpreter) runLET() error {
-
-	// Bump past the LET token
-	e.offset++
-
-	// We now expect an ID
-	target := e.program[e.offset]
-	e.offset++
-	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after LET, got %v\n", target)
-	}
-
-	// Now "="
-	assign := e.program[e.offset]
-	if assign.Type != token.ASSIGN {
-		return fmt.Errorf("Expected assignment after LET x, got %v\n", assign)
-	}
-	e.offset++
-
-	// now we're at the expression/value/whatever
-	res := e.expr()
-
-	e.vars.Set(target.Literal, res)
 	return nil
 }
 
