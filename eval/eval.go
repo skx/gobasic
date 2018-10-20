@@ -13,7 +13,6 @@ package eval
 import (
 	"bufio"
 	"fmt"
-	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -58,6 +57,9 @@ type Interpreter struct {
 	// the source program, and the value is the offset in our
 	// program-array that this is located at.
 	lines map[string]int
+
+	// functions holds builtin-functions
+	functions *Builtins
 }
 
 // New is our constructor.
@@ -72,6 +74,24 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 
 	// setup storage for variable-contents
 	t.vars = NewVars()
+
+	// Built-in functions are stored here.
+	t.functions = NewBuiltins()
+
+	// Add in our builtins.
+	//
+	// These are implemented in golang in the file builtins.go
+	//
+	t.functions.Register("ABS", 1, ABS)
+	t.functions.Register("INT", 1, INT)
+	t.functions.Register("RND", 0, RND)
+
+	// Sign extend
+	t.functions.Register("SGN", 1, SGN)
+
+	// square root - need floats.
+	//t.functions.Register("SQR", 1, SQR)
+	//t.functions.Register("PI", 0, PI)
 
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
@@ -160,67 +180,46 @@ func (e *Interpreter) factor() int {
 	case token.IDENT:
 
 		//
-		// This is a kinda place-holder for handling
-		// literals that are function-calls.
+		// Before we lookup the value of a variable
+		// we'll look for a built-in functin.
 		//
-		// We don't really have any at the moment, but I've
-		// implemented "RND()" and "ABS(XX)/ABS(NN)" as a
-		// quick proof of concept.
-		//
-		// TODO:
-		//  Rethink this whole approach.  It is misguided at
-		// best, and broken at worst.
-		//
-		if tok.Literal == "RND" {
-			// skip past RND
+		if e.functions.Exists(tok.Literal) {
+
+			//
+			// OK the function exists.
+			//
+			// Fetch it, so we know how many arguments
+			// it should expect.
+			//
+			n, fun := e.functions.Get(tok.Literal)
+
+			//
+			// skip past the function-call itself
+			//
 			e.offset++
 
-			// skip past (
-			e.offset++
-
-			// skip past the )
-			e.offset++
-
-			// 0-99, inclusive.
-			return rand.Intn(100)
-		}
-		if tok.Literal == "ABS" {
-
-			// skip past ABS
-			e.offset++
-
-			// skip past (
-			e.offset++
-
-			// get the variable
-			val := e.program[e.offset]
-			e.offset++
-
-			// ObReminder: We could just use expr() ..
-
-			// skip past the )
-			e.offset++
-
-			// Run ABS
-			if val.Type == token.INT {
-				num, _ := strconv.Atoi(val.Literal)
-				if num < 0 {
-					return -1 * num
-				}
-				return num
+			var args []token.Token
+			for i := 0; i < n; i++ {
+				args = append(args, e.program[e.offset])
+				e.offset++
 			}
-			if val.Type == token.IDENT {
-				n := e.vars.Get(val.Literal)
-				nVal, ok := n.(int)
-				if ok {
-					if nVal < 0 {
-						return -1 * nVal
-					}
-					return nVal
-				}
+
+			//
+			// Call the function
+			//
+			out, err := fun(*e.vars, args)
+
+			if err != nil {
+				fmt.Printf("Error calling builtin %s - %s\n", tok.Literal, err.Error())
+				os.Exit(1)
 			}
+
+			return out
 		}
+
+		//
 		// Get the contents of the variable.
+		//
 		val := e.vars.Get(tok.Literal)
 
 		iVal, ok := val.(int)
