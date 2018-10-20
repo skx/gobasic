@@ -269,12 +269,22 @@ func TestREM(t *testing.T) {
 func TestIf(t *testing.T) {
 	input := `
 10 IF 1 < 10 THEN let a=1 ELSE PRINT "FAIL1\n"
+15 PRINT "IF1\n"
 20 IF 1 <= 10 THEN let b=1 ELSE PRINT "FAIL2\n"
+25 PRINT "IF2\n"
 30 IF 11 > 7 THEN let c=1 ELSE PRINT "FAIL3\n"
+35 PRINT "IF3\n"
 40 IF 11 >= 7 THEN let d=1 ELSE PRINT "FAIL4\n"
+45 PRINT "IF4\n"
 50 IF a = b THEN let e=1 ELSE PRINT "FAIL5\n"
-60 IF a <> b THEN PRINT "FAIL6\n": ELSE let f=1
-
+55 PRINT "IF5\n"
+60 IF a = 8 THEN let e=0 ELSE PRINT "FAIL6\n"
+65 PRINT "IF6\n"
+70 IF a <> b THEN PRINT "FAIL7\n": ELSE let f=1
+75 PRINT "IF7\n"
+80 IF a <> b THEN PRINT "FAIL8\n": ELSE let g=1
+85 PRINT "IF8\n"
+90 LET X=1
 `
 
 	obj := Compile(input)
@@ -283,7 +293,7 @@ func TestIf(t *testing.T) {
 	//
 	// Get our variables - they should all be equal to one
 	//
-	vars := []string{"a", "b", "c", "d", "e", "f"}
+	vars := []string{"a", "b", "c", "d", "e", "f", "g", "X"}
 
 	for _, nm := range vars {
 		out := obj.GetVariable(nm)
