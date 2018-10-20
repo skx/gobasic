@@ -188,33 +188,11 @@ func (e *Interpreter) factor() float64 {
 	case token.IDENT:
 
 		//
-		// Before we lookup the value of a variable
-		// we'll look for a built-in functin.
-		//
-		if e.functions.Exists(tok.Literal) {
-
-			out, err := e.callBuiltin(tok.Literal)
-
-			if err != nil {
-				fmt.Printf("Error calling builtin %s - %s\n", tok.Literal, err.Error())
-				os.Exit(1)
-			}
-
-			return out
-		}
-
-		//
 		// Get the contents of the variable.
 		//
-		val := e.vars.Get(tok.Literal)
-
-		iVal, ok := val.(float64)
-		if ok {
-			e.offset++
-			return iVal
-		}
-		fmt.Printf("GET(%s) wasn't an int!\n", tok.Literal)
-		os.Exit(3)
+		val := e.GetVariable(tok.Literal)
+		e.offset++
+		return val
 	}
 
 	fmt.Printf("factor() - unhandled token: %v\n", tok)
@@ -332,6 +310,7 @@ func (e *Interpreter) compare() bool {
 	return false
 }
 
+// Call the built-in with the given name if we can.
 func (e *Interpreter) callBuiltin(name string) (float64, error) {
 
 	//
@@ -362,7 +341,7 @@ func (e *Interpreter) callBuiltin(name string) (float64, error) {
 		//
 		// Call the function
 		//
-		out, err := fun(*e.vars, args)
+		out, err := fun(*e, args)
 		return out, err
 	}
 	return 0, nil
@@ -835,48 +814,24 @@ func (e *Interpreter) runPRINT() error {
 			fmt.Printf(" ")
 		} else if tok.Type == token.IDENT {
 
-			//
-			// Before we lookup the value of a variable
-			// we'll look for a built-in functin.
-			//
-			if e.functions.Exists(tok.Literal) {
+			// Get the contents of the variable.
+			val := e.vars.Get(tok.Literal)
 
-				out, err := e.callBuiltin(tok.Literal)
-
-				if err != nil {
-					fmt.Printf("Error calling builtin %s - %s\n", tok.Literal, err.Error())
-					os.Exit(1)
-				}
-
-				// If the value is basically an
-				// int then cast it to avoid
-				// 3 looking like 3.0000
-				if out == float64(int(out)) {
-					fmt.Printf("%d", int(out))
-				} else {
-					fmt.Printf("%f", out)
-				}
+			// TODO: Types
+			sVal, ok := val.(string)
+			if ok {
+				fmt.Printf("%s", sVal)
 			} else {
-
-				// Get the contents of the variable.
-				val := e.vars.Get(tok.Literal)
-
-				// TODO: Type - we just look for "string", then "int".
-				sVal, ok := val.(string)
+				iVal, ok := val.(float64)
 				if ok {
-					fmt.Printf("%s", sVal)
-				} else {
-					iVal, ok := val.(float64)
-					if ok {
 
-						// If the value is basically an
-						// int then cast it to avoid
-						// 3 looking like 3.0000
-						if iVal == float64(int(iVal)) {
-							fmt.Printf("%d", int(iVal))
-						} else {
-							fmt.Printf("%f", iVal)
-						}
+					// If the value is basically an
+					// int then cast it to avoid
+					// 3 looking like 3.0000
+					if iVal == float64(int(iVal)) {
+						fmt.Printf("%d", int(iVal))
+					} else {
+						fmt.Printf("%f", iVal)
 					}
 				}
 			}
@@ -1052,6 +1007,23 @@ func (e *Interpreter) SetVariable(id string, val float64) {
 // GetVariable returns the contents of the given variable.
 // Useful for testing/embedding.
 func (e *Interpreter) GetVariable(id string) float64 {
+
+	//
+	// Before we lookup the value of a variable
+	// we'll look for a built-in functin.
+	//
+	if e.functions.Exists(id) {
+
+		out, err := e.callBuiltin(id)
+
+		if err != nil {
+			fmt.Printf("Error calling builtin %s - %s\n",
+				id, err.Error())
+			os.Exit(1)
+		}
+		return out
+	}
+
 	n := e.vars.Get(id)
 	nVal, ok := n.(float64)
 	if ok {

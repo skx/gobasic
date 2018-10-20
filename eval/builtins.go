@@ -15,7 +15,7 @@ import (
 )
 
 // ABS implements ABS
-func ABS(env Variables, args []token.Token) (float64, error) {
+func ABS(env Interpreter, args []token.Token) (float64, error) {
 
 	// We were given a literal integer as an argument
 	if args[0].Type == token.INT {
@@ -36,13 +36,7 @@ func ABS(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		iVal, ok := val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to int", args[0].Literal)
-		}
+		iVal := env.GetVariable(args[0].Literal)
 
 		// <0 ?
 		if iVal < 0 {
@@ -55,7 +49,7 @@ func ABS(env Variables, args []token.Token) (float64, error) {
 }
 
 // INT implements INT
-func INT(env Variables, args []token.Token) (float64, error) {
+func INT(env Interpreter, args []token.Token) (float64, error) {
 
 	// Truncate the given float to an int.
 	if args[0].Type == token.INT {
@@ -71,27 +65,20 @@ func INT(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		iVal, ok := val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
-
-		return float64(int(iVal)), nil
+		val := env.GetVariable(args[0].Literal)
+		return float64(int(val)), nil
 	}
 
 	return 0, fmt.Errorf("Invalid type in input argument: %v\n", args[0])
 }
 
 // RND implements RND
-func RND(env Variables, args []token.Token) (float64, error) {
+func RND(env Interpreter, args []token.Token) (float64, error) {
 	return float64(rand.Intn(100)), nil
 }
 
 // SGN is the sign function (sometimes called signum).
-func SGN(env Variables, args []token.Token) (float64, error) {
+func SGN(env Interpreter, args []token.Token) (float64, error) {
 
 	var i int
 
@@ -103,14 +90,8 @@ func SGN(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(int)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to int", args[0].Literal)
-		}
+		val := env.GetVariable(args[0].Literal)
+		i = int(val)
 
 	}
 
@@ -124,7 +105,7 @@ func SGN(env Variables, args []token.Token) (float64, error) {
 }
 
 // SQR: Square root
-func SQR(env Variables, args []token.Token) (float64, error) {
+func SQR(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -136,28 +117,20 @@ func SQR(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
-
+		i = env.GetVariable(args[0].Literal)
 	}
 
 	return math.Sqrt(i), nil
 }
 
 // PI: Return PI
-func PI(env Variables, args []token.Token) (float64, error) {
+func PI(env Interpreter, args []token.Token) (float64, error) {
 
 	return math.Pi, nil
 }
 
 // COS
-func COS(env Variables, args []token.Token) (float64, error) {
+func COS(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -167,16 +140,8 @@ func COS(env Variables, args []token.Token) (float64, error) {
 	}
 	// We were given a variable as an argument.
 	if args[0].Type == token.IDENT {
-
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
+		i = env.GetVariable(args[0].Literal)
 
 	}
 
@@ -184,7 +149,7 @@ func COS(env Variables, args []token.Token) (float64, error) {
 }
 
 // SIN.
-func SIN(env Variables, args []token.Token) (float64, error) {
+func SIN(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -196,14 +161,7 @@ func SIN(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
+		i = env.GetVariable(args[0].Literal)
 
 	}
 
@@ -211,7 +169,7 @@ func SIN(env Variables, args []token.Token) (float64, error) {
 }
 
 // TAN.
-func TAN(env Variables, args []token.Token) (float64, error) {
+func TAN(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -221,24 +179,15 @@ func TAN(env Variables, args []token.Token) (float64, error) {
 	}
 	// We were given a variable as an argument.
 	if args[0].Type == token.IDENT {
-
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
-
+		i = env.GetVariable(args[0].Literal)
 	}
 
 	return math.Tan(i), nil
 }
 
 // ASN (arcsine)
-func ASN(env Variables, args []token.Token) (float64, error) {
+func ASN(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -250,22 +199,14 @@ func ASN(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
-
+		i = env.GetVariable(args[0].Literal)
 	}
 
 	return math.Asin(i), nil
 }
 
 // ACS (arccosine)
-func ACS(env Variables, args []token.Token) (float64, error) {
+func ACS(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -277,14 +218,7 @@ func ACS(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
+		i = env.GetVariable(args[0].Literal)
 
 	}
 
@@ -292,7 +226,7 @@ func ACS(env Variables, args []token.Token) (float64, error) {
 }
 
 // ATN (arctan)
-func ATN(env Variables, args []token.Token) (float64, error) {
+func ATN(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -304,22 +238,14 @@ func ATN(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
-
+		i = env.GetVariable(args[0].Literal)
 	}
 
 	return math.Atan(i), nil
 }
 
 // EXP x=e^x EXP
-func EXP(env Variables, args []token.Token) (float64, error) {
+func EXP(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -331,22 +257,14 @@ func EXP(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
-
+		i = env.GetVariable(args[0].Literal)
 	}
 
 	return math.Exp(i), nil
 }
 
 // LN calculates logarithms to the base e - LN
-func LN(env Variables, args []token.Token) (float64, error) {
+func LN(env Interpreter, args []token.Token) (float64, error) {
 
 	var i float64
 
@@ -358,14 +276,7 @@ func LN(env Variables, args []token.Token) (float64, error) {
 	if args[0].Type == token.IDENT {
 
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		var ok bool
-		i, ok = val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
+		i = env.GetVariable(args[0].Literal)
 
 	}
 

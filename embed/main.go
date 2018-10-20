@@ -19,11 +19,11 @@ import (
 // Image
 var img *image.RGBA
 
-func peekFunction(env eval.Variables, args []token.Token) (float64, error) {
+func peekFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 	fmt.Printf("PEEK called with %v\n", args[0])
 	return 0, nil
 }
-func pokeFunction(env eval.Variables, args []token.Token) (float64, error) {
+func pokeFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 	fmt.Printf("POKE called.\n")
 	for i, e := range args {
 		fmt.Printf(" Arg %d -> %v\n", i, e)
@@ -32,7 +32,7 @@ func pokeFunction(env eval.Variables, args []token.Token) (float64, error) {
 }
 
 // Draw a DOT at a given X,Y coordinate
-func dotFunction(env eval.Variables, args []token.Token) (float64, error) {
+func dotFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 
 	x := 0
 	y := 0
@@ -49,15 +49,7 @@ func dotFunction(env eval.Variables, args []token.Token) (float64, error) {
 	}
 	if args[0].Type == token.IDENT {
 		// Get.
-		val := env.Get(args[0].Literal)
-
-		// Cast.
-		iVal, ok := val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64: %v", args[0].Literal, args[0])
-		}
-
-		x = int(iVal)
+		x = int(env.GetVariable(args[2].Literal))
 	}
 
 	// y
@@ -71,15 +63,7 @@ func dotFunction(env eval.Variables, args []token.Token) (float64, error) {
 	}
 	if args[2].Type == token.IDENT {
 		// Get.
-		val := env.Get(args[2].Literal)
-
-		// Cast.
-		iVal, ok := val.(float64)
-		if !ok {
-			return 0, fmt.Errorf("Error casting variable '%s' to float64", args[0].Literal)
-		}
-
-		y = int(iVal)
+		y = int(env.GetVariable(args[2].Literal))
 	}
 
 	// If we have no image, create it.
@@ -96,7 +80,7 @@ func dotFunction(env eval.Variables, args []token.Token) (float64, error) {
 }
 
 // Save an image with the given name
-func saveFunction(env eval.Variables, args []token.Token) (float64, error) {
+func saveFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 
 	// Save to out.png
 	f, _ := os.OpenFile("out.png", os.O_WRONLY|os.O_CREATE, 0600)
@@ -119,18 +103,16 @@ func main() {
 	// This is the program we're going to execute
 	//
 	prog := `
-10 PRINT "HELLO, I AM EMBEDDED BASIC\n"
-20 LET S = S + PI
-30 LET R = POKE 23659 , 0
-40 LET n = PEEK 30
-50 PRINT "I'M NOW CREATING AN IMAGE!!!!\n"
-60 FOR I = 1 TO 200
-70 LET x = RND
-80 LET y = RND
-90 DOT x , y
-100 NEXT I
-110 SAVE
-120 PRINT "OPEN 'out.png' TO VIEW YOUR IMAGE!\n"
+ 10 PRINT "HELLO, I AM EMBEDDED BASIC\n"
+ 20 LET S = S + PI
+ 30 LET R = POKE 23659 , 0
+ 40 LET n = PEEK 30
+ 50 PRINT "I'M NOW CREATING AN IMAGE!!!!\n"
+ 60 FOR I = 1 TO 200
+ 70 DOT RND, RND
+ 80 NEXT I
+ 90 SAVE
+100 PRINT "OPEN 'out.png' TO VIEW YOUR IMAGE!\n"
 `
 
 	//
