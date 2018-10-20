@@ -144,18 +144,26 @@ Perhaps the best demonstration of the code is the "guessing game" program:
 ## Embedding
 
 The interpreter is designed to be easy to embed into your application(s)
-if you're crazy enough to want to do that!  You can see an example
-in the file [embed/main.go](embed/main.go).
+if you're crazy enough to want to do that!
 
-The embed function uses the registration facility to declare the new
-built-in functions "PEEK" and "POKE".  This means that a BASIC script
-could read:
+You can see an example in the file [embed/main.go](embed/main.go).
 
-    10 LET r = PEEK 30
-    20 PRINT "The contents of address 30 are ", r, "\n"
+The example defines four new functions:
 
-Making your own functions available to BASIC scripts is pretty simple, and
-this is how SIN, COS, etc are implemented in the complete interpreter.
+* `PEEK`
+* `POKE`
+* `DOT`
+* `SAVE`
+
+When the script runs it does some basic variable manipulation and it also
+creates a PNG file - the `DOT` function allows your script to create a black
+image, and draw red dots on it.  The `SAVE` function writes out the result.
+
+Extending this example to draw circles, boxes, etc, is left as an exercise ;)
+
+Hopefully this example shows that making your own functions available to
+BASIC scripts is pretty simple.  (This is how SIN, COS, etc are implemented
+in the standalone interpreter.)
 
 A caveat of the current implementation of the embedded functions is that
 they only work if called in an expression-context.  So this fails:
@@ -164,7 +172,7 @@ they only work if called in an expression-context.  So this fails:
 
 But this succeeds:
 
-    10 LET x = POKE 3,33
+    10 LET bogus = POKE 3,33
 
 This might be fixed in the future.
 
