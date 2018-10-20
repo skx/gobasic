@@ -23,11 +23,11 @@ support:
 
   https://en.wikipedia.org/wiki/BASIC#Syntax
 
-This example only really needs the "IF" test to be implemented, along
-with the INPUT-support:
+This example "only" really needs the "INPUT" test to be implemented:
 
-  http://www.worldofspectrum.org/ZXBasicManual/zxmanchap3.html
+   http://www.worldofspectrum.org/ZXBasicManual/zxmanchap3.html
 
+Alth
 
 ## Easter Eggs
 

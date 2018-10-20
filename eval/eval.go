@@ -12,10 +12,12 @@
 package eval
 
 import (
+	"bufio"
 	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/skx/gobasic/token"
 	"github.com/skx/gobasic/tokenizer"
@@ -45,6 +47,12 @@ type Interpreter struct {
 
 	// vars holds the variables set in the program, via LET.
 	vars *Variables
+
+	// STDIN is used for the INPUT statement
+	STDIN *bufio.Reader
+
+	// Hack: Was the previous statement a GOTO?
+	jump bool
 }
 
 // New is our constructor.
@@ -59,6 +67,9 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 
 	// setup storage for variable-contents
 	t.vars = NewVars()
+
+	// allow reading from STDIN
+	t.STDIN = bufio.NewReader(os.Stdin)
 
 	// save the tokens one by one, until we hit the end.
 	for {
@@ -292,7 +303,9 @@ func (e *Interpreter) compare() bool {
 		if t1 != t2 {
 			return true
 		}
-
+	default:
+		fmt.Printf("Unknown comparison: %v\n", op)
+		os.Exit(32)
 	}
 	return false
 }
@@ -501,6 +514,52 @@ func (e *Interpreter) runGOTO() error {
 	return fmt.Errorf("Failed to GOTO %s\n", target.Literal)
 }
 
+// runINPUT handles input of numbers from the user.
+func (e *Interpreter) runINPUT() error {
+
+	// Skip the INPUT-instruction
+	e.offset++
+
+	// Get the prompt
+	prompt := e.program[e.offset]
+	e.offset++
+
+	// We expect a comma
+	comma := e.program[e.offset]
+	e.offset++
+	if comma.Type != token.COMMA {
+		return fmt.Errorf("ERROR: INPUT should be : INPUT \"prompt\",var\n")
+	}
+
+	// Now the ID
+	ident := e.program[e.offset]
+	e.offset++
+	if ident.Type != token.IDENT {
+		return fmt.Errorf("ERROR: INPUT should be : INPUT \"prompt\",var\n")
+	}
+
+	//
+	// Print the prompt
+	//
+	fmt.Printf(prompt.Literal)
+
+	//
+	// Read the input
+	//
+	input, _ := e.STDIN.ReadString('\n')
+	input = strings.TrimRight(input, "\n")
+	i, err := strconv.Atoi(input)
+	if err != nil {
+		return err
+	}
+
+	//
+	// Set the value
+	//
+	e.vars.Set(ident.Literal, i)
+	return nil
+}
+
 // runIF handles conditional testing.
 //
 // There are a lot of choices to be made when it comes to IF, such as
@@ -544,6 +603,18 @@ func (e *Interpreter) runIF() error {
 		// Execute single statement
 		//
 		e.RunOnce()
+
+		//
+		// If the user made a jump then we'll
+		// abort here, because if the single-statement modified our
+		// flow control we're screwed.
+		//
+		// (Because we'll start searching from the NEW location.)
+		//
+		//
+		if e.jump {
+			return nil
+		}
 
 		//
 		// We get the next token, it should either be ELSE
@@ -795,6 +866,8 @@ func (e *Interpreter) RunOnce() error {
 	tok := e.program[e.offset]
 	var err error
 
+	e.jump = false
+
 	//
 	// Handle this token
 	//
@@ -812,8 +885,12 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runGOSUB()
 	case token.GOTO:
 		err = e.runGOTO()
+		e.jump = true
+	case token.INPUT:
+		err = e.runINPUT()
 	case token.IF:
 		err = e.runIF()
+		e.offset--
 	case token.LET:
 		err = e.runLET()
 		//

@@ -34,6 +34,7 @@ const (
 	END    = "END"
 	GOSUB  = "GOSUB"
 	GOTO   = "GOTO"
+	INPUT  = "INPUT"
 	LET    = "LET"
 	PRINT  = "PRINT"
 	REM    = "REM"
@@ -79,6 +80,7 @@ var keywords = map[string]Type{
 	"gosub":  GOSUB,
 	"goto":   GOTO,
 	"if":     IF,
+	"input":  INPUT,
 	"let":    LET,
 	"next":   NEXT,
 	"print":  PRINT,
