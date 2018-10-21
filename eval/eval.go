@@ -391,127 +391,125 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 	return nil, nil
 }
 
-// runForLoop handles a FOR loop
-func (e *Interpreter) runForLoop() error {
-	/*
-		// we expect "ID = NUM to NUM [STEP NUM]"
-
-		// Bump past the FOR token
-		e.offset++
-
-		// We now expect a token
-		target := e.program[e.offset]
-		e.offset++
-		if target.Type != token.IDENT {
-			return fmt.Errorf("Expected IDENT after FOR, got %v", target)
-		}
-
-		// Now an EQUALS
-		eq := e.program[e.offset]
-		e.offset++
-		if eq.Type != token.ASSIGN {
-			return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
-		}
-
-		// Now an integer
-		startI := e.program[e.offset]
-		e.offset++
-		if startI.Type != token.INT {
-			return fmt.Errorf("Expected INT after 'FOR %s=', got %v", target.Literal, startI)
-		}
-
-		start, err := strconv.ParseFloat(startI.Literal, 64)
-		if err != nil {
-			return fmt.Errorf("Failed to convert %s to an int %s", startI.Literal, err.Error())
-		}
-
-		// Now TO
-		to := e.program[e.offset]
-		e.offset++
-		if to.Type != token.TO {
-			return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
-		}
-
-		// Now an integer
-		endI := e.program[e.offset]
-		e.offset++
-		if endI.Type != token.INT {
-			return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
-		}
-
-		end, err := strconv.ParseFloat(endI.Literal, 64)
-		if err != nil {
-			return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
-		}
-
-		// Default step is 1.
-		stepI := "1"
-
-		// Is the next token a step?
-		if e.program[e.offset].Type == token.STEP {
-			e.offset++
-
-			s := e.program[e.offset]
-			e.offset++
-			if s.Type != token.INT {
-				return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v", target.Literal, startI, endI, s)
-			}
-			stepI = s.Literal
-		}
-
-		step, err := strconv.ParseFloat(stepI, 64)
-		if err != nil {
-			return fmt.Errorf("Failed to convert %s to an int %s", stepI, err.Error())
-		}
-
-		//
-		// Now we can record the important details of the for-loop
-		// in a hash.
-		//
-		// The key observersions here are that all the magic
-		// really involved in the FOR-loop happens at the point
-		// you interpret the "NEXT X" section.
-		//
-		// Handling the NEXT statement involves:
-		//
-		//  Incrementing the step-variable
-		//  Looking for termination
-		//  If not over then "jumping back".
-		//
-		// So for a for-loop we just record the start/end conditions
-		// and the address of the body of the loop - ie. the next
-		// token - so that the next-handler can GOTO there.
-		//
-		// It is almost beautifully elegent.
-		//
-		f := ForLoop{id: target.Literal,
-			offset: e.offset,
-			start:  int(start),
-			end:    int(end),
-			step:   int(step)}
-
-		//
-		// Set the variable to the starting-value
-		//
-		e.vars.Set(target.Literal, &object.NumberObject{Value: start})
-
-		//
-		// And record our loop - keyed on the name of the variable
-		// which is used as the index.  This allows easy and natural
-		// nested-loops.
-		//
-		// Did I say this is elegent?
-		//
-		AddForLoop(f)
-	*/
-	return nil
-}
-
 ////
 //
 // Statement-handlers
 //
 ////
+
+// runForLoop handles a FOR loop
+func (e *Interpreter) runForLoop() error {
+	// we expect "ID = NUM to NUM [STEP NUM]"
+
+	// Bump past the FOR token
+	e.offset++
+
+	// We now expect a token
+	target := e.program[e.offset]
+	e.offset++
+	if target.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after FOR, got %v", target)
+	}
+
+	// Now an EQUALS
+	eq := e.program[e.offset]
+	e.offset++
+	if eq.Type != token.ASSIGN {
+		return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
+	}
+
+	// Now an integer
+	startI := e.program[e.offset]
+	e.offset++
+	if startI.Type != token.INT {
+		return fmt.Errorf("Expected INT after 'FOR %s=', got %v", target.Literal, startI)
+	}
+
+	start, err := strconv.ParseFloat(startI.Literal, 64)
+	if err != nil {
+		return fmt.Errorf("Failed to convert %s to an int %s", startI.Literal, err.Error())
+	}
+
+	// Now TO
+	to := e.program[e.offset]
+	e.offset++
+	if to.Type != token.TO {
+		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
+	}
+
+	// Now an integer
+	endI := e.program[e.offset]
+	e.offset++
+	if endI.Type != token.INT {
+		return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
+	}
+
+	end, err := strconv.ParseFloat(endI.Literal, 64)
+	if err != nil {
+		return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
+	}
+
+	// Default step is 1.
+	stepI := "1"
+
+	// Is the next token a step?
+	if e.program[e.offset].Type == token.STEP {
+		e.offset++
+
+		s := e.program[e.offset]
+		e.offset++
+		if s.Type != token.INT {
+			return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v", target.Literal, startI, endI, s)
+		}
+		stepI = s.Literal
+	}
+
+	step, err := strconv.ParseFloat(stepI, 64)
+	if err != nil {
+		return fmt.Errorf("Failed to convert %s to an int %s", stepI, err.Error())
+	}
+
+	//
+	// Now we can record the important details of the for-loop
+	// in a hash.
+	//
+	// The key observersions here are that all the magic
+	// really involved in the FOR-loop happens at the point
+	// you interpret the "NEXT X" section.
+	//
+	// Handling the NEXT statement involves:
+	//
+	//  Incrementing the step-variable
+	//  Looking for termination
+	//  If not over then "jumping back".
+	//
+	// So for a for-loop we just record the start/end conditions
+	// and the address of the body of the loop - ie. the next
+	// token - so that the next-handler can GOTO there.
+	//
+	// It is almost beautifully elegent.
+	//
+	f := ForLoop{id: target.Literal,
+		offset: e.offset,
+		start:  int(start),
+		end:    int(end),
+		step:   int(step)}
+
+	//
+	// Set the variable to the starting-value
+	//
+	e.vars.Set(target.Literal, &object.NumberObject{Value: start})
+
+	//
+	// And record our loop - keyed on the name of the variable
+	// which is used as the index.  This allows easy and natural
+	// nested-loops.
+	//
+	// Did I say this is elegent?
+	//
+	AddForLoop(f)
+	return nil
+}
 
 // runGOSUB handles a control-flow change
 func (e *Interpreter) runGOSUB() error {
@@ -769,72 +767,71 @@ func (e *Interpreter) runLET() error {
 
 // runNEXT handles the NEXT statement
 func (e *Interpreter) runNEXT() error {
-	/*
-		// Bump past the NEXT token
-		e.offset++
+	// Bump past the NEXT token
+	e.offset++
 
-		// Get the identifier
-		target := e.program[e.offset]
-		e.offset++
-		if target.Type != token.IDENT {
-			return fmt.Errorf("Expected IDENT after NEXT in FOR loop, got %v", target)
-		}
+	// Get the identifier
+	target := e.program[e.offset]
+	e.offset++
+	if target.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after NEXT in FOR loop, got %v", target)
+	}
 
-		// OK we've found the tail of a loop
-		//
-		// We need to bump the value of the given variable by the offset
-		// and compare it against the max.
-		//
-		// If the max hasn't finished we loop around again.
-		//
-		// If it has we remove the for-loop
-		//
-		data := GetForLoop(target.Literal)
+	// OK we've found the tail of a loop
+	//
+	// We need to bump the value of the given variable by the offset
+	// and compare it against the max.
+	//
+	// If the max hasn't finished we loop around again.
+	//
+	// If it has we remove the for-loop
+	//
+	data := GetForLoop(target.Literal)
 
-		//
-		// Get the variable value, and increase it.
-		//
-		cur := e.vars.Get(target.Literal)
-		iVal := 0
+	//
+	// Get the variable value, and increase it.
+	//
+	cur := e.vars.Get(target.Literal)
+	if cur.Type() != object.NUMBER {
+		return fmt.Errorf("NEXT variable %s is not a number!", target.Literal)
+	}
+	iVal := cur.(*object.NumberObject).Value
 
-		iVal, ok := cur.(int)
-		if !ok {
-			iVal = int(cur.(float64))
-		}
+	//
+	// Increment the number.
+	//
+	iVal += float64(data.step)
 
-		iVal += data.step
+	//
+	// Set it
+	//
+	e.vars.Set(target.Literal, &object.NumberObject{Value: iVal})
 
-		//
-		// Set it
-		//
-		e.vars.Set(target.Literal, float64(iVal))
-
-		//
-		// Have we finnished?
-		//
-		if data.finished {
-			RemoveForLoop(target.Literal)
-			return nil
-		}
-
-		//
-		// If we've reached our limit we mark this as complete,
-		// but note that we dont' terminate to allow the actual
-		// end-number to be inclusive.
-		//
-		if iVal == data.end {
-			data.finished = true
-
-			// updates-in-place.  bad name
-			AddForLoop(data)
-		}
-
-		//
-		// Otherwise loop again
-		//
-		e.offset = data.offset
+	//
+	// Have we finnished?
+	//
+	if data.finished {
+		RemoveForLoop(target.Literal)
 		return nil
-	*/
+	}
+
+	//
+	// If we've reached our limit we mark this as complete,
+	// but note that we dont' terminate to allow the actual
+	// end-number to be inclusive.
+	//
+	if iVal == float64(data.end) {
+		data.finished = true
+
+		// updates-in-place.  bad name
+		AddForLoop(data)
+	}
+
+	//
+	// Otherwise loop again
+	//
+	e.offset = data.offset
+	return nil
 	return nil
 }
 
