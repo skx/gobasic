@@ -64,6 +64,15 @@ func TestMiscTokens(t *testing.T) {
 			t.Fatalf("tests[%d] - Literal wrong, expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
 		}
 	}
+
+	// Attempt to read past the end of our input-stream
+	for i := 0; i < 10; i++ {
+		tok := l.NextToken()
+		if tok.Type != token.EOF {
+			t.Errorf("EOF wasn't hit properly")
+		}
+	}
+
 }
 
 // TestLineNot is a trivial test of line-number parsing.
