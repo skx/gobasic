@@ -44,7 +44,7 @@ func getString(t *testing.T, e *Interpreter, name string) string {
 
 // TestGetSet ensures a value is set.  It is naive.
 func TestGetSet(t *testing.T) {
-	input := "10 LET a = a + 1\n"
+	input := "10 LET a = ( a + 1 ) \n"
 
 	obj := Compile(input)
 	obj.SetVariable("a", &object.NumberObject{Value: 17})
@@ -62,6 +62,10 @@ func TestLen(t *testing.T) {
 10 LET I="Hello World"
 20 LET a=LEN I
 30 LET b=LEN "Steve Kemp"
+40 LET t = "Steve"
+50 LET t= t + " "
+60 LET t= t + "Kemp"
+70 LET c= LEN t
 `
 	obj := Compile(input)
 	obj.Run()
@@ -71,6 +75,9 @@ func TestLen(t *testing.T) {
 	}
 	if getFloat(t, obj, "b") != 10 {
 		t.Errorf("LEN 2 Failed!")
+	}
+	if getFloat(t, obj, "c") != 10 {
+		t.Errorf("LEN 3 Failed!")
 	}
 }
 
@@ -353,10 +360,11 @@ func TestMaths(t *testing.T) {
 // TestFor runs a single simple FOR loop
 func TestFor(t *testing.T) {
 	input := `
-05 LET SUM = 0
-10 FOR I = 1 TO 10 STEP 1
-20 LET SUM = SUM + I
-30 NEXT I
+10 LET SUM = 0
+20 LET N=10
+30 FOR I = 1 TO N STEP 1
+40 LET SUM = SUM + I
+50 NEXT I
 `
 
 	obj := Compile(input)
@@ -444,7 +452,9 @@ func TestIf(t *testing.T) {
 70 IF a <> b THEN PRINT "FAIL7\n": ELSE let f=1
 80 IF a <> 100 THEN let g=1 ELSE LET g=1
 90 IF a = 1 THEN let h=1
-100 LET x=1
+100 IF "steve" = "steve" THEN LET i=1
+110 IF "steve" <> "kemp" THEN LET j=1
+120 LET x=1
 `
 
 	obj := Compile(input)
@@ -453,7 +463,7 @@ func TestIf(t *testing.T) {
 	//
 	// Get our variables - they should all be equal to one
 	//
-	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "x"}
+	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x"}
 
 	for _, nm := range vars {
 		out := getFloat(t, obj, nm)
