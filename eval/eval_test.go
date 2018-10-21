@@ -526,5 +526,44 @@ func TestTL(t *testing.T) {
 	}
 }
 
-// MID$
-// TL
+// TestMID tests our MID$ function.
+func TestMID(t *testing.T) {
+}
+
+// TestCode tests our CODE function
+func TestCode(t *testing.T) {
+	input := `
+10 LET a = CODE "Hello World"
+20 LET b = CODE "S"
+30 LET c = CODE ""
+`
+	obj := Compile(input)
+	obj.Run()
+
+	if getFloat(t, obj, "a") != 72 {
+		t.Errorf("CODE 1 Failed!")
+	}
+	if getFloat(t, obj, "b") != 83 {
+		t.Errorf("CODE 2 Failed!")
+	}
+	if getFloat(t, obj, "c") != 0 {
+		t.Errorf("CODE 3 Failed!")
+	}
+}
+
+// TestCHR tests our CHR$ function
+func TestCHR(t *testing.T) {
+	input := `
+10 LET a = CHR$ 42
+20 LET b = CHR$ 32
+`
+	obj := Compile(input)
+	obj.Run()
+
+	if getString(t, obj, "a") != "*" {
+		t.Errorf("CHR$ 1 Failed!")
+	}
+	if getString(t, obj, "b") != " " {
+		t.Errorf("CHR$ 2 Failed!")
+	}
+}
