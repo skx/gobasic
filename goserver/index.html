@@ -6,9 +6,13 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script type="text/javascript">
      $(function() {
-       $("#idForm").submit(function(e) {
-         var form = $(this);
-         var url = form.attr('action');
+       $("#help").click(function(e) {
+         $("#help_space").toggle()
+         e.preventDefault();
+       });
+
+       $("form").submit(function(e) {
+         var form = $(this)
 
          $.ajax({
            type: "POST",
@@ -17,7 +21,6 @@
            success: function(data)
            {
              $("#target").attr("src","data:image/gif;base64," + data);
-
            }
          });
 
@@ -47,8 +50,27 @@
 60 PLOT x,y
 70 NEXT x
     </textarea>
-    <input type="submit" value="RUN CODE!" />
+    <input type="submit" id="help" value="HELP"><input type="submit" id="submit" value="RUN CODE!" />
       </form>
+    </div>
+    <div id="help_space" style="display:none;">
+      <h1>Help</h1>
+      <p>Into the field above you can enter a BASIC program, which will be executed when you hit the <code>RUN CODE!</code> button.</p>
+      <p>The program will have access to an 800x600 image, which will be returned when it finishes.</p>
+      <p>To make your program update the image you can use the following functions:</p>
+      <dl>
+        <dt>CIRCLE x, y, r</dt>
+        <dd>The <code>CIRCLE</code> function draws a circle of radius R at the coordinates x,y.  For example:</p><pre>10 COLOR 255,0,0
+20 CIRCLE 50,50,50</pre></p></dd>
+        <dt>COLOR a, b, c</dt>
+        <dd>Set the color which is used for the drawing functions.  The arguments are "Red", "Green", and "Blue" respectively.  So to make a green-circle you would enter:</p><pre>10 COLOR 255,0,0
+20 CIRCLE 50,50,50</pre></p></dd>
+        <dt>PLOT x, y</dt>
+        <dd>The <code>PLOT</code> function sets a single pixel at the specified coordinate.For example:</p><pre>10 COLOR 255,0,0
+20 PLOT 50, 50
+30 PLOT 100, 100
+       </pre></p></dd>
+      </dl>
     </div>
     <div style="text-align: center;">
       <img  id="target" src="" />
