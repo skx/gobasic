@@ -4,6 +4,8 @@ package eval
 
 import (
 	"testing"
+
+	"github.com/skx/gobasic/object"
 )
 
 // TestInt: Test we can store/retrieve an int.
@@ -13,18 +15,19 @@ func TestInt(t *testing.T) {
 	v := NewVars()
 
 	// Set "steve" -> int
-	v.Set("steve", 42)
+	v.Set("steve", &NumberObject{Value: 42})
 
 	// Get the value
 	out := v.Get("steve")
 
 	// Ensure it is an int
-	value, ok := out.(int)
-	if !ok {
-		t.Errorf("Failed to cast to int!")
+	if out.Type() != object.NUMBER {
+		t.Errorf("The value was the wrong type!")
 	}
-	if value != 42 {
-		t.Errorf("Value had the wrong content!")
+
+	// And check the value is correct.
+	if out.Value != 42 {
+		t.Errorf("Our value was lost!")
 	}
 }
 
@@ -34,18 +37,19 @@ func TestString(t *testing.T) {
 	// Holder for variables
 	v := NewVars()
 
-	// Set "steve$" -> string
-	v.Set("steve$", "kemp")
+	// Set "steve" -> int
+	v.Set("steve$", &StringObject{Value: "Kemp"})
 
 	// Get the value
-	out := v.Get("steve$")
+	out := v.Get("steve")
 
 	// Ensure it is a string
-	value, ok := out.(string)
-	if !ok {
-		t.Errorf("Failed to cast to string!")
+	if out.Type() != object.STRING {
+		t.Errorf("The value was the wrong type!")
 	}
-	if value != "kemp" {
-		t.Errorf("Value had the wrong content!")
+
+	// And check the value is correct.
+	if out.Value != "Kemp" {
+		t.Errorf("Our value was lost!")
 	}
 }

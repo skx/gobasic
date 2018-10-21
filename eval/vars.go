@@ -1,8 +1,14 @@
-// vars.go - Hold variables
+// vars.go - Define an interface for getting/setting variables by name.
+//
+// NOTE: Names are assumed to be globally unique; there is no notion of scope.
 
 package eval
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/skx/gobasic/object"
+)
 
 // Variables holds our state
 type Variables struct {
@@ -10,16 +16,16 @@ type Variables struct {
 	lock sync.Mutex
 
 	// data stores our data
-	data map[string]interface{}
+	data map[string]object.Object
 }
 
 // NewVars handles a new variable-holder.
 func NewVars() *Variables {
-	return &Variables{lock: sync.Mutex{}, data: make(map[string]interface{})}
+	return &Variables{lock: sync.Mutex{}, data: make(map[string]object.Object)}
 }
 
 // Set stores the given value against the specified name.
-func (v *Variables) Set(name string, val interface{}) {
+func (v *Variables) Set(name string, val object.Object) {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 
@@ -27,7 +33,7 @@ func (v *Variables) Set(name string, val interface{}) {
 }
 
 // Get returns the value stored against the specified name.
-func (v *Variables) Get(name string) interface{} {
+func (v *Variables) Get(name string) object.Object {
 	v.lock.Lock()
 	defer v.lock.Unlock()
 	return (v.data[name])
