@@ -123,8 +123,12 @@ func CODE(env Interpreter, args []token.Token) (object.Object, error) {
 		return nil, err
 	}
 
-	s := i[0]
-	return &object.NumberObject{Value: float64(rune(s))}, nil
+	if len(i) > 0 {
+		s := i[0]
+		return &object.NumberObject{Value: float64(rune(s))}, nil
+	}
+	return &object.NumberObject{Value: float64(0)}, nil
+
 }
 
 // INT implements INT
