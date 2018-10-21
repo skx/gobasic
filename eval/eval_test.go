@@ -1,4 +1,4 @@
-// eval_test.go - Simple test-cases for our evaluator
+// eval_test.go - Simple test-cases for our evaluator.
 
 package eval
 
@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/skx/gobasic/object"
 	"github.com/skx/gobasic/tokenizer"
 )
 
@@ -17,15 +18,24 @@ func Compile(input string) *Interpreter {
 	return e
 }
 
+// getFloat is a helper for retrieving the value of a number-object
+func getFloat(t *testing.T, e *Interpreter, name string) float64 {
+	out := e.GetVariable(name)
+	if out.Type() != object.NUMBER {
+		t.Errorf("Object %s was not a number", name)
+	}
+	return (out.(*object.NumberObject).Value)
+}
+
 // TestGetSet ensures a value is set.  It is naive.
 func TestGetSet(t *testing.T) {
 	input := "10 LET a = a + 1\n"
 
 	obj := Compile(input)
-	obj.SetVariable("a", 17)
+	obj.SetVariable("a", &object.NumberObject{Value: 17})
 	obj.Run()
 
-	out := obj.GetVariable("a")
+	out := getFloat(t, obj, "a")
 	if out != 18 {
 		t.Errorf("Value not expected!")
 	}
@@ -38,7 +48,7 @@ func TestLet(t *testing.T) {
 	obj := Compile(input)
 	obj.Run()
 
-	out := obj.GetVariable("a")
+	out := getFloat(t, obj, "a")
 	if out != 33 {
 		t.Errorf("Value not expected!")
 	}
@@ -54,16 +64,16 @@ func TestPI(t *testing.T) {
 	obj := Compile(input)
 	obj.Run()
 
-	out := obj.GetVariable("a")
+	out := getFloat(t, obj, "a")
 	if out != math.Pi {
 		t.Errorf("Value not expected!")
 	}
 
 	// PI -> int == 3
-	if obj.GetVariable("b") != 3 {
+	if getFloat(t, obj, "b") != 3 {
 		t.Errorf("INT didn't work as expected!")
 	}
-	if obj.GetVariable("c") != 3 {
+	if getFloat(t, obj, "c") != 3 {
 		t.Errorf("INT didn't work as expected!")
 	}
 }
@@ -87,22 +97,22 @@ func TestSGN(t *testing.T) {
 	obj := Compile(input)
 	obj.Run()
 
-	if obj.GetVariable("a") != -1 {
+	if getFloat(t, obj, "a") != -1 {
 		t.Errorf("Value not expected!")
 	}
-	if obj.GetVariable("b") != 1 {
+	if getFloat(t, obj, "b") != 1 {
 		t.Errorf("Value not expected!")
 	}
-	if obj.GetVariable("c") != 0 {
+	if getFloat(t, obj, "c") != 0 {
 		t.Errorf("Value not expected!")
 	}
-	if obj.GetVariable("d") != -1 {
+	if getFloat(t, obj, "d") != -1 {
 		t.Errorf("Value not expected!")
 	}
-	if obj.GetVariable("e") != 0 {
+	if getFloat(t, obj, "e") != 0 {
 		t.Errorf("Value not expected!")
 	}
-	if obj.GetVariable("f") != 1 {
+	if getFloat(t, obj, "f") != 1 {
 		t.Errorf("Value not expected!")
 	}
 }
@@ -118,10 +128,10 @@ func TestSQR(t *testing.T) {
 	obj := Compile(input)
 	obj.Run()
 
-	if obj.GetVariable("a") != 3 {
+	if getFloat(t, obj, "a") != 3 {
 		t.Errorf("Value not expected!")
 	}
-	if obj.GetVariable("b") != 10 {
+	if getFloat(t, obj, "b") != 10 {
 		t.Errorf("Value not expected!")
 	}
 }
@@ -159,8 +169,7 @@ func TestGoSub(t *testing.T) {
 	obj := Compile(input)
 	obj.Run()
 
-	out := obj.GetVariable("A")
-	if out != 1002 {
+	if getFloat(t, obj, "A") != 1002 {
 		t.Errorf("Value not expected!")
 	}
 }
@@ -204,8 +213,7 @@ func TestGoTo(t *testing.T) {
 	obj := Compile(input)
 	obj.Run()
 
-	out := obj.GetVariable("a")
-	if out != 333333 {
+	if getFloat(t, obj, "a") != 333333 {
 		t.Errorf("Value not expected!")
 	}
 }
@@ -250,32 +258,25 @@ func TestMaths(t *testing.T) {
 	obj := Compile(input)
 	obj.Run()
 
-	out := obj.GetVariable("A")
-	if out != 3 {
+	if getFloat(t, obj, "A") != 3 {
 		t.Errorf("Value not expected!")
 	}
-	out = obj.GetVariable("B")
-	if out != 5 {
+	if getFloat(t, obj, "B") != 5 {
 		t.Errorf("Value not expected!")
 	}
-	out = obj.GetVariable("C")
-	if out != 20 {
+	if getFloat(t, obj, "C") != 20 {
 		t.Errorf("Value not expected!")
 	}
-	out = obj.GetVariable("D")
-	if out != 20 {
+	if getFloat(t, obj, "D") != 20 {
 		t.Errorf("Value not expected!")
 	}
-	out = obj.GetVariable("E")
-	if out != 1 {
+	if getFloat(t, obj, "E") != 1 {
 		t.Errorf("Value not expected!")
 	}
-	out = obj.GetVariable("F")
-	if out != 100 {
+	if getFloat(t, obj, "F") != 100 {
 		t.Errorf("Value not expected!")
 	}
-	out = obj.GetVariable("H")
-	if out != 33 {
+	if getFloat(t, obj, "H") != 33 {
 		t.Errorf("Value not expected!")
 	}
 }
@@ -292,9 +293,8 @@ func TestFor(t *testing.T) {
 	obj := Compile(input)
 	obj.Run()
 
-	out := obj.GetVariable("SUM")
-	if out != 55 {
-		t.Errorf("Value not expected - got %f", out)
+	if getFloat(t, obj, "SUM") != 55 {
+		t.Errorf("Value not expected!")
 	}
 }
 
@@ -388,7 +388,7 @@ func TestIf(t *testing.T) {
 	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "x"}
 
 	for _, nm := range vars {
-		out := obj.GetVariable(nm)
+		out := getFloat(t, obj, nm)
 		if out != 1 {
 			t.Errorf("Value not expected - got %f for %s", out, nm)
 		}

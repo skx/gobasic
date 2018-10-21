@@ -15,7 +15,7 @@ func TestInt(t *testing.T) {
 	v := NewVars()
 
 	// Set "steve" -> int
-	v.Set("steve", &NumberObject{Value: 42})
+	v.Set("steve", &object.NumberObject{Value: 42})
 
 	// Get the value
 	out := v.Get("steve")
@@ -26,7 +26,7 @@ func TestInt(t *testing.T) {
 	}
 
 	// And check the value is correct.
-	if out.Value != 42 {
+	if out.(*object.NumberObject).Value != 42 {
 		t.Errorf("Our value was lost!")
 	}
 }
@@ -38,10 +38,10 @@ func TestString(t *testing.T) {
 	v := NewVars()
 
 	// Set "steve" -> int
-	v.Set("steve$", &StringObject{Value: "Kemp"})
+	v.Set("steve$", &object.StringObject{Value: "Kemp"})
 
 	// Get the value
-	out := v.Get("steve")
+	out := v.Get("steve$")
 
 	// Ensure it is a string
 	if out.Type() != object.STRING {
@@ -49,7 +49,7 @@ func TestString(t *testing.T) {
 	}
 
 	// And check the value is correct.
-	if out.Value != "Kemp" {
+	if out.(*object.StringObject).Value != "Kemp" {
 		t.Errorf("Our value was lost!")
 	}
 }

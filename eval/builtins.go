@@ -150,7 +150,7 @@ func SGN(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// If less than zero make it positive.
 	if i < 0 {
-		return &object.NumberObject{Value: -1 * i}, nil
+		return &object.NumberObject{Value: -1}, nil
 	}
 
 	if i == 0 {
