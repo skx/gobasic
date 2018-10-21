@@ -1,7 +1,14 @@
+// The goserver utility is a simple HTTP server which allows you to
+// interactively run BASIC scripts via your browser.
 //
-// HTTP-server for BASIC images.
+// The goservers purpose is to allow users to experiment with graphics,
+// which it allows by the addition of several custom functions to the
+// BASIC environment.
 //
-
+// The additions make it easy to change the colour of the pixels, draw
+// points, circles, and view a rendered image containing the output.
+//
+// Graphing SIN and similar functions becomes very simple and natural.
 package main
 
 import (
