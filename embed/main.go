@@ -4,7 +4,7 @@
 //
 //  1. Setting a variable from golang which will be visible to BASIC.
 //
-//  2. Defining custom functions (PEEK, POKE, DOT, SAVE).
+//  2. Defining custom functions (CIRCLE, DOT, PEEK, POKE, SAVE).
 //
 //  3. Retrieving the contents of BASIC values back to golang.
 //
@@ -29,8 +29,9 @@ import (
 
 // img holds a canvas.
 //
-// The DOT primitive allows setting a pixel, and this is the image upon
-// which it will be set.
+// The BASIC program embedded in this program will draw upon an image
+// this is the actual image they draw upon.
+//
 var img *image.RGBA
 
 // peekFunction is the golang implementation of the PEEK primitive,
@@ -52,6 +53,65 @@ func pokeFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	return &object.NumberObject{Value: 0.0}, nil
 }
 
+// circleFunction allows drawing a circle upon our image.
+func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+
+	//
+	// Get the args X, Y, & radius
+	//
+	xx, _ := eval.TokenToFloat(env, args[0])
+	// args1 is "COMMA"
+	yy, _ := eval.TokenToFloat(env, args[2])
+	// args[3] is COMMA
+	rr, _ := eval.TokenToFloat(env, args[4])
+
+	//
+	// They need to be ints.
+	//
+	x0 := int(xx)
+	y0 := int(yy)
+	r := int(rr)
+
+	// If we have no image, create it.
+	if img == nil {
+		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
+		black := color.RGBA{0, 0, 0, 255}
+		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.ZP, draw.Src)
+	}
+
+	// Create the colour
+	c := color.RGBA{0, 255, 0, 255}
+
+	// Now circle-magic happens.
+	x, y, dx, dy := r-1, 0, 1, 1
+	err := dx - (int(r) * 2)
+
+	for x > y {
+		img.Set(x0+x, y0+y, c)
+		img.Set(x0+y, y0+x, c)
+		img.Set(x0-y, y0+x, c)
+		img.Set(x0-x, y0+y, c)
+		img.Set(x0-x, y0-y, c)
+		img.Set(x0-y, y0-x, c)
+		img.Set(x0+y, y0-x, c)
+		img.Set(x0+x, y0-y, c)
+
+		if err <= 0 {
+			y++
+			err += dy
+			dy += 2
+		}
+		if err > 0 {
+			x--
+			dx += 2
+			err += dx - (r * 2)
+		}
+	}
+
+	// All done.
+	return &object.NumberObject{Value: 0.0}, nil
+}
+
 // dotFunction is the golang implementation of the DOT primitive.
 //
 // It is invoked with three arguments (NUMBER COMMA NUMBER) and sets
@@ -59,7 +119,7 @@ func pokeFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 func dotFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 
 	//
-	// Get the args
+	// Get the args: X, Y
 	//
 	x, _ := eval.TokenToFloat(env, args[0])
 	// args1 is "COMMA"
@@ -103,7 +163,7 @@ func main() {
 	//
 	// Ensure we seed our random-number source
 	//
-	// This is required such that RND() returns suitable values.
+	// This is required such that RND returns suitable values.
 	//
 	rand.Seed(time.Now().UnixNano())
 
@@ -111,19 +171,33 @@ func main() {
 	// This is the program we're going to execute
 	//
 	prog := `
- 10 PRINT "HELLO, I AM EMBEDDED BASIC\n"
+ 10 PRINT "HELLO, I AM EMBEDDED BASIC IN YOUR GOLANG!\n"
  20 LET S = S + PI
  30 POKE 23659 , 0
  40 PEEK 30
- 50 PRINT "I'M NOW CREATING AN IMAGE!!!!\n"
- 55 REM 640 should be enough for anybody
- 60 FOR I = 1 TO 640
- 70  LET x = RND 600
- 80  LET y = RND 400
- 90  DOT x, y
-100 NEXT I
-110 SAVE
-120 PRINT "OPEN 'out.png' TO VIEW YOUR IMAGE!\n"
+ 50 PRINT "\n" "I'M NOW CREATING AN IMAGE!!!!\n"
+ 60 REM
+ 70 REM Draw 100 random pixels
+ 80 REM
+ 90 FOR I = 1 TO 100
+100  LET x = RND 600
+110  LET y = RND 400
+120  DOT x, y
+130 NEXT I
+140 REM
+150 REM Draw a random number of circles
+160 REM
+170 LET R = RND 30
+180 IF R < 2 THEN LET R=2
+190 PRINT "\tWe will draw", R, "random circles upon the image\n"
+200 FOR I = 1 TO R
+210  LET x = RND 600
+220  LET y = RND 400
+230  LET r = RND 100
+240  CIRCLE x, y, r
+250 NEXT I
+260 SAVE
+270 PRINT "\tOPEN 'out.png' TO VIEW YOUR IMAGE!\n"
 `
 
 	//
@@ -143,6 +217,7 @@ func main() {
 	e.RegisterBuiltin("POKE", 3, pokeFunction)
 	e.RegisterBuiltin("DOT", 3, dotFunction)
 	e.RegisterBuiltin("SAVE", 0, saveFunction)
+	e.RegisterBuiltin("CIRCLE", 5, circleFunction)
 
 	//
 	// Set an initial value to the variable "S".
@@ -156,6 +231,8 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error running program: %s\n", err.Error())
 	}
+
+	fmt.Printf("\n\n")
 
 	//
 	// The value of the variable is now different
