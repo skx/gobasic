@@ -50,6 +50,60 @@ func TestGetSet(t *testing.T) {
 	}
 }
 
+// TestLen tests our LEN implementation.
+func TestLen(t *testing.T) {
+	input := `
+10 LET I="Hello World"
+20 LET a=LEN I
+30 LET b=LEN "Steve Kemp"
+`
+	obj := Compile(input)
+	obj.Run()
+
+	if getFloat(t, obj, "a") != 11 {
+		t.Errorf("LEN 1 Failed!")
+	}
+	if getFloat(t, obj, "b") != 10 {
+		t.Errorf("LEN 2 Failed!")
+	}
+}
+
+// TestLeftRight tests our LEFT$/RIGHT$ implementation.
+func TestLeftRight(t *testing.T) {
+	input := `
+10 LET I="Hello World"
+20 LET a=LEFT$ I, 4
+30 LET b=LEFT$ "Steve", 2
+40 LET c=RIGHT$ I, 5
+50 LET d=RIGHT$ I, 2
+
+60 LET e=RIGHT$ I,100
+70 LET f=LEFT$ I,100
+`
+	obj := Compile(input)
+	obj.Run()
+
+	if getString(t, obj, "a") != "Hell" {
+		t.Errorf("LEFT$ 1 Failed! Got %v", getString(t, obj, "a"))
+	}
+	if getString(t, obj, "b") != "St" {
+		t.Errorf("LEFT$ 2 Failed!")
+	}
+	if getString(t, obj, "c") != "World" {
+		t.Errorf("RIGHT$ 1 Failed!")
+	}
+	if getString(t, obj, "d") != "ld" {
+		t.Errorf("RIGHT$ 2 Failed!")
+	}
+	if getString(t, obj, "e") != "Hello World" {
+		t.Errorf("RIGHT$ 3 Failed!")
+	}
+	if getString(t, obj, "f") != "Hello World" {
+		t.Errorf("LEFT$ 3 Failed!")
+	}
+
+}
+
 // TestLet ensures a value is set.  It is naive.
 func TestLet(t *testing.T) {
 	input := "10 LET a = 33\n"
@@ -343,8 +397,7 @@ func TestPrint(t *testing.T) {
 40 PRINT ( 3 * ( 3 + 4  ) ) "\n"
 50 PRINT "OK","OK"
 60 LET a = PI
-60 PRINT a
-70 REM
+70 PRINT a
 `
 
 	obj := Compile(input)

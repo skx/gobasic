@@ -161,6 +161,10 @@ func LEFT(env Interpreter, args []token.Token) (object.Object, error) {
 		return nil, err
 	}
 
+	if int(n) > len(in) {
+		n = float64(len(in))
+	}
+
 	left := in[0:int(n)]
 
 	return &object.StringObject{Value: left}, nil
@@ -225,6 +229,9 @@ func RIGHT(env Interpreter, args []token.Token) (object.Object, error) {
 		return nil, err
 	}
 
+	if int(n) > len(in) {
+		n = float64(len(in))
+	}
 	right := in[len(in)-int(n):]
 
 	return &object.StringObject{Value: right}, nil
