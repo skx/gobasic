@@ -4,11 +4,11 @@
 //
 // This example demonstrates several things:
 //
-// * Setting a variable from golang which will be visible to BASIC.
+// Setting a variable from golang which will be visible to BASIC.
 //
-// * Defining custom functions (CIRCLE, DOT, PEEK, POKE, SAVE).
+// Defining custom functions (CIRCLE, DOT, PEEK, POKE, SAVE).
 //
-// * Retrieving the contents of BASIC values back to golang.
+// Retrieving the contents of BASIC values back to golang.
 //
 package main
 
