@@ -87,7 +87,7 @@ func ABS(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	// If less than zero make it positive.
@@ -105,7 +105,7 @@ func CHR(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	// Now
@@ -120,7 +120,7 @@ func CODE(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (string) argument.
 	i, err := TokenToString(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	if len(i) > 0 {
@@ -137,7 +137,7 @@ func INT(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	// Truncate.
@@ -150,7 +150,7 @@ func LEFT(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the string
 	in, err := TokenToString(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.StringObject{Value: ""}, err
 	}
 
 	// args[1] == COMMA
@@ -175,7 +175,7 @@ func LEN(env Interpreter, args []token.Token) (object.Object, error) {
 
 	in, err := TokenToString(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, nil
 	}
 	return &object.NumberObject{Value: float64(len(in))}, nil
 }
@@ -186,7 +186,7 @@ func MID(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the string
 	in, err := TokenToString(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.StringObject{Value: ""}, err
 	}
 
 	// args[1] == COMMA
@@ -226,7 +226,7 @@ func RIGHT(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the string
 	in, err := TokenToString(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.StringObject{Value: ""}, err
 	}
 
 	// args[1] == COMMA
@@ -251,7 +251,7 @@ func RND(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	max, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	// Return the random number
@@ -264,7 +264,7 @@ func SGN(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	if i < 0 {
@@ -283,7 +283,7 @@ func SQR(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Sqrt(i)}, nil
@@ -295,7 +295,7 @@ func TL(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the string
 	in, err := TokenToString(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.StringObject{Value: ""}, err
 	}
 
 	if len(in) > 1 {
@@ -308,7 +308,6 @@ func TL(env Interpreter, args []token.Token) (object.Object, error) {
 
 // PI returns the value of PI
 func PI(env Interpreter, args []token.Token) (object.Object, error) {
-
 	return &object.NumberObject{Value: math.Pi}, nil
 }
 
@@ -318,7 +317,7 @@ func COS(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Cos(i)}, nil
@@ -330,7 +329,7 @@ func SIN(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Sin(i)}, nil
@@ -342,7 +341,7 @@ func TAN(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Tan(i)}, nil
@@ -354,7 +353,7 @@ func ASN(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Asin(i)}, nil
@@ -366,7 +365,7 @@ func ACS(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Acos(i)}, nil
@@ -378,7 +377,7 @@ func ATN(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Atan(i)}, nil
@@ -390,7 +389,7 @@ func EXP(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Exp(i)}, nil
@@ -402,7 +401,7 @@ func LN(env Interpreter, args []token.Token) (object.Object, error) {
 	// Get the (float) argument.
 	i, err := TokenToFloat(env, args[0])
 	if err != nil {
-		return nil, err
+		return &object.NumberObject{Value: 0}, err
 	}
 
 	return &object.NumberObject{Value: math.Log(i)}, nil
