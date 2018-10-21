@@ -77,10 +77,6 @@ func TokenToString(env Interpreter, tok token.Token) (string, error) {
 		return value.(*object.StringObject).Value, nil
 	}
 
-	if tok.Type == token.INT {
-		return "", fmt.Errorf("Wrong type given - we want a STRING")
-	}
-
 	// Can't happen?
 	return "", nil
 }
@@ -259,16 +255,11 @@ func SGN(env Interpreter, args []token.Token) (object.Object, error) {
 		return nil, err
 	}
 
-	// If less than zero make it positive.
 	if i < 0 {
 		return &object.NumberObject{Value: -1}, nil
 	}
-
 	if i == 0 {
 		return &object.NumberObject{Value: 0}, nil
-	}
-	if i < 0 {
-		return &object.NumberObject{Value: -1}, nil
 	}
 	return &object.NumberObject{Value: 1}, nil
 
@@ -295,9 +286,12 @@ func TL(env Interpreter, args []token.Token) (object.Object, error) {
 		return nil, err
 	}
 
-	rest := in[1:]
+	if len(in) > 1 {
+		rest := in[1:]
 
-	return &object.StringObject{Value: rest}, nil
+		return &object.StringObject{Value: rest}, nil
+	}
+	return &object.StringObject{Value: ""}, nil
 }
 
 // PI returns the value of PI

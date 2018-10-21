@@ -21,6 +21,9 @@ func Compile(input string) *Interpreter {
 // getFloat is a helper for retrieving the value of a number-object
 func getFloat(t *testing.T, e *Interpreter, name string) float64 {
 	out := e.GetVariable(name)
+	if out == nil {
+		t.Errorf("Loading variable '%s' failed\n", name)
+	}
 	if out.Type() != object.NUMBER {
 		t.Errorf("Object %s was not a number", name)
 	}
@@ -30,6 +33,9 @@ func getFloat(t *testing.T, e *Interpreter, name string) float64 {
 // getString is a helper for retrieving the value of a string-object
 func getString(t *testing.T, e *Interpreter, name string) string {
 	out := e.GetVariable(name)
+	if out == nil {
+		t.Errorf("Loading variable '%s' failed\n", name)
+	}
 	if out.Type() != object.STRING {
 		t.Errorf("Object %s was not a string", name)
 	}
@@ -476,3 +482,49 @@ func TestSubstr(t *testing.T) {
 		t.Errorf("RIGHT$ failed! - got '%s'", getString(t, obj, "C$"))
 	}
 }
+
+// TestMath is a lie - it just invokes sin/cos/tan/etc.  It does
+// no results-testing.
+func TestMath(t *testing.T) {
+	input := `
+10 PRINT SIN 3, "\n"
+20 PRINT COS 3, "\n"
+30 PRINT TAN 3, "\n"
+40 PRINT ATN 3, "\n"
+50 PRINT ASN 3, "\n"
+60 PRINT ACS 3, "\n"
+70 PRINT EXP 3, "\n"
+80 PRINT LN 3, "\n"
+`
+
+	obj := Compile(input)
+	obj.Run()
+}
+
+func TestTL(t *testing.T) {
+	input := `
+10 LET a = TL$ "Hello World"
+20 LET b = TL$ "S"
+30 LET c = TL$ ""
+40 LET s = "Steve"
+50 LET d = TL$ s
+`
+	obj := Compile(input)
+	obj.Run()
+
+	if getString(t, obj, "a") != "ello World" {
+		t.Errorf("TL 1 Failed!")
+	}
+	if getString(t, obj, "b") != "" {
+		t.Errorf("TL 2 Failed!")
+	}
+	if getString(t, obj, "c") != "" {
+		t.Errorf("TL 3 Failed!")
+	}
+	if getString(t, obj, "d") != "teve" {
+		t.Errorf("TL 4 Failed!")
+	}
+}
+
+// MID$
+// TL
