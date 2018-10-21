@@ -347,7 +347,7 @@ func (e *Interpreter) compare() bool {
 				return true
 			}
 		case token.NOT_EQUALS:
-			if v1 == v2 {
+			if v1 != v2 {
 				return true
 			}
 		}
