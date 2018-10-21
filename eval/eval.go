@@ -862,8 +862,12 @@ func (e *Interpreter) runPRINT() error {
 			fmt.Printf(" ")
 		} else if tok.Type == token.IDENT {
 
-			// Get the contents of the variable.
-			val := e.vars.Get(tok.Literal)
+			//
+			// This might be a variable, or a function-call.
+			//
+			// GetVariable handles both.
+			//
+			val := e.GetVariable(tok.Literal)
 
 			if val.Type() == object.STRING {
 				fmt.Printf("%s", val.(*object.StringObject).Value)
