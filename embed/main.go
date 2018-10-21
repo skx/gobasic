@@ -1,12 +1,14 @@
-// main.go - Example of embedding the BASIC interpreter.
+// The embed script demonstrates embedding the BASIC interpreter
+// into a custom program of your own - along with extending the
+// BASIC interpreter to add your own custom functions.
 //
 // This example demonstrates several things:
 //
-//  1. Setting a variable from golang which will be visible to BASIC.
+// * Setting a variable from golang which will be visible to BASIC.
 //
-//  2. Defining custom functions (CIRCLE, DOT, PEEK, POKE, SAVE).
+// * Defining custom functions (CIRCLE, DOT, PEEK, POKE, SAVE).
 //
-//  3. Retrieving the contents of BASIC values back to golang.
+// * Retrieving the contents of BASIC values back to golang.
 //
 package main
 
