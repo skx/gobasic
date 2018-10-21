@@ -11,12 +11,13 @@ The implementation is simple for three main reasons:
 
 * There is no UI, which means any and all graphics-primitives are ruled out.
   * However the embedded sample, described later in this file, demonstrates using BASIC to create a PNG image.
-* I deliberately set a low bar for myself, originally this was going to be a [weekend project](https://blog.steve.fi/monkeying_around_with_intepreters.html).
+  * There is also a HTTP-based BASIC server, which is described later.
+* I deliberately set a low bar for myself initially, as this was originally going to be a [weekend project](https://blog.steve.fi/monkeying_around_with_intepreters.html).
   * This is _still_ a weekend-project, but happened over the course of a couple  of hours of evening/morning time instead.
 * I didn't implement the full BASIC set of primitives.
   * Not even remotely.
 
-Currently the following primitives work:
+Currently the following obvious primitives work:
 
 * `END`
   * Exit the program.
@@ -30,7 +31,7 @@ Currently the following primitives work:
   * Allow reading a string `INPUT "Enter a string", a$`.
   * Allow reading a number `INPUT "Enter a number", a`.
 * `LET`
-  * Assign an integer value to a variable.
+  * Assign a string/integer/float value to a variable.
 * `FOR` & `NEXT`
   * Looping constructs.
 * `PRINT`
@@ -42,9 +43,10 @@ Currently the following primitives work:
 Most of the maths-related primitives I'm familiar with from my days
 coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS.
 
-The interpreter has support for strings, and string-related primitives:
+The interpreter has support for strings, and a small number of string-related
+primitives:
 
-* `LEN "STEVE`
+* `LEN "STEVE"`
   * Returns the length of a string "STEVE" (5)
 * `LEFT$ "STEVE", 2`
   * Returns the left-most 2 characters of "STEVE" ("ST").
@@ -64,8 +66,8 @@ This is a quick hack, so there are some (important) limitations:
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
   * I allow assignment, prints, loops, and control-flow primitives.
-  * The common string operations are missing.
-  * Most of the math-related operations are present, but there may be omissions depending upon the BASIC dialect you're familiar with.
+  * There may be omissions depending upon the BASIC dialect you're familiar with.
+    * If there are primitives you miss [report a bug](https://github.com/skx/gobasic/issues/) and I'll add them :)
 * Only floating-point and string values are permitted, there is no support for arrays.
 
 The handling of the IF statement is perhaps a little unusual, since I'm
@@ -82,6 +84,16 @@ Only a single statement is permitted between "THEN" and "ELSE", and again betwee
 
 In that second example you see that "`:`" was used to terminate the `PRINT` statement, which otherwise would have tried to consume all input until it hit a newline.
 
+You'll notice that the primitives which are present all suffer from the flaw (?) that they don't allow brackets around their arguments.  So this is valid:
+
+    10 PRINT RND 100
+
+But this is not:
+
+    10 PRINT RND(100)
+
+This particular problem could be fixed, but I've not considered it significant.
+
 
 ## Installation
 
@@ -89,7 +101,9 @@ Providing you have a working [go-installation](https://golang.org/) you should b
 
     go get -u github.com/skx/gobasic
 
-If you don't have a golang environment setup you should be able to download a binary from the github release page:
+**NOTE** This will only install the command-line driver, rather than the HTTP-server, or the embedded example code.
+
+If you don't have a golang environment setup you should be able to download a binary of the interpreter from the github release page:
 
 * [Binary Release](https://github.com/skx/gobasic/releases)
 
