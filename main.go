@@ -19,10 +19,9 @@ var version = "master/unreleased"
 func main() {
 
 	//
-	// Ensure we seed a random-number source
+	// Ensure we seed our random-number source
 	//
-	// This is required such that RND() returns suitable
-	// values that change.
+	// This is required such that RND() returns suitable values.
 	//
 	rand.Seed(time.Now().UnixNano())
 
