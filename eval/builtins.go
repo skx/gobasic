@@ -176,6 +176,38 @@ func LEN(env Interpreter, args []token.Token) (object.Object, error) {
 	return &object.NumberObject{Value: float64(len(in))}, nil
 }
 
+// MID returns the N characters from the given offset
+func MID(env Interpreter, args []token.Token) (object.Object, error) {
+
+	// Get the string
+	in, err := TokenToString(env, args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	// args[1] == COMMA
+
+	// Get the number of characters to return
+	offset, err := TokenToFloat(env, args[2])
+	if err != nil {
+		return nil, err
+	}
+
+	// args[3] == COMMA
+
+	count, err := TokenToFloat(env, args[4])
+	if err != nil {
+		return nil, err
+	}
+
+	// get the string from the position
+	out := in[int(offset):]
+
+	// now cut, by length
+	out = out[:int(count)]
+	return &object.StringObject{Value: out}, nil
+}
+
 // RIGHT returns the N right-most characters of the string.
 func RIGHT(env Interpreter, args []token.Token) (object.Object, error) {
 
@@ -245,6 +277,20 @@ func SQR(env Interpreter, args []token.Token) (object.Object, error) {
 	}
 
 	return &object.NumberObject{Value: math.Sqrt(i)}, nil
+}
+
+// TL returns a string, minus the first character.
+func TL(env Interpreter, args []token.Token) (object.Object, error) {
+
+	// Get the string
+	in, err := TokenToString(env, args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	rest := in[1:]
+
+	return &object.StringObject{Value: rest}, nil
 }
 
 // PI returns the value of PI

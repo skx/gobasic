@@ -103,7 +103,9 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.functions.Register("CODE", 1, CODE)
 	t.functions.Register("LEFT$", 3, LEFT)
 	t.functions.Register("LEN", 1, LEN)
+	t.functions.Register("MID$", 5, MID)
 	t.functions.Register("RIGHT$", 3, RIGHT)
+	t.functions.Register("TL$", 1, TL)
 
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
