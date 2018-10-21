@@ -22,8 +22,16 @@ import (
 	"github.com/skx/gobasic/tokenizer"
 )
 
-// img holds the canvas we draw t.
+// img holds the canvas we draw into.
 var img *image.RGBA
+
+// col holds our currently selected colour
+var col color.RGBA
+
+// Setup default color (black)
+func init() {
+	col = color.RGBA{0, 0, 0, 255}
+}
 
 // dotFunction is the golang implementation of the DOT primitive.
 //
@@ -46,7 +54,7 @@ func plotFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	}
 
 	// Draw the dot
-	img.Set(int(x), int(y), color.RGBA{0, 0, 0, 255})
+	img.Set(int(x), int(y), col)
 
 	return &object.NumberObject{Value: 0.0}, nil
 }
@@ -80,6 +88,22 @@ func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	return &object.NumberObject{Value: 0.0}, nil
 }
 
+// colorFunction allows drawing a circle upon our image.
+func colorFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+
+	//
+	// Get the args R, G, B values
+	//
+	r, _ := eval.TokenToFloat(env, args[0])
+	// args1 is "COMMA"
+	g, _ := eval.TokenToFloat(env, args[2])
+	// args[3] is COMMA
+	b, _ := eval.TokenToFloat(env, args[4])
+
+	col = color.RGBA{uint8(r), uint8(g), uint8(b), 255}
+	return &object.NumberObject{Value: 0.0}, nil
+}
+
 // circleFunction allows drawing a circle upon our image.
 func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 
@@ -106,22 +130,19 @@ func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, er
 		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.ZP, draw.Src)
 	}
 
-	// Create the colour
-	c := color.RGBA{0, 0, 0, 255}
-
 	// Now circle-magic happens.
 	x, y, dx, dy := r-1, 0, 1, 1
 	err := dx - (int(r) * 2)
 
 	for x > y {
-		img.Set(x0+x, y0+y, c)
-		img.Set(x0+y, y0+x, c)
-		img.Set(x0-y, y0+x, c)
-		img.Set(x0-x, y0+y, c)
-		img.Set(x0-x, y0-y, c)
-		img.Set(x0-y, y0-x, c)
-		img.Set(x0+y, y0-x, c)
-		img.Set(x0+x, y0-y, c)
+		img.Set(x0+x, y0+y, col)
+		img.Set(x0+y, y0+x, col)
+		img.Set(x0-y, y0+x, col)
+		img.Set(x0-x, y0+y, col)
+		img.Set(x0-x, y0-y, col)
+		img.Set(x0-y, y0-x, col)
+		img.Set(x0+y, y0-x, col)
+		img.Set(x0+x, y0-y, col)
 
 		if err <= 0 {
 			y++
@@ -151,11 +172,16 @@ func runScript(code string) string {
 	t := tokenizer.New(code)
 
 	e := eval.New(t)
+	e.RegisterBuiltin("CIRCLE", 5, circleFunction)
+	e.RegisterBuiltin("COLOR", 5, colorFunction)
+	e.RegisterBuiltin("COLOUR", 5, colorFunction)
 	e.RegisterBuiltin("PLOT", 3, plotFunction)
 	e.RegisterBuiltin("SAVE", 0, saveFunction)
-	e.RegisterBuiltin("CIRCLE", 5, circleFunction)
 
-	e.Run()
+	err := e.Run()
+	if err != nil {
+		fmt.Printf("Error running code: %s\n", err.Error())
+	}
 
 	// Get the name of the file the SAVE function wrote to
 	pathObj := e.GetVariable("file.name")
