@@ -353,8 +353,8 @@ func (e *Interpreter) compare() bool {
 	}
 
 	//
-	// Type-checks because our comparision function only works
-	// on integers.
+	// Type-checks because most of our comparison functions only work
+	// upon integers.
 	//
 	if t1.Type() != object.NUMBER {
 		fmt.Printf("compare() only accepts integers right now")

@@ -144,7 +144,7 @@ func INT(env Interpreter, args []token.Token) (object.Object, error) {
 	return &object.NumberObject{Value: float64(int(i))}, nil
 }
 
-// LEFT$ returns the N left-most characters of the string.
+// LEFT returns the N left-most characters of the string.
 func LEFT(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the string
@@ -176,7 +176,7 @@ func LEN(env Interpreter, args []token.Token) (object.Object, error) {
 	return &object.NumberObject{Value: float64(len(in))}, nil
 }
 
-// RIGHT$ returns the N right-most characters of the string.
+// RIGHT returns the N right-most characters of the string.
 func RIGHT(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the string
