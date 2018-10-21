@@ -1,7 +1,5 @@
 // package token contains the tokens we understand when it comes
 // to parsing our BASIC input.
-//
-
 package token
 
 import "strings"

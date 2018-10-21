@@ -1,5 +1,5 @@
-// tokenizer contains our simple BASIC tokenizer.
-
+// Package tokenizer contains the tokenizer we use for parsing
+// BASIC programs.
 package tokenizer
 
 import (
