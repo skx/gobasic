@@ -586,6 +586,10 @@ func (e *Interpreter) runGOTO() error {
 }
 
 // runINPUT handles input of numbers from the user.
+//
+// NOTE:
+//   INPUT "Foo", a  -> Reads an integer
+//   INPUT "Foo", a$  -> Reads a string
 func (e *Interpreter) runINPUT() error {
 
 	// Skip the INPUT-instruction
@@ -615,10 +619,21 @@ func (e *Interpreter) runINPUT() error {
 	fmt.Printf(prompt.Literal)
 
 	//
-	// Read the input
+	// Read the input from the user.
 	//
 	input, _ := e.STDIN.ReadString('\n')
 	input = strings.TrimRight(input, "\n")
+
+	//
+	// Now we handle the type-conversion.
+	//
+	if strings.HasSuffix(ident.Literal, "$") {
+		// We set a string
+		e.vars.Set(ident.Literal, &object.StringObject{Value: input})
+		return nil
+	}
+
+	// We set an int
 	i, err := strconv.ParseFloat(input, 64)
 	if err != nil {
 		return err

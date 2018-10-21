@@ -27,7 +27,8 @@ Currently the following primitives work:
 * `IF` / `THEN` / `ELSE`
   * Conditional execution.
 * `INPUT`
-  * Allow reading (numeric) input from the user.
+  * Allow reading a string `INPUT "Enter a string", a$`.
+  * Allow reading a number `INPUT "Enter a number", a`.
 * `LET`
   * Assign an integer value to a variable.
 * `FOR` & `NEXT`
