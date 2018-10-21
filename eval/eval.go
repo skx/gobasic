@@ -91,7 +91,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.functions.Register("INT", 1, INT)
 	t.functions.Register("LN", 1, LN)
 	t.functions.Register("PI", 0, PI)
-	t.functions.Register("RND", 0, RND)
+	t.functions.Register("RND", 1, RND)
 	t.functions.Register("SIN", 1, SIN)
 	t.functions.Register("TAN", 1, TAN)
 
@@ -313,10 +313,6 @@ func (e *Interpreter) compare() bool {
 // Call the built-in with the given name if we can.
 func (e *Interpreter) callBuiltin(name string) (float64, error) {
 
-	//
-	// Before we lookup the value of a variable
-	// we'll look for a built-in functin.
-	//
 	if e.functions.Exists(name) {
 
 		//
@@ -959,6 +955,7 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runRETURN()
 	case token.IDENT:
 		_, err = e.callBuiltin(tok.Literal)
+		e.offset--
 	default:
 		err = fmt.Errorf("Token not handled: %v", tok)
 	}
@@ -1026,6 +1023,7 @@ func (e *Interpreter) GetVariable(id string) float64 {
 				id, err.Error())
 			os.Exit(1)
 		}
+		e.offset--
 		return out
 	}
 

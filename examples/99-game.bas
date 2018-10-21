@@ -8,7 +8,7 @@
 08 REM     http://www.worldofspectrum.org/ZXBasicManual/zxmanchap3.html
 09 REM
 
- 10 LET b=RND
+ 10 LET b=RND 100
  20 LET count=0
  30 PRINT "I have picked a random number, please guess it!!\n"
  40 INPUT "Enter your choice:", a

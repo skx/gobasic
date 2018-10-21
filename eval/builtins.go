@@ -74,7 +74,19 @@ func INT(env Interpreter, args []token.Token) (float64, error) {
 
 // RND implements RND
 func RND(env Interpreter, args []token.Token) (float64, error) {
-	return float64(rand.Intn(100)), nil
+
+	var max float64
+
+	// We were given a literal int.
+	if args[0].Type == token.INT {
+		max, _ = strconv.ParseFloat(args[0].Literal, 64)
+	}
+	// We were given a variable as an argument.
+	if args[0].Type == token.IDENT {
+		max = env.GetVariable(args[0].Literal)
+	}
+
+	return float64(rand.Intn(int(max))), nil
 }
 
 // SGN is the sign function (sometimes called signum).
