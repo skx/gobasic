@@ -66,6 +66,7 @@ func TestLen(t *testing.T) {
 50 LET t= t + " "
 60 LET t= t + "Kemp"
 70 LET c= LEN t
+80 LET d = LEN 0
 `
 	obj := Compile(input)
 	obj.Run()
@@ -78,6 +79,9 @@ func TestLen(t *testing.T) {
 	}
 	if getFloat(t, obj, "c") != 10 {
 		t.Errorf("LEN 3 Failed!")
+	}
+	if getFloat(t, obj, "d") != 0 {
+		t.Errorf("LEN 4 Failed!")
 	}
 }
 
@@ -329,6 +333,8 @@ func TestMaths(t *testing.T) {
 95 LET H = 33
 99 LET H = ABS H
 110 LET R = RND 100
+120 LET KEY = "STEVE"
+130 LET RT = RND KEY
 `
 
 	obj := Compile(input)
@@ -353,6 +359,9 @@ func TestMaths(t *testing.T) {
 		t.Errorf("Value not expected!")
 	}
 	if getFloat(t, obj, "H") != 33 {
+		t.Errorf("Value not expected!")
+	}
+	if getFloat(t, obj, "RT") != 0 {
 		t.Errorf("Value not expected!")
 	}
 }
@@ -480,6 +489,8 @@ func TestSubstr(t *testing.T) {
 10 LET A$="SATURDAY MORNING"
 20 LET B$=LEFT$ A$ , 8
 30 LET C$=RIGHT$ A$ , 7
+40 LET blah=0
+50 LET D$=LEFT$ blah, 3
 `
 
 	obj := Compile(input)
@@ -490,6 +501,9 @@ func TestSubstr(t *testing.T) {
 	}
 	if getString(t, obj, "C$") != "MORNING" {
 		t.Errorf("RIGHT$ failed! - got '%s'", getString(t, obj, "C$"))
+	}
+	if getString(t, obj, "D$") != "" {
+		t.Errorf("RIGHT$ failed! - got '%s'", getString(t, obj, "D$"))
 	}
 }
 
