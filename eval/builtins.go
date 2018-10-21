@@ -1,6 +1,7 @@
 // builtins.go - Implementation of several built-in functions.
 //
-// This is where we'll add the missing math-functions, etc.
+// This is where we implement functions/statements that are outside
+// of our core.
 //
 
 package eval
