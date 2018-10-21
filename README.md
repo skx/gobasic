@@ -42,8 +42,18 @@ Currently the following primitives work:
 Most of the maths-related primitives I'm familiar with from my days
 coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS.
 
-The interpreter has support for strings, and string-related primitives
-but at the moment there is only support for `LEN`.
+The interpreter has support for strings, and string-related primitives:
+
+* `LEN "STEVE`
+  * Returns the length of a string "STEVE" (5)
+* `LEFT$ "STEVE", 2`
+  * Returns the left-most 2 characters of "STEVE" ("ST").
+* `RIGHT$ "STEVE", 2`
+  * Returns the right-most 2 characters of "STEVE" ("VE").
+* `CHR$ 42`
+  * Converts the integer 42 to a character (`*`).  (i.e. ASCII value)
+* `CODE " "`
+  * Converts the given character to the integer value (32).
 
 
 

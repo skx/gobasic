@@ -103,6 +103,34 @@ func ABS(env Interpreter, args []token.Token) (object.Object, error) {
 	return &object.NumberObject{Value: i}, nil
 }
 
+// CHR returns the character specified by the given ASCII code.
+func CHR(env Interpreter, args []token.Token) (object.Object, error) {
+
+	// Get the (float) argument.
+	i, err := TokenToFloat(env, args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	// Now
+	r := rune(i)
+
+	return &object.StringObject{Value: string(r)}, nil
+}
+
+// CODE returns the integer value of the specified character.
+func CODE(env Interpreter, args []token.Token) (object.Object, error) {
+
+	// Get the (string) argument.
+	i, err := TokenToString(env, args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	s := i[0]
+	return &object.NumberObject{Value: float64(rune(s))}, nil
+}
+
 // INT implements INT
 func INT(env Interpreter, args []token.Token) (object.Object, error) {
 

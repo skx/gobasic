@@ -99,6 +99,8 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.functions.Register("TAN", 1, TAN)
 
 	// Primitives that operate upon strings
+	t.functions.Register("CHR$", 1, CHR)
+	t.functions.Register("CODE", 1, CODE)
 	t.functions.Register("LEFT$", 3, LEFT)
 	t.functions.Register("LEN", 1, LEN)
 	t.functions.Register("RIGHT$", 3, RIGHT)
