@@ -8,7 +8,6 @@
 //
 //  3. Retrieving the contents of BASIC values back to golang.
 //
-
 package main
 
 import (
