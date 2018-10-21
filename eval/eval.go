@@ -90,18 +90,18 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.functions.Register("COS", 1, COS)
 	t.functions.Register("EXP", 1, EXP)
 	t.functions.Register("INT", 1, INT)
-	t.functions.Register("LEN", 1, LEN)
 	t.functions.Register("LN", 1, LN)
 	t.functions.Register("PI", 0, PI)
 	t.functions.Register("RND", 1, RND)
+	t.functions.Register("SGN", 1, SGN)
 	t.functions.Register("SIN", 1, SIN)
+	t.functions.Register("SQR", 1, SQR)
 	t.functions.Register("TAN", 1, TAN)
 
-	// Sign extend
-	t.functions.Register("SGN", 1, SGN)
-
-	// square root
-	t.functions.Register("SQR", 1, SQR)
+	// Primitives that operate upon strings
+	t.functions.Register("LEFT$", 3, LEFT)
+	t.functions.Register("LEN", 1, LEN)
+	t.functions.Register("RIGHT$", 3, RIGHT)
 
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)

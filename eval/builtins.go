@@ -116,6 +116,28 @@ func INT(env Interpreter, args []token.Token) (object.Object, error) {
 	return &object.NumberObject{Value: float64(int(i))}, nil
 }
 
+// LEFT$ returns the N left-most characters of the string.
+func LEFT(env Interpreter, args []token.Token) (object.Object, error) {
+
+	// Get the string
+	in, err := TokenToString(env, args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	// args[1] == COMMA
+
+	// Get the number of characters to return
+	n, err := TokenToFloat(env, args[2])
+	if err != nil {
+		return nil, err
+	}
+
+	left := in[0:int(n)]
+
+	return &object.StringObject{Value: left}, nil
+}
+
 // LEN returns the length of the given string
 func LEN(env Interpreter, args []token.Token) (object.Object, error) {
 
@@ -124,6 +146,28 @@ func LEN(env Interpreter, args []token.Token) (object.Object, error) {
 		return nil, err
 	}
 	return &object.NumberObject{Value: float64(len(in))}, nil
+}
+
+// RIGHT$ returns the N right-most characters of the string.
+func RIGHT(env Interpreter, args []token.Token) (object.Object, error) {
+
+	// Get the string
+	in, err := TokenToString(env, args[0])
+	if err != nil {
+		return nil, err
+	}
+
+	// args[1] == COMMA
+
+	// Get the number of characters to return
+	n, err := TokenToFloat(env, args[2])
+	if err != nil {
+		return nil, err
+	}
+
+	right := in[len(in)-int(n):]
+
+	return &object.StringObject{Value: right}, nil
 }
 
 // RND implements RND

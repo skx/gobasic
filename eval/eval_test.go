@@ -27,6 +27,15 @@ func getFloat(t *testing.T, e *Interpreter, name string) float64 {
 	return (out.(*object.NumberObject).Value)
 }
 
+// getString is a helper for retrieving the value of a string-object
+func getString(t *testing.T, e *Interpreter, name string) string {
+	out := e.GetVariable(name)
+	if out.Type() != object.STRING {
+		t.Errorf("Object %s was not a string", name)
+	}
+	return (out.(*object.StringObject).Value)
+}
+
 // TestGetSet ensures a value is set.  It is naive.
 func TestGetSet(t *testing.T) {
 	input := "10 LET a = a + 1\n"
@@ -393,5 +402,24 @@ func TestIf(t *testing.T) {
 			t.Errorf("Value not expected - got %f for %s", out, nm)
 		}
 
+	}
+}
+
+// TestSubstr tests LEFT$ and RIGHT$
+func TestSubstr(t *testing.T) {
+	input := `
+10 LET A$="SATURDAY MORNING"
+20 LET B$=LEFT$ A$ , 8
+30 LET C$=RIGHT$ A$ , 7
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	if getString(t, obj, "B$") != "SATURDAY" {
+		t.Errorf("LEFT$ failed! - got '%s'", getString(t, obj, "B$"))
+	}
+	if getString(t, obj, "C$") != "MORNING" {
+		t.Errorf("RIGHT$ failed! - got '%s'", getString(t, obj, "C$"))
 	}
 }
