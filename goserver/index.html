@@ -71,6 +71,15 @@
 30 PLOT 100, 100
        </pre></p></dd>
       </dl>
+      <h2>Sample Scripts</h2>
+      <p>The following example draws overlapping circles of ever-increasing radius:</p><p><PRE>10 FOR I = 0 TO 2000 STEP 20
+20  CIRCLE I, I, I
+30  LET r = RND 255
+40  LET g = RND 255
+50  LET b = RND 255
+60  COLOR r, g, b
+70 NEXT I
+</PRE></p>
     </div>
     <div style="text-align: center;">
       <img  id="target" src="" />
