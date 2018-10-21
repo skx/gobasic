@@ -438,16 +438,28 @@ func (e *Interpreter) runForLoop() error {
 		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
 	}
 
-	// Now an integer
+	// Now an integer/variable
 	endI := e.program[e.offset]
 	e.offset++
-	if endI.Type != token.INT {
-		return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
-	}
 
-	end, err := strconv.ParseFloat(endI.Literal, 64)
-	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
+	var end int
+
+	if endI.Type == token.INT {
+		v, err := strconv.ParseFloat(endI.Literal, 64)
+		if err != nil {
+			return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
+		}
+
+		end = int(v)
+	} else if endI.Type == token.IDENT {
+
+		x := e.GetVariable(endI.Literal)
+		if x.Type() != object.NUMBER {
+			return fmt.Errorf("End-variable must be an integer!")
+		}
+		end = int(x.(*object.NumberObject).Value)
+	} else {
+		return fmt.Errorf("Expected INT/VARIABLE after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
 	}
 
 	// Default step is 1.
