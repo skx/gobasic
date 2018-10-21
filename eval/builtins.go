@@ -50,7 +50,39 @@ func tokenToFloat(env Interpreter, tok token.Token) (float64, error) {
 	}
 
 	return i, nil
+}
 
+// tokenToString is a helper for getting the value of a token as a string.
+//
+// If we're given a literal we return it.  Otherwise we look it up from
+// our variable-store and validate the type is correct.
+func tokenToString(env Interpreter, tok token.Token) (string, error) {
+
+	// We were given a literal string as an argument return it.
+	if tok.Type == token.STRING {
+		return tok.Literal, nil
+	}
+
+	// We were given a variable as an argument.
+	if tok.Type == token.IDENT {
+
+		// Get the variable
+		value := env.GetVariable(tok.Literal)
+
+		// Ensure it is a string
+		if value.Type() != object.STRING {
+			return "", fmt.Errorf("Wrong type for variable %s - received %s", tok.Literal, value.Type())
+		}
+
+		return value.(*object.StringObject).Value, nil
+	}
+
+	if tok.Type == token.INT {
+		return "", fmt.Errorf("Wrong type given - we want a STRING")
+	}
+
+	// Can't happen?
+	return "", nil
 }
 
 // ABS implements ABS
@@ -84,6 +116,16 @@ func INT(env Interpreter, args []token.Token) (object.Object, error) {
 	return &object.NumberObject{Value: float64(int(i))}, nil
 }
 
+// LEN returns the length of the given string
+func LEN(env Interpreter, args []token.Token) (object.Object, error) {
+
+	in, err := tokenToString(env, args[0])
+	if err != nil {
+		return nil, err
+	}
+	return &object.NumberObject{Value: float64(len(in))}, nil
+}
+
 // RND implements RND
 func RND(env Interpreter, args []token.Token) (object.Object, error) {
 
@@ -93,7 +135,7 @@ func RND(env Interpreter, args []token.Token) (object.Object, error) {
 		return nil, err
 	}
 
-	// Truncate.
+	// Return the random number
 	return &object.NumberObject{Value: float64(rand.Intn(int(max)))}, nil
 }
 

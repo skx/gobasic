@@ -90,6 +90,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.functions.Register("COS", 1, COS)
 	t.functions.Register("EXP", 1, EXP)
 	t.functions.Register("INT", 1, INT)
+	t.functions.Register("LEN", 1, LEN)
 	t.functions.Register("LN", 1, LN)
 	t.functions.Register("PI", 0, PI)
 	t.functions.Register("RND", 1, RND)
