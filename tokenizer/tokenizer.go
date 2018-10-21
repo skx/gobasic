@@ -43,7 +43,7 @@ func New(input string) *Tokenizer {
 	return l
 }
 
-// read one forward character
+// readChar reads forward one character.
 func (l *Tokenizer) readChar() {
 	if l.readPosition >= len(l.characters) {
 		l.ch = rune(0)
@@ -54,7 +54,8 @@ func (l *Tokenizer) readChar() {
 	l.readPosition++
 }
 
-// NextToken to read next token, skipping the white space.
+// NextToken reads and returns the next available token, skipping any
+// white space which might be present.
 func (l *Tokenizer) NextToken() token.Token {
 	var tok token.Token
 	l.skipWhitespace()
