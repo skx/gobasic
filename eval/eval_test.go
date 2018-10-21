@@ -528,6 +528,24 @@ func TestTL(t *testing.T) {
 
 // TestMID tests our MID$ function.
 func TestMID(t *testing.T) {
+	input := `
+10 LET IN = "Hello World"
+20 LET a = MID$ IN, 1000, 1
+30 LET b = MID$ IN, 6, 4
+40 LET c = MID$ IN, 6, 400
+`
+	obj := Compile(input)
+	obj.Run()
+
+	if getString(t, obj, "a") != "" {
+		t.Errorf("MID$ 1 Failed!")
+	}
+	if getString(t, obj, "b") != "Worl" {
+		t.Errorf("CODE 2 Failed!")
+	}
+	if getString(t, obj, "c") != "World" {
+		t.Errorf("CODE 3 Failed!")
+	}
 }
 
 // TestCode tests our CODE function

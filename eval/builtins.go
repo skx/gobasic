@@ -204,10 +204,18 @@ func MID(env Interpreter, args []token.Token) (object.Object, error) {
 		return nil, err
 	}
 
+	// too far
+	if int(offset) > len(in) {
+		return &object.StringObject{Value: ""}, nil
+	}
+
 	// get the string from the position
 	out := in[int(offset):]
 
 	// now cut, by length
+	if int(count) > len(out) {
+		count = float64(len(out))
+	}
 	out = out[:int(count)]
 	return &object.StringObject{Value: out}, nil
 }
