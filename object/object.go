@@ -1,6 +1,6 @@
 // Package object contains code to store values passed too/from BASIC.
 //
-// Our values are either numbers (float64) for strings.
+// Our values are either numbers (float64) or strings.
 package object
 
 // Type describes the type of an object.
