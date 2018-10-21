@@ -183,6 +183,28 @@ BASIC scripts is pretty simple.  (This is how SIN, COS, etc are implemented
 in the standalone interpreter.)
 
 
+
+## Visual BASIC!
+
+I've implemented a simple HTTP-server which will accept BASIC code,
+and render images.  This is built upon the embedded example.
+
+To run this:
+
+    cd goserver
+    go run ./main.go
+
+Once running open your browser at the URL:
+
+* [http://localhost:8080](http://localhost:8080)
+
+The view will have an area of entering code, and once you run it the result will
+be shown in the bottom of the screen.  Something like this:
+
+![alt text](https://github.com/skx/gobasic/raw/master/goserver/screenshot.png "Sample view")
+
+
+
 ## Bugs?
 
 Probably.  Good luck!

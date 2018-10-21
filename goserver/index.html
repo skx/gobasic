@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Visual Basic ;)</title>
+    <meta charset="UTF-8" />
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+     $(function() {
+       $("#idForm").submit(function(e) {
+         var form = $(this);
+         var url = form.attr('action');
+
+         $.ajax({
+           type: "POST",
+           url: "/",
+           data: form.serialize(),
+           success: function(data)
+           {
+             $("#target").attr("src","data:image/gif;base64," + data);
+
+           }
+         });
+
+         e.preventDefault();
+       })
+     });
+    </script>
+    <style type="text/css">
+     textarea
+     {
+       width:100%;
+     }
+     img
+     {
+       border: 1px solid black;
+     }
+    </style>
+  </head>
+  <body>
+    <div>
+      <form method="POST" id="idForm" name="idForm" action="/">
+        <textarea name="code" id="code" rows="30" cols="80">10 REM
+20 REM This script will be executed with an 800x600 image
+30 FOR x=0 TO 800
+40 LET y = x / 128 * PI
+50 LET y = 100 + ( 80 * SIN y )
+60 PLOT x,y
+70 NEXT x
+    </textarea>
+    <input type="submit" value="RUN CODE!" />
+      </form>
+    </div>
+    <div style="text-align: center;">
+      <img  id="target" src="" />
+    </div>
+  </body>
+</html>
