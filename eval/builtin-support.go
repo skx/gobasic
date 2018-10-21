@@ -5,6 +5,7 @@ package eval
 import (
 	"sync"
 
+	"github.com/skx/gobasic/object"
 	"github.com/skx/gobasic/token"
 )
 
@@ -12,7 +13,7 @@ import (
 //
 // Each built-in will receive an array of tokens, and will return a
 // result/error which will be made available to the BASIC caller.
-type BuiltinSig func(env Interpreter, args []token.Token) (float64, error)
+type BuiltinSig func(env Interpreter, args []token.Token) (object.Object, error)
 
 // Builtins holds our state.
 type Builtins struct {
