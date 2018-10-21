@@ -185,12 +185,15 @@ The example defines four new functions:
 * `POKE`
 * `DOT`
 * `SAVE`
+* `CIRCLE`
 
 When the script runs it does some basic variable manipulation and it also
-creates a PNG file - the `DOT` function allows your script to create a black
-image, and draw red dots on it.  The `SAVE` function writes out the result.
+creates a PNG file - the `DOT` function allows your script to set a pixel
+and the `CIRCLE` primitive draws an (outline of a) circle.  Finally the
+`SAVE` function writes out the result.
 
-Extending this example to draw circles, boxes, etc, is left as an exercise ;)
+Extending this example to draw filled circles, boxes, etc, is left as an
+exercise ;)
 
 Hopefully this example shows that making your own functions available to
 BASIC scripts is pretty simple.  (This is how SIN, COS, etc are implemented
@@ -200,8 +203,8 @@ in the standalone interpreter.)
 
 ## Visual BASIC!
 
-I've implemented a simple HTTP-server which will accept BASIC code,
-and render images.  This is built upon the embedded example.
+Building upon the code in the embedded-example I've also implemented a simple
+HTTP-server which will accept BASIC code, and render images!
 
 To run this:
 
