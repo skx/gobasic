@@ -3,6 +3,7 @@
 package eval
 
 import (
+	"math"
 	"strings"
 	"testing"
 
@@ -16,6 +17,20 @@ func Compile(input string) *Interpreter {
 	return e
 }
 
+// TestGetSet ensures a value is set.  It is naive.
+func TestGetSet(t *testing.T) {
+	input := "10 LET a = a + 1\n"
+
+	obj := Compile(input)
+	obj.SetVariable("a", 17)
+	obj.Run()
+
+	out := obj.GetVariable("a")
+	if out != 18 {
+		t.Errorf("Value not expected!")
+	}
+}
+
 // TestLet ensures a value is set.  It is naive.
 func TestLet(t *testing.T) {
 	input := "10 LET a = 33\n"
@@ -25,6 +40,88 @@ func TestLet(t *testing.T) {
 
 	out := obj.GetVariable("a")
 	if out != 33 {
+		t.Errorf("Value not expected!")
+	}
+}
+
+// TestPI ensures that PI and INT works
+func TestPI(t *testing.T) {
+	input := `10 LET a = PI
+20 LET b = INT a
+30 LET c = INT PI
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	out := obj.GetVariable("a")
+	if out != math.Pi {
+		t.Errorf("Value not expected!")
+	}
+
+	// PI -> int == 3
+	if obj.GetVariable("b") != 3 {
+		t.Errorf("INT didn't work as expected!")
+	}
+	if obj.GetVariable("c") != 3 {
+		t.Errorf("INT didn't work as expected!")
+	}
+}
+
+// TestSGN ensures that the sign-extend function works
+func TestSGN(t *testing.T) {
+	input := `10 REM
+20 LET a = SGN -10
+30 LET b = SGN 13
+40 LET c = SGN 0
+
+50 LET X = -10
+60 LET Y = 0
+64 LET Z = 300
+
+70 LET d = SGN X
+80 LET e = SGN Y
+90 LET f = SGN Z
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	if obj.GetVariable("a") != -1 {
+		t.Errorf("Value not expected!")
+	}
+	if obj.GetVariable("b") != 1 {
+		t.Errorf("Value not expected!")
+	}
+	if obj.GetVariable("c") != 0 {
+		t.Errorf("Value not expected!")
+	}
+	if obj.GetVariable("d") != -1 {
+		t.Errorf("Value not expected!")
+	}
+	if obj.GetVariable("e") != 0 {
+		t.Errorf("Value not expected!")
+	}
+	if obj.GetVariable("f") != 1 {
+		t.Errorf("Value not expected!")
+	}
+}
+
+// TestSQR ensures that the square-root code is sane.
+func TestSQR(t *testing.T) {
+	input := `10 REM
+20 LET a = SQR 9
+30 LET X = 100
+40 LET b = SQR X
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	if obj.GetVariable("a") != 3 {
+		t.Errorf("Value not expected!")
+	}
+	if obj.GetVariable("b") != 10 {
 		t.Errorf("Value not expected!")
 	}
 }
@@ -147,7 +244,7 @@ func TestMaths(t *testing.T) {
 90 LET H = ABS H
 95 LET H = 33
 99 LET H = ABS H
-110 LET R = RND()
+110 LET R = RND 100
 `
 
 	obj := Compile(input)
@@ -236,6 +333,9 @@ func TestPrint(t *testing.T) {
 30 PRINT "Test\n"
 40 PRINT ( 3 * ( 3 + 4  ) ) "\n"
 50 PRINT "OK","OK"
+60 LET a = PI
+60 PRINT a
+70 REM
 `
 
 	obj := Compile(input)
