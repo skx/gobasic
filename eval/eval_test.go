@@ -609,3 +609,24 @@ func TestCHR(t *testing.T) {
 		t.Errorf("CHR$ 2 Failed!")
 	}
 }
+
+// TestBIN tests our BIN function
+func TestBIN(t *testing.T) {
+	input := `
+10 LET a = BIN 11111111
+20 LET b = BIN 00000010
+20 LET c = BIN 00002010
+`
+	obj := Compile(input)
+	obj.Run()
+
+	if getFloat(t, obj, "a") != 255 {
+		t.Errorf("1 Failed!")
+	}
+	if getFloat(t, obj, "b") != 2 {
+		t.Errorf("BIN 2!")
+	}
+	if getFloat(t, obj, "c") != 0 {
+		t.Errorf("BIN 3!")
+	}
+}

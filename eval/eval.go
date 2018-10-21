@@ -87,6 +87,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.functions.Register("ACS", 1, ACS)
 	t.functions.Register("ASN", 1, ASN)
 	t.functions.Register("ATN", 1, ATN)
+	t.functions.Register("BIN", 1, BIN)
 	t.functions.Register("COS", 1, COS)
 	t.functions.Register("EXP", 1, EXP)
 	t.functions.Register("INT", 1, INT)

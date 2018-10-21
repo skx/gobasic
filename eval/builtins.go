@@ -99,6 +99,26 @@ func ABS(env Interpreter, args []token.Token) (object.Object, error) {
 	return &object.NumberObject{Value: i}, nil
 }
 
+// BIN converts a number from binary.
+func BIN(env Interpreter, args []token.Token) (object.Object, error) {
+
+	// Get the (float) argument.
+	i, err := TokenToFloat(env, args[0])
+	if err != nil {
+		return &object.NumberObject{Value: 0}, err
+	}
+
+	// hack
+	s := fmt.Sprintf("%d", int(i))
+
+	b, err := strconv.ParseInt(s, 2, 64)
+	if err != nil {
+		return &object.NumberObject{Value: 0}, err
+	}
+	return &object.NumberObject{Value: float64(b)}, nil
+
+}
+
 // CHR returns the character specified by the given ASCII code.
 func CHR(env Interpreter, args []token.Token) (object.Object, error) {
 
