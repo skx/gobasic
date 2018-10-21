@@ -38,7 +38,7 @@ func New(input string) *Tokenizer {
 	//
 	// Hacks are us!
 	//
-	l := &Tokenizer{characters: []rune("\n" + input)}
+	l := &Tokenizer{characters: []rune("\n" + input + "\n")}
 	l.readChar()
 	return l
 }
