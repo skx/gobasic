@@ -10,6 +10,7 @@ This repository contains a naive implementation of BASIC, written in Golang.
 The implementation is simple for three main reasons:
 
 * There is no UI, which means any and all graphics-primitives are ruled out.
+  * However the embedded sample, described later in this file, demonstrates using BASIC to create a PNG image.
 * I deliberately set a low bar for myself, originally this was going to be a [weekend project](https://blog.steve.fi/monkeying_around_with_intepreters.html).
   * This is _still_ a weekend-project, but happened over the course of a couple  of hours of evening/morning time instead.
 * I didn't implement the full BASIC set of primitives.
@@ -38,8 +39,10 @@ Currently the following primitives work:
   * A single-line comment (BASIC has no notion of multi-line comments).
 
 Most of the maths-related primitives I'm familiar with from my days
-coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS,
-however __none__ of the string-related primitives are present.
+coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS.
+
+The interpreter has support for strings, and string-related primitives
+but at the moment there is only support for `LEN`.
 
 
 
@@ -50,10 +53,9 @@ This is a quick hack, so there are some (important) limitations:
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
   * I allow assignment, prints, loops, and control-flow primitives.
-  * All string operations are missing.
+  * The common string operations are missing.
   * Most of the math-related operations are present, but there may be omissions depending upon the BASIC dialect you're familiar with.
-* Only floating-point and string values are parsed.
-  * Strings can only be used literally, not stored in a variable.
+* Only floating-point and string values are permitted, there is no support for arrays.
 
 The handling of the IF statement is perhaps a little unusual, since I'm
 used to the BASIC provided by the ZX Spectrum which had no ELSE clause!
@@ -126,6 +128,7 @@ As is common with early 8-bit home-computers this implementation is a little mor
     * [eval/vars.go](eval/vars.go) holds all our variable references.
     * We have a facility to allow golang code to be made available to BASIC programs, and we use that facility to implement a bunch of our functions.
     * Specifically we use [eval/builtin-support.go](eval/builtin-support.go) to define a lot of functions in [eval/builtins.go](eval/builtins.go) which allow BASIC to call SIN, ABS, PI, etc.
+    * Because we support both strings and ints/floats in our BASIC scripts we use a wrapper to hold them on the golang-side.  This can be found in [object/object.go](object/object.go).
 
 As there is no AST step errors cannot be detected prior to the execution of programs - because we only hit them after we've started running.
 
