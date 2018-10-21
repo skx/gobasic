@@ -269,24 +269,46 @@ func (e *Interpreter) expr() object.Object {
 		t2 := e.term()
 
 		//
-		// Type-check
+		// Strings can be joined
 		//
-		if t1.Type() != object.NUMBER {
-			fmt.Printf("expr() only handles integers")
-			os.Exit(3)
-		}
-		if t2.Type() != object.NUMBER {
-			fmt.Printf("expr() only handles integers")
-			os.Exit(3)
+		if t1.Type() != t2.Type() {
+			fmt.Printf("expr() - type mismatch\n")
+			os.Exit(1)
 		}
 
-		if tok.Type == token.PLUS {
-			t1 = &object.NumberObject{Value: t1.(*object.NumberObject).Value + t2.(*object.NumberObject).Value}
-		}
-		if tok.Type == token.MINUS {
-			t1 = &object.NumberObject{Value: t1.(*object.NumberObject).Value - t2.(*object.NumberObject).Value}
-		}
+		//
+		// Strings?
+		//
+		if t1.Type() == object.STRING {
 
+			s1 := t1.(*object.StringObject).Value
+			s2 := t2.(*object.StringObject).Value
+
+			if tok.Type == token.PLUS {
+				t1 = &object.StringObject{Value: s1 + s2}
+			} else {
+				fmt.Printf("Token not handled for two strings: %s\n", tok.Literal)
+				os.Exit(2)
+			}
+
+		} else {
+
+			//
+			// Working with numbers.
+			//
+			n1 := t1.(*object.NumberObject).Value
+			n2 := t2.(*object.NumberObject).Value
+
+			if tok.Type == token.PLUS {
+				t1 = &object.NumberObject{Value: n1 + n2}
+			} else if tok.Type == token.MINUS {
+				t1 = &object.NumberObject{Value: n1 - n2}
+			} else {
+				fmt.Printf("Token not handled for two numbers: %s\n", tok.Literal)
+				os.Exit(2)
+
+			}
+		}
 		// repeat?
 		tok = e.program[e.offset]
 	}
@@ -306,6 +328,27 @@ func (e *Interpreter) compare() bool {
 
 	// Get the second expression
 	t2 := e.expr()
+
+	//
+	// We'll handle string equality testing here.
+	//
+	if t1.Type() == object.STRING && t2.Type() == object.STRING {
+
+		v1 := t1.(*object.StringObject).Value
+		v2 := t2.(*object.StringObject).Value
+
+		switch op.Type {
+		case token.ASSIGN:
+			if v1 == v2 {
+				return true
+			}
+		case token.NOT_EQUALS:
+			if v1 == v2 {
+				return true
+			}
+		}
+		return false
+	}
 
 	//
 	// Type-checks because our comparision function only works
@@ -533,8 +576,7 @@ func (e *Interpreter) runGOSUB() error {
 	// Get the target
 	target := e.program[e.offset]
 
-	// We expect the next token to be an int
-	// If we had variables ..
+	// We expect the target to be an int
 	if target.Type != token.INT {
 		return (fmt.Errorf("ERROR: GOSUB should be followed by an integer"))
 	}
@@ -576,7 +618,7 @@ func (e *Interpreter) runGOTO() error {
 	// Get the GOTO-target
 	target := e.program[e.offset]
 
-	// We expect the next token to be an int
+	// We expect the target to be an int
 	if target.Type != token.INT {
 		return fmt.Errorf("ERROR: GOTO should be followed by an integer")
 	}
@@ -600,7 +642,7 @@ func (e *Interpreter) runGOTO() error {
 // runINPUT handles input of numbers from the user.
 //
 // NOTE:
-//   INPUT "Foo", a  -> Reads an integer
+//   INPUT "Foo", a   -> Reads an integer
 //   INPUT "Foo", a$  -> Reads a string
 func (e *Interpreter) runINPUT() error {
 
@@ -789,6 +831,7 @@ func (e *Interpreter) runLET() error {
 	// now we're at the expression/value/whatever
 	res := e.expr()
 
+	// Store the result
 	e.vars.Set(target.Literal, res)
 	return nil
 }
@@ -860,10 +903,12 @@ func (e *Interpreter) runNEXT() error {
 	//
 	e.offset = data.offset
 	return nil
-	return nil
 }
 
 // runPRINT handles a print!
+// NOTE:
+//  Print basically swallows input up to the next newline.
+//  However it also stops at ":" to cope with the case of printing in an IF
 func (e *Interpreter) runPRINT() error {
 
 	// Bump past the PRINT token
@@ -944,13 +989,9 @@ func (e *Interpreter) runPRINT() error {
 }
 
 // REM handles a REM statement
+// This merely swallows input until the following newline / EOF.
 func (e *Interpreter) runREM() error {
 
-	// Skip over all content until we hit the end
-	// of the program, or a newline.
-	//
-	// Whichever comes first.
-	//
 	for e.offset < len(e.program) {
 		tok := e.program[e.offset]
 		if tok.Type == token.NEWLINE {
@@ -1063,8 +1104,7 @@ func (e *Interpreter) RunOnce() error {
 	return nil
 }
 
-// Run launches the users' program, and does not return until it
-// is complete.
+// Run launches the program, and does not return until it is over.
 //
 // A program will terminate when the control reaches the end of the
 // final-line, or when the "END" token is encountered.
@@ -1090,13 +1130,17 @@ func (e *Interpreter) Run() error {
 }
 
 // SetVariable sets the contents of a variable in the interpreterr environment.
+//
 // Useful for testing/embedding.
+//
 func (e *Interpreter) SetVariable(id string, val object.Object) {
 	e.vars.Set(id, val)
 }
 
 // GetVariable returns the contents of the given variable.
+//
 // Useful for testing/embedding.
+//
 func (e *Interpreter) GetVariable(id string) object.Object {
 
 	//
@@ -1121,6 +1165,9 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 
 // RegisterBuiltin registers a function as a built-in, so that it can
 // be called from the users' BASIC program.
+//
+// Useful for embedding.
+//
 func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft BuiltinSig) {
 	e.functions.Register(name, nArgs, ft)
 }
