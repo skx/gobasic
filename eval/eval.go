@@ -1156,9 +1156,8 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 		out, err := e.callBuiltin(id)
 
 		if err != nil {
-			fmt.Printf("Error calling builtin %s - %s\n",
-				id, err.Error())
-			os.Exit(1)
+			fmt.Printf("Error calling builtin %s - %s [%v]\n",
+				id, err.Error(), out)
 		}
 		e.offset--
 		return out
