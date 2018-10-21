@@ -17,6 +17,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/skx/gobasic/object"
 	"github.com/skx/gobasic/token"
 	"github.com/skx/gobasic/tokenizer"
 )
@@ -155,7 +156,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 ////
 
 // factor
-func (e *Interpreter) factor() float64 {
+func (e *Interpreter) factor() object.Object {
 
 	tok := e.program[e.offset]
 	switch tok.Type {
@@ -180,10 +181,14 @@ func (e *Interpreter) factor() float64 {
 		i, err := strconv.ParseFloat(tok.Literal, 64)
 		if err == nil {
 			e.offset++
-			return i
+			return &object.NumberObject{Value: i}
 		}
 		fmt.Printf("Failed to convert %s -> float64 %s\n", tok.Literal, err.Error())
 		os.Exit(3)
+
+	case token.STRING:
+		e.offset++
+		return &object.StringObject{Value: tok.Literal}
 
 	case token.IDENT:
 
@@ -197,11 +202,13 @@ func (e *Interpreter) factor() float64 {
 
 	fmt.Printf("factor() - unhandled token: %v\n", tok)
 	os.Exit(33)
-	return -1
+
+	// never-reached
+	return &object.NumberObject{Value: 1}
 }
 
 // terminal
-func (e *Interpreter) term() float64 {
+func (e *Interpreter) term() object.Object {
 
 	f1 := e.factor()
 
@@ -217,14 +224,26 @@ func (e *Interpreter) term() float64 {
 		// get the next factor
 		f2 := e.factor()
 
+		//
+		// Type-check
+		//
+		if f1.Type() != object.NUMBER {
+			fmt.Printf("term() only handles integers")
+			os.Exit(3)
+		}
+		if f2.Type() != object.NUMBER {
+			fmt.Printf("term() only handles integers")
+			os.Exit(3)
+		}
+
 		if tok.Type == token.ASTERISK {
-			f1 = f1 * f2
+			f1 = &object.NumberObject{Value: f1.(*object.NumberObject).Value * f2.(*object.NumberObject).Value}
 		}
 		if tok.Type == token.SLASH {
-			f1 = f1 / f2
+			f1 = &object.NumberObject{Value: f1.(*object.NumberObject).Value / f2.(*object.NumberObject).Value}
 		}
 		if tok.Type == token.MOD {
-			f1 = float64(int(f1) % int(f2))
+			f1 = &object.NumberObject{Value: float64(int(f1.(*object.NumberObject).Value) % int(f2.(*object.NumberObject).Value))}
 		}
 
 		// repeat?
@@ -234,7 +253,7 @@ func (e *Interpreter) term() float64 {
 }
 
 // expression
-func (e *Interpreter) expr() float64 {
+func (e *Interpreter) expr() object.Object {
 
 	t1 := e.term()
 
@@ -248,11 +267,23 @@ func (e *Interpreter) expr() float64 {
 
 		t2 := e.term()
 
+		//
+		// Type-check
+		//
+		if t1.Type() != object.NUMBER {
+			fmt.Printf("expr() only handles integers")
+			os.Exit(3)
+		}
+		if t2.Type() != object.NUMBER {
+			fmt.Printf("expr() only handles integers")
+			os.Exit(3)
+		}
+
 		if tok.Type == token.PLUS {
-			t1 = t1 + t2
+			t1 = &object.NumberObject{Value: t1.(*object.NumberObject).Value + t2.(*object.NumberObject).Value}
 		}
 		if tok.Type == token.MINUS {
-			t1 = t1 - t2
+			t1 = &object.NumberObject{Value: t1.(*object.NumberObject).Value - t2.(*object.NumberObject).Value}
 		}
 
 		// repeat?
@@ -275,32 +306,49 @@ func (e *Interpreter) compare() bool {
 	// Get the second expression
 	t2 := e.expr()
 
+	//
+	// Type-checks because our comparision function only works
+	// on integers.
+	//
+	if t1.Type() != object.NUMBER {
+		fmt.Printf("compare() only accepts integers right now")
+		os.Exit(2)
+	}
+	if t2.Type() != object.NUMBER {
+		fmt.Printf("compare() only accepts integers right now")
+		os.Exit(2)
+	}
+
+	// Cast to int.
+	v1 := t1.(*object.NumberObject).Value
+	v2 := t2.(*object.NumberObject).Value
+
 	switch op.Type {
 	case token.ASSIGN:
-		if t1 == t2 {
+		if v1 == v2 {
 			return true
 		}
 
 	case token.GT:
-		if t1 > t2 {
+		if v1 > v2 {
 			return true
 		}
 	case token.GT_EQUALS:
-		if t1 >= t2 {
+		if v1 >= v2 {
 			return true
 		}
 	case token.LT:
-		if t1 < t2 {
+		if v1 < v2 {
 			return true
 		}
 
 	case token.LT_EQUALS:
-		if t1 <= t2 {
+		if v1 <= v2 {
 			return true
 		}
 
 	case token.NOT_EQUALS:
-		if t1 != t2 {
+		if v1 != v2 {
 			return true
 		}
 	default:
@@ -311,7 +359,7 @@ func (e *Interpreter) compare() bool {
 }
 
 // Call the built-in with the given name if we can.
-func (e *Interpreter) callBuiltin(name string) (float64, error) {
+func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 
 	if e.functions.Exists(name) {
 
@@ -340,121 +388,122 @@ func (e *Interpreter) callBuiltin(name string) (float64, error) {
 		out, err := fun(*e, args)
 		return out, err
 	}
-	return 0, nil
+	return nil, nil
 }
 
 // runForLoop handles a FOR loop
 func (e *Interpreter) runForLoop() error {
-	// we expect "ID = NUM to NUM [STEP NUM]"
+	/*
+		// we expect "ID = NUM to NUM [STEP NUM]"
 
-	// Bump past the FOR token
-	e.offset++
-
-	// We now expect a token
-	target := e.program[e.offset]
-	e.offset++
-	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after FOR, got %v", target)
-	}
-
-	// Now an EQUALS
-	eq := e.program[e.offset]
-	e.offset++
-	if eq.Type != token.ASSIGN {
-		return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
-	}
-
-	// Now an integer
-	startI := e.program[e.offset]
-	e.offset++
-	if startI.Type != token.INT {
-		return fmt.Errorf("Expected INT after 'FOR %s=', got %v", target.Literal, startI)
-	}
-
-	start, err := strconv.ParseFloat(startI.Literal, 64)
-	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s", startI.Literal, err.Error())
-	}
-
-	// Now TO
-	to := e.program[e.offset]
-	e.offset++
-	if to.Type != token.TO {
-		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
-	}
-
-	// Now an integer
-	endI := e.program[e.offset]
-	e.offset++
-	if endI.Type != token.INT {
-		return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
-	}
-
-	end, err := strconv.ParseFloat(endI.Literal, 64)
-	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
-	}
-
-	// Default step is 1.
-	stepI := "1"
-
-	// Is the next token a step?
-	if e.program[e.offset].Type == token.STEP {
+		// Bump past the FOR token
 		e.offset++
 
-		s := e.program[e.offset]
+		// We now expect a token
+		target := e.program[e.offset]
 		e.offset++
-		if s.Type != token.INT {
-			return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v", target.Literal, startI, endI, s)
+		if target.Type != token.IDENT {
+			return fmt.Errorf("Expected IDENT after FOR, got %v", target)
 		}
-		stepI = s.Literal
-	}
 
-	step, err := strconv.ParseFloat(stepI, 64)
-	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s", stepI, err.Error())
-	}
+		// Now an EQUALS
+		eq := e.program[e.offset]
+		e.offset++
+		if eq.Type != token.ASSIGN {
+			return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
+		}
 
-	//
-	// Now we can record the important details of the for-loop
-	// in a hash.
-	//
-	// The key observersions here are that all the magic
-	// really involved in the FOR-loop happens at the point
-	// you interpret the "NEXT X" section.
-	//
-	// Handling the NEXT statement involves:
-	//
-	//  Incrementing the step-variable
-	//  Looking for termination
-	//  If not over then "jumping back".
-	//
-	// So for a for-loop we just record the start/end conditions
-	// and the address of the body of the loop - ie. the next
-	// token - so that the next-handler can GOTO there.
-	//
-	// It is almost beautifully elegent.
-	//
-	f := ForLoop{id: target.Literal,
-		offset: e.offset,
-		start:  int(start),
-		end:    int(end),
-		step:   int(step)}
+		// Now an integer
+		startI := e.program[e.offset]
+		e.offset++
+		if startI.Type != token.INT {
+			return fmt.Errorf("Expected INT after 'FOR %s=', got %v", target.Literal, startI)
+		}
 
-	//
-	// Set the variable to the starting-value
-	//
-	e.vars.Set(target.Literal, start)
+		start, err := strconv.ParseFloat(startI.Literal, 64)
+		if err != nil {
+			return fmt.Errorf("Failed to convert %s to an int %s", startI.Literal, err.Error())
+		}
 
-	//
-	// And record our loop - keyed on the name of the variable
-	// which is used as the index.  This allows easy and natural
-	// nested-loops.
-	//
-	// Did I say this is elegent?
-	//
-	AddForLoop(f)
+		// Now TO
+		to := e.program[e.offset]
+		e.offset++
+		if to.Type != token.TO {
+			return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
+		}
 
+		// Now an integer
+		endI := e.program[e.offset]
+		e.offset++
+		if endI.Type != token.INT {
+			return fmt.Errorf("Expected INT after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
+		}
+
+		end, err := strconv.ParseFloat(endI.Literal, 64)
+		if err != nil {
+			return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
+		}
+
+		// Default step is 1.
+		stepI := "1"
+
+		// Is the next token a step?
+		if e.program[e.offset].Type == token.STEP {
+			e.offset++
+
+			s := e.program[e.offset]
+			e.offset++
+			if s.Type != token.INT {
+				return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v", target.Literal, startI, endI, s)
+			}
+			stepI = s.Literal
+		}
+
+		step, err := strconv.ParseFloat(stepI, 64)
+		if err != nil {
+			return fmt.Errorf("Failed to convert %s to an int %s", stepI, err.Error())
+		}
+
+		//
+		// Now we can record the important details of the for-loop
+		// in a hash.
+		//
+		// The key observersions here are that all the magic
+		// really involved in the FOR-loop happens at the point
+		// you interpret the "NEXT X" section.
+		//
+		// Handling the NEXT statement involves:
+		//
+		//  Incrementing the step-variable
+		//  Looking for termination
+		//  If not over then "jumping back".
+		//
+		// So for a for-loop we just record the start/end conditions
+		// and the address of the body of the loop - ie. the next
+		// token - so that the next-handler can GOTO there.
+		//
+		// It is almost beautifully elegent.
+		//
+		f := ForLoop{id: target.Literal,
+			offset: e.offset,
+			start:  int(start),
+			end:    int(end),
+			step:   int(step)}
+
+		//
+		// Set the variable to the starting-value
+		//
+		e.vars.Set(target.Literal, &object.NumberObject{Value: start})
+
+		//
+		// And record our loop - keyed on the name of the variable
+		// which is used as the index.  This allows easy and natural
+		// nested-loops.
+		//
+		// Did I say this is elegent?
+		//
+		AddForLoop(f)
+	*/
 	return nil
 }
 
@@ -579,7 +628,7 @@ func (e *Interpreter) runINPUT() error {
 	//
 	// Set the value
 	//
-	e.vars.Set(ident.Literal, i)
+	e.vars.Set(ident.Literal, &object.NumberObject{Value: i})
 	return nil
 }
 
@@ -720,69 +769,72 @@ func (e *Interpreter) runLET() error {
 
 // runNEXT handles the NEXT statement
 func (e *Interpreter) runNEXT() error {
-	// Bump past the NEXT token
-	e.offset++
+	/*
+		// Bump past the NEXT token
+		e.offset++
 
-	// Get the identifier
-	target := e.program[e.offset]
-	e.offset++
-	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after NEXT in FOR loop, got %v", target)
-	}
+		// Get the identifier
+		target := e.program[e.offset]
+		e.offset++
+		if target.Type != token.IDENT {
+			return fmt.Errorf("Expected IDENT after NEXT in FOR loop, got %v", target)
+		}
 
-	// OK we've found the tail of a loop
-	//
-	// We need to bump the value of the given variable by the offset
-	// and compare it against the max.
-	//
-	// If the max hasn't finished we loop around again.
-	//
-	// If it has we remove the for-loop
-	//
-	data := GetForLoop(target.Literal)
+		// OK we've found the tail of a loop
+		//
+		// We need to bump the value of the given variable by the offset
+		// and compare it against the max.
+		//
+		// If the max hasn't finished we loop around again.
+		//
+		// If it has we remove the for-loop
+		//
+		data := GetForLoop(target.Literal)
 
-	//
-	// Get the variable value, and increase it.
-	//
-	cur := e.vars.Get(target.Literal)
-	iVal := 0
+		//
+		// Get the variable value, and increase it.
+		//
+		cur := e.vars.Get(target.Literal)
+		iVal := 0
 
-	iVal, ok := cur.(int)
-	if !ok {
-		iVal = int(cur.(float64))
-	}
+		iVal, ok := cur.(int)
+		if !ok {
+			iVal = int(cur.(float64))
+		}
 
-	iVal += data.step
+		iVal += data.step
 
-	//
-	// Set it
-	//
-	e.vars.Set(target.Literal, float64(iVal))
+		//
+		// Set it
+		//
+		e.vars.Set(target.Literal, float64(iVal))
 
-	//
-	// Have we finnished?
-	//
-	if data.finished {
-		RemoveForLoop(target.Literal)
+		//
+		// Have we finnished?
+		//
+		if data.finished {
+			RemoveForLoop(target.Literal)
+			return nil
+		}
+
+		//
+		// If we've reached our limit we mark this as complete,
+		// but note that we dont' terminate to allow the actual
+		// end-number to be inclusive.
+		//
+		if iVal == data.end {
+			data.finished = true
+
+			// updates-in-place.  bad name
+			AddForLoop(data)
+		}
+
+		//
+		// Otherwise loop again
+		//
+		e.offset = data.offset
 		return nil
-	}
-
-	//
-	// If we've reached our limit we mark this as complete,
-	// but note that we dont' terminate to allow the actual
-	// end-number to be inclusive.
-	//
-	if iVal == data.end {
-		data.finished = true
-
-		// updates-in-place.  bad name
-		AddForLoop(data)
-	}
-
-	//
-	// Otherwise loop again
-	//
-	e.offset = data.offset
+	*/
 	return nil
 }
 
@@ -803,7 +855,7 @@ func (e *Interpreter) runPRINT() error {
 			return nil
 		}
 
-		// We expect to handle "int", "string", and ",".
+		// Printing a literal?
 		if tok.Type == token.INT || tok.Type == token.STRING {
 			fmt.Printf("%s", tok.Literal)
 		} else if tok.Type == token.COMMA {
@@ -813,22 +865,19 @@ func (e *Interpreter) runPRINT() error {
 			// Get the contents of the variable.
 			val := e.vars.Get(tok.Literal)
 
-			// TODO: Types
-			sVal, ok := val.(string)
-			if ok {
-				fmt.Printf("%s", sVal)
-			} else {
-				iVal, ok := val.(float64)
-				if ok {
+			if val.Type() == object.STRING {
+				fmt.Printf("%s", val.(*object.StringObject).Value)
+			}
+			if val.Type() == object.NUMBER {
+				n := val.(*object.NumberObject).Value
 
-					// If the value is basically an
-					// int then cast it to avoid
-					// 3 looking like 3.0000
-					if iVal == float64(int(iVal)) {
-						fmt.Printf("%d", int(iVal))
-					} else {
-						fmt.Printf("%f", iVal)
-					}
+				// If the value is basically an
+				// int then cast it to avoid
+				// 3 looking like 3.0000
+				if n == float64(int(n)) {
+					fmt.Printf("%d", int(n))
+				} else {
+					fmt.Printf("%f", n)
 				}
 			}
 		} else {
@@ -842,10 +891,21 @@ func (e *Interpreter) runPRINT() error {
 			// an expression, and print the result.
 			//
 			out := e.expr()
-			if out == float64(int(out)) {
-				fmt.Printf("%d\n", int(out))
-			} else {
-				fmt.Printf("%f\n", out)
+
+			if out.Type() == object.STRING {
+				fmt.Printf("%s", out.(*object.StringObject).Value)
+			}
+			if out.Type() == object.NUMBER {
+				n := out.(*object.NumberObject).Value
+
+				// If the value is basically an
+				// int then cast it to avoid
+				// 3 looking like 3.0000
+				if n == float64(int(n)) {
+					fmt.Printf("%d", int(n))
+				} else {
+					fmt.Printf("%f", n)
+				}
 			}
 		}
 		e.offset++
@@ -1002,13 +1062,13 @@ func (e *Interpreter) Run() error {
 
 // SetVariable sets the contents of a variable in the interpreterr environment.
 // Useful for testing/embedding.
-func (e *Interpreter) SetVariable(id string, val float64) {
+func (e *Interpreter) SetVariable(id string, val object.Object) {
 	e.vars.Set(id, val)
 }
 
 // GetVariable returns the contents of the given variable.
 // Useful for testing/embedding.
-func (e *Interpreter) GetVariable(id string) float64 {
+func (e *Interpreter) GetVariable(id string) object.Object {
 
 	//
 	// Before we lookup the value of a variable
@@ -1027,22 +1087,7 @@ func (e *Interpreter) GetVariable(id string) float64 {
 		return out
 	}
 
-	n := e.vars.Get(id)
-	nVal, ok := n.(float64)
-	if ok {
-		return nVal
-	}
-
-	nVal2, ok2 := n.(int)
-	if ok2 {
-		return (float64(nVal2))
-	}
-	fmt.Printf("Failed to cast result of GetVariable(%s) to int/float64!\n",
-		id)
-	os.Exit(1)
-
-	// FAKE
-	return 1
+	return (e.vars.Get(id))
 }
 
 // RegisterBuiltin registers a function as a built-in, so that it can

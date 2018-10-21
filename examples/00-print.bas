@@ -1,3 +1,7 @@
 10 REM This program demonstrates printing Ints & strings
-20 print "Hello, world\n"
-30 print 3, 4, "\n"
+20 PRINT "Hello, world\n"
+30 LET a = 3
+40 PRINT "The contents of the variable 'a' are", a, "\n"
+50 LET a$ = "My name is String"
+60 PRINT "The contents of the variable 'a$' are", a$, "\n"
+70 PRINT 3, 4, "Test", "\n"
