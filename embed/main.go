@@ -49,12 +49,12 @@ func dotFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 	}
 	if args[0].Type == token.IDENT {
 		// Get.
-		x = int(env.GetVariable(args[2].Literal))
+		x = int(env.GetVariable(args[0].Literal))
 	}
 
 	// y
 	if args[2].Type == token.INT {
-		i, err := strconv.ParseFloat(args[1].Literal, 64)
+		i, err := strconv.ParseFloat(args[2].Literal, 64)
 		if err != nil {
 			return 0, err
 		}
@@ -68,7 +68,7 @@ func dotFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 
 	// If we have no image, create it.
 	if img == nil {
-		img = image.NewRGBA(image.Rect(0, 0, 100, 100))
+		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
 		black := color.RGBA{0, 0, 0, 255}
 		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.ZP, draw.Src)
 	}
@@ -79,10 +79,9 @@ func dotFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 	return 0, nil
 }
 
-// Save an image with the given name
+// Save our generated image to out.png
 func saveFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 
-	// Save to out.png
 	f, _ := os.OpenFile("out.png", os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
 	png.Encode(f, img)
@@ -105,14 +104,17 @@ func main() {
 	prog := `
  10 PRINT "HELLO, I AM EMBEDDED BASIC\n"
  20 LET S = S + PI
- 30 LET R = POKE 23659 , 0
- 40 LET n = PEEK 30
+ 30 POKE 23659 , 0
+ 40 PEEK 30
  50 PRINT "I'M NOW CREATING AN IMAGE!!!!\n"
- 60 FOR I = 1 TO 200
- 70 DOT RND, RND
- 80 NEXT I
- 90 SAVE
-100 PRINT "OPEN 'out.png' TO VIEW YOUR IMAGE!\n"
+ 55 REM 640 should be enough for anybody
+ 60 FOR I = 1 TO 640
+ 70 let x = RND 600
+ 80 let y = RND 400
+ 90 DOT x, y
+100 NEXT I
+110 SAVE
+120 PRINT "OPEN 'out.png' TO VIEW YOUR IMAGE!\n"
 `
 
 	//
