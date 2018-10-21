@@ -220,6 +220,12 @@ be shown in the bottom of the screen.  Something like this:
 
 ![alt text](https://github.com/skx/gobasic/raw/master/goserver/screenshot.png "Sample view")
 
+Enter your program, and hit `RUN CODE!` to see your output.  There is a sample already present, or you could try entering a simple script like this:
+
+    10 FOR I = 0 TO 2000 STEP 20
+    20  CIRCLE I, I, I
+    30 NEXT I
+
 
 
 ## Bugs?
