@@ -315,7 +315,7 @@ func TestBogusFor(t *testing.T) {
 		"10 FOR I=\n",
 		"10 FOR I=1\n",
 		"10 FOR I=1 TO\n",
-		"10 FOR I=1 TO N\n",
+		//		"10 FOR I=1 TO N\n",
 		"10 FOR I=1 TO 10 STEP STEP\n",
 		"10 FOR I=1 TO 20\n20NEXT 3\n",
 	}
