@@ -191,7 +191,8 @@ The code _does_ contain a number of test-cases.  You can exercise them via:
 
     $ go test ./...
 
-Test coverage should exceed 90%, as you can verify and view via:
+Test coverage which doesn't exceed 80% is a bug.  You can verify and view
+coverage and test-results via:
 
     $ go test -coverprofile=c.out ./...
     $ go tool cover -html=c.out
