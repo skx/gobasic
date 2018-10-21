@@ -17,12 +17,14 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/skx/gobasic/eval"
+	"github.com/skx/gobasic/object"
 	"github.com/skx/gobasic/token"
 	"github.com/skx/gobasic/tokenizer"
 )
@@ -36,27 +38,27 @@ var img *image.RGBA
 // peekFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
 // We just log that we've been invoked here.
-func peekFunction(env eval.Interpreter, args []token.Token) (float64, error) {
+func peekFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 	fmt.Printf("PEEK called with %v\n", args[0])
-	return 0, nil
+	return &object.NumberObject{Value: math.Log(i)}, nil
 }
 
 // pokeFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
 // We just log that we've been invoked here, along with the (three) args.
-func pokeFunction(env eval.Interpreter, args []token.Token) (float64, error) {
+func pokeFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 	fmt.Printf("POKE called.\n")
 	for i, e := range args {
 		fmt.Printf(" Arg %d -> %v\n", i, e)
 	}
-	return 0, nil
+	return &object.NumberObject{Value: math.Log(i)}, nil
 }
 
 // dotFunction is the golang implementation of the DOT primitive.
 //
 // It is invoked with three arguments (NUMBER COMMA NUMBER) and sets
 // the corresponding pixel in our canvas to be Red.
-func dotFunction(env eval.Interpreter, args []token.Token) (float64, error) {
+func dotFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 
 	x := 0
 	y := 0
@@ -100,13 +102,13 @@ func dotFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 	// Draw the dot
 	img.Set(x, y, color.RGBA{255, 0, 0, 255})
 
-	return 0, nil
+	return &object.NumberObject{Value: math.Log(i)}, nil
 }
 
 // saveFunction is the golang implementation of the SAVE primitive,
 // which is made available to BASIC.
 // We save the image-canvas to the file `out.png`.
-func saveFunction(env eval.Interpreter, args []token.Token) (float64, error) {
+func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 
 	// If we have no image, create it.
 	if img == nil {
@@ -119,7 +121,8 @@ func saveFunction(env eval.Interpreter, args []token.Token) (float64, error) {
 	f, _ := os.OpenFile("out.png", os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
 	png.Encode(f, img)
-	return 0, nil
+
+	return &object.NumberObject{Value: math.Log(i)}, nil
 }
 
 func main() {
