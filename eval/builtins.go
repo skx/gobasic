@@ -16,12 +16,12 @@ import (
 	"github.com/skx/gobasic/token"
 )
 
-// tokenToFloat is a helper for getting the value of a token as a floating
+// TokenToFloat is a helper for getting the value of a token as a floating
 // point number.
 //
 // If we're given a literal we return it.  Otherwise we look it up from
 // our variable-store and validate the type is correct.
-func tokenToFloat(env Interpreter, tok token.Token) (float64, error) {
+func TokenToFloat(env Interpreter, tok token.Token) (float64, error) {
 	var i float64
 	var err error
 
@@ -52,11 +52,11 @@ func tokenToFloat(env Interpreter, tok token.Token) (float64, error) {
 	return i, nil
 }
 
-// tokenToString is a helper for getting the value of a token as a string.
+// TokenToString is a helper for getting the value of a token as a string.
 //
 // If we're given a literal we return it.  Otherwise we look it up from
 // our variable-store and validate the type is correct.
-func tokenToString(env Interpreter, tok token.Token) (string, error) {
+func TokenToString(env Interpreter, tok token.Token) (string, error) {
 
 	// We were given a literal string as an argument return it.
 	if tok.Type == token.STRING {
@@ -89,7 +89,7 @@ func tokenToString(env Interpreter, tok token.Token) (string, error) {
 func ABS(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func ABS(env Interpreter, args []token.Token) (object.Object, error) {
 func INT(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func INT(env Interpreter, args []token.Token) (object.Object, error) {
 // LEN returns the length of the given string
 func LEN(env Interpreter, args []token.Token) (object.Object, error) {
 
-	in, err := tokenToString(env, args[0])
+	in, err := TokenToString(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func LEN(env Interpreter, args []token.Token) (object.Object, error) {
 func RND(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	max, err := tokenToFloat(env, args[0])
+	max, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func RND(env Interpreter, args []token.Token) (object.Object, error) {
 func SGN(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func SGN(env Interpreter, args []token.Token) (object.Object, error) {
 func SQR(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +185,7 @@ func PI(env Interpreter, args []token.Token) (object.Object, error) {
 func COS(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func COS(env Interpreter, args []token.Token) (object.Object, error) {
 func SIN(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -209,7 +209,7 @@ func SIN(env Interpreter, args []token.Token) (object.Object, error) {
 func TAN(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -221,7 +221,7 @@ func TAN(env Interpreter, args []token.Token) (object.Object, error) {
 func ASN(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -233,7 +233,7 @@ func ASN(env Interpreter, args []token.Token) (object.Object, error) {
 func ACS(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -245,7 +245,7 @@ func ACS(env Interpreter, args []token.Token) (object.Object, error) {
 func ATN(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -257,7 +257,7 @@ func ATN(env Interpreter, args []token.Token) (object.Object, error) {
 func EXP(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +269,7 @@ func EXP(env Interpreter, args []token.Token) (object.Object, error) {
 func LN(env Interpreter, args []token.Token) (object.Object, error) {
 
 	// Get the (float) argument.
-	i, err := tokenToFloat(env, args[0])
+	i, err := TokenToFloat(env, args[0])
 	if err != nil {
 		return nil, err
 	}

@@ -17,10 +17,8 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
-	"math"
 	"math/rand"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/skx/gobasic/eval"
@@ -40,7 +38,7 @@ var img *image.RGBA
 // We just log that we've been invoked here.
 func peekFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 	fmt.Printf("PEEK called with %v\n", args[0])
-	return &object.NumberObject{Value: math.Log(i)}, nil
+	return &object.NumberObject{Value: 0.0}, nil
 }
 
 // pokeFunction is the golang implementation of the PEEK primitive,
@@ -51,7 +49,7 @@ func pokeFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	for i, e := range args {
 		fmt.Printf(" Arg %d -> %v\n", i, e)
 	}
-	return &object.NumberObject{Value: math.Log(i)}, nil
+	return &object.NumberObject{Value: 0.0}, nil
 }
 
 // dotFunction is the golang implementation of the DOT primitive.
@@ -60,37 +58,12 @@ func pokeFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 // the corresponding pixel in our canvas to be Red.
 func dotFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 
-	x := 0
-	y := 0
-
+	//
 	// Get the args
 	//
-	if args[0].Type == token.INT {
-		i, err := strconv.ParseFloat(args[0].Literal, 64)
-		if err != nil {
-			return 0, err
-		}
-
-		x = int(i)
-	}
-	if args[0].Type == token.IDENT {
-		// Get.
-		x = int(env.GetVariable(args[0].Literal))
-	}
-
-	// y
-	if args[2].Type == token.INT {
-		i, err := strconv.ParseFloat(args[2].Literal, 64)
-		if err != nil {
-			return 0, err
-		}
-
-		y = int(i)
-	}
-	if args[2].Type == token.IDENT {
-		// Get.
-		y = int(env.GetVariable(args[2].Literal))
-	}
+	x, _ := eval.TokenToFloat(env, args[0])
+	// args1 is "COMMA"
+	y, _ := eval.TokenToFloat(env, args[2])
 
 	// If we have no image, create it.
 	if img == nil {
@@ -100,9 +73,9 @@ func dotFunction(env eval.Interpreter, args []token.Token) (object.Object, error
 	}
 
 	// Draw the dot
-	img.Set(x, y, color.RGBA{255, 0, 0, 255})
+	img.Set(int(x), int(y), color.RGBA{255, 0, 0, 255})
 
-	return &object.NumberObject{Value: math.Log(i)}, nil
+	return &object.NumberObject{Value: 0.0}, nil
 }
 
 // saveFunction is the golang implementation of the SAVE primitive,
@@ -122,7 +95,7 @@ func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	defer f.Close()
 	png.Encode(f, img)
 
-	return &object.NumberObject{Value: math.Log(i)}, nil
+	return &object.NumberObject{Value: 0.0}, nil
 }
 
 func main() {
@@ -174,7 +147,7 @@ func main() {
 	//
 	// Set an initial value to the variable "S".
 	//
-	e.SetVariable("S", 3)
+	e.SetVariable("S", &object.NumberObject{Value: 3})
 
 	//
 	// Run the code.
@@ -187,5 +160,13 @@ func main() {
 	//
 	// The value of the variable is now different
 	//
-	fmt.Printf("Output value is %v\n", e.GetVariable("S"))
+	result := e.GetVariable("S")
+	if result.Type() == object.NUMBER {
+		fmt.Printf("After calling BASIC 'S' is a number '%f'\n",
+			result.(*object.NumberObject).Value)
+	}
+	if result.Type() == object.STRING {
+		fmt.Printf("After calling BASIC 'S' is a string '%s'\n",
+			result.(*object.StringObject).Value)
+	}
 }
