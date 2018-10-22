@@ -366,6 +366,22 @@ func (e *Interpreter) compare(allowBinOp bool) bool {
 			if v1 != v2 {
 				return true
 			}
+		case token.GT:
+			if v1 > v2 {
+				return true
+			}
+		case token.GT_EQUALS:
+			if v1 >= v2 {
+				return true
+			}
+		case token.LT:
+			if v1 < v2 {
+				return true
+			}
+		case token.LT_EQUALS:
+			if v1 <= v2 {
+				return true
+			}
 		}
 		return false
 	}
@@ -410,7 +426,6 @@ func (e *Interpreter) compare(allowBinOp bool) bool {
 		if v1 <= v2 {
 			return true
 		}
-
 	case token.NOT_EQUALS:
 		if v1 != v2 {
 			return true
