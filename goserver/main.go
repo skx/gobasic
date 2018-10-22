@@ -377,7 +377,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		tmpl, err := getResource("data/index.html")
-		if err != nil {
+		if err == nil {
 			fmt.Fprintf(w, "%s\n", string(tmpl))
 		} else {
 			http.Error(w, "404 not found.", http.StatusNotFound)
