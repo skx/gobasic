@@ -6,9 +6,10 @@
 // BASIC environment.
 //
 // The additions make it easy to change the colour of the pixels, draw
-// points, circles, and view a rendered image containing the output.
+// points, lines, circles, and view a rendered image containing the output.
 //
 // Graphing SIN and similar functions becomes very simple and natural.
+//
 package main
 
 import (
@@ -20,8 +21,10 @@ import (
 	"image/png"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/skx/gobasic/eval"
 	"github.com/skx/gobasic/object"
@@ -40,7 +43,7 @@ func init() {
 	col = color.RGBA{0, 0, 0, 255}
 }
 
-// dotFunction is the golang implementation of the DOT primitive.
+// plotFunction is the golang implementation of the DOT primitive.
 //
 // It is invoked with three arguments (NUMBER COMMA NUMBER) and sets
 // the corresponding pixel in our canvas to be Red.
@@ -68,7 +71,9 @@ func plotFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 
 // saveFunction is the golang implementation of the SAVE primitive,
 // which is made available to BASIC.
-// We save the image-canvas to the file `out.png`.
+//
+// We save the image-canvas to a temporary file, and set that filename
+// within the BASIC environment.
 func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 
 	// If we have no image, create it.
@@ -95,7 +100,7 @@ func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	return &object.NumberObject{Value: 0.0}, nil
 }
 
-// colorFunction allows drawing a circle upon our image.
+// colorFunction allows the user to change the current colour.
 func colorFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 
 	//
@@ -107,7 +112,9 @@ func colorFunction(env eval.Interpreter, args []token.Token) (object.Object, err
 	// args[3] is COMMA
 	b, _ := eval.TokenToFloat(env, args[4])
 
+	// Update the colour.
 	col = color.RGBA{uint8(r), uint8(g), uint8(b), 255}
+
 	return &object.NumberObject{Value: 0.0}, nil
 }
 
@@ -167,21 +174,168 @@ func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, er
 	return &object.NumberObject{Value: 0.0}, nil
 }
 
+// lineFunction draws a line.
+func lineFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+
+	//
+	// Get the args X1, Y1, X2, X3
+	//
+	xx1, _ := eval.TokenToFloat(env, args[0])
+	// args1 is "COMMA"
+	yy1, _ := eval.TokenToFloat(env, args[2])
+	// args[3] is COMMA
+	xx2, _ := eval.TokenToFloat(env, args[4])
+	// args[5] is COMMA
+	yy2, _ := eval.TokenToFloat(env, args[6])
+
+	//
+	// They need to be ints.
+	//
+	x1 := int(xx1)
+	x2 := int(xx2)
+	y1 := int(yy1)
+	y2 := int(yy2)
+
+	// If we have no image, create it.
+	if img == nil {
+		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
+		c := color.RGBA{255, 255, 255, 255}
+		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.ZP, draw.Src)
+	}
+
+	var dx, dy, e, slope int
+
+	// Because drawing p1 -> p2 is equivalent to draw p2 -> p1,
+	// I sort points in x-axis order to handle only half of possible cases.
+	if x1 > x2 {
+		x1, y1, x2, y2 = x2, y2, x1, y1
+	}
+
+	dx, dy = x2-x1, y2-y1
+	// Because point is x-axis ordered, dx cannot be negative
+	if dy < 0 {
+		dy = -dy
+	}
+
+	switch {
+
+	// Is line a point ?
+	case x1 == x2 && y1 == y2:
+		img.Set(x1, y1, col)
+
+	// Is line an horizontal ?
+	case y1 == y2:
+		for ; dx != 0; dx-- {
+			img.Set(x1, y1, col)
+			x1++
+		}
+		img.Set(x1, y1, col)
+
+	// Is line a vertical ?
+	case x1 == x2:
+		if y1 > y2 {
+			y1, y2 = y2, y1
+		}
+		for ; dy != 0; dy-- {
+			img.Set(x1, y1, col)
+			y1++
+		}
+		img.Set(x1, y1, col)
+
+	// Is line a diagonal ?
+	case dx == dy:
+		if y1 < y2 {
+			for ; dx != 0; dx-- {
+				img.Set(x1, y1, col)
+				x1++
+				y1++
+			}
+		} else {
+			for ; dx != 0; dx-- {
+				img.Set(x1, y1, col)
+				x1++
+				y1--
+			}
+		}
+		img.Set(x1, y1, col)
+
+	// wider than high ?
+	case dx > dy:
+		if y1 < y2 {
+			// BresenhamDxXRYD(img, x1, y1, x2, y2, col)
+			dy, e, slope = 2*dy, dx, 2*dx
+			for ; dx != 0; dx-- {
+				img.Set(x1, y1, col)
+				x1++
+				e -= dy
+				if e < 0 {
+					y1++
+					e += slope
+				}
+			}
+		} else {
+			// BresenhamDxXRYU(img, x1, y1, x2, y2, col)
+			dy, e, slope = 2*dy, dx, 2*dx
+			for ; dx != 0; dx-- {
+				img.Set(x1, y1, col)
+				x1++
+				e -= dy
+				if e < 0 {
+					y1--
+					e += slope
+				}
+			}
+		}
+		img.Set(x2, y2, col)
+
+	// higher than wide.
+	default:
+		if y1 < y2 {
+			// BresenhamDyXRYD(img, x1, y1, x2, y2, col)
+			dx, e, slope = 2*dx, dy, 2*dy
+			for ; dy != 0; dy-- {
+				img.Set(x1, y1, col)
+				y1++
+				e -= dx
+				if e < 0 {
+					x1++
+					e += slope
+				}
+			}
+		} else {
+			// BresenhamDyXRYU(img, x1, y1, x2, y2, col)
+			dx, e, slope = 2*dx, dy, 2*dy
+			for ; dy != 0; dy-- {
+				img.Set(x1, y1, col)
+				y1--
+				e -= dx
+				if e < 0 {
+					x1++
+					e += slope
+				}
+			}
+		}
+		img.Set(x2, y2, col)
+	}
+	// All done.
+	return &object.NumberObject{Value: 0.0}, nil
+}
+
 //
 // Runs the script the user submitted.
 //
 // Returns the base64-encoded version of the output image.
 //
-// Racy.
+// More reliable than it has any reason to be.
 //
 func runScript(code string) string {
-	code += "\n9999999999 SAVE\n"
 	t := tokenizer.New(code)
 
 	e := eval.New(t)
 	e.RegisterBuiltin("CIRCLE", 5, circleFunction)
 	e.RegisterBuiltin("COLOR", 5, colorFunction)
 	e.RegisterBuiltin("COLOUR", 5, colorFunction)
+	e.RegisterBuiltin("LINE", 7, lineFunction)
 	e.RegisterBuiltin("PLOT", 3, plotFunction)
 	e.RegisterBuiltin("SAVE", 0, saveFunction)
 
@@ -240,8 +394,15 @@ func handler(w http.ResponseWriter, r *http.Request) {
 // Entry-point.
 //
 func main() {
+	//
+	// Ensure we seed our random-number source
+	//
+	// This is required such that RND() returns suitable values.
+	//
+	rand.Seed(time.Now().UnixNano())
+
 	http.HandleFunc("/", handler)
-	fmt.Printf("Please open http://localhost:8080/ ...\n")
+	fmt.Printf("goserver running on http://localhost:8080/\n")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
