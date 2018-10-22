@@ -335,6 +335,8 @@ func TestMaths(t *testing.T) {
 110 LET R = RND 100
 120 LET KEY = "STEVE"
 130 LET RT = RND KEY
+140 LET a = BIN 00001111 OR BIN 01110000
+150 LET b = 129 AND 128
 `
 
 	obj := Compile(input)
@@ -362,6 +364,15 @@ func TestMaths(t *testing.T) {
 		t.Errorf("Value not expected!")
 	}
 	if getFloat(t, obj, "RT") != 0 {
+		t.Errorf("Value not expected!")
+	}
+	if getString(t, obj, "KEY") != "STEVE" {
+		t.Errorf("Value not expected!")
+	}
+	if getFloat(t, obj, "a") != 255-128 {
+		t.Errorf("Value not expected!")
+	}
+	if getFloat(t, obj, "b") != 128 {
 		t.Errorf("Value not expected!")
 	}
 }
