@@ -1140,6 +1140,7 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runForLoop()
 	case token.GOSUB:
 		err = e.runGOSUB()
+		e.jump = true
 	case token.GOTO:
 		err = e.runGOTO()
 		e.jump = true
