@@ -467,7 +467,7 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 		out, err := fun(*e, args)
 		return out, err
 	}
-	return nil, nil
+	return nil, fmt.Errorf("Failed to find built-in %s", name)
 }
 
 ////
@@ -1175,6 +1175,10 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runRETURN()
 	case token.IDENT:
 		_, err = e.callBuiltin(tok.Literal)
+		if err != nil {
+			return err
+		}
+
 		e.offset--
 	default:
 		err = fmt.Errorf("Token not handled: %v", tok)
