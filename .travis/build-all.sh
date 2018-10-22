@@ -38,9 +38,10 @@ for OS in ${BUILD_PLATFORMS[@]}; do
         # Run the build
         export GOARCH=${ARCH}
         export GOOS=${OS}
-        export CGO_ENABLED=1
 
         go build -ldflags "-X main.version=$(git describe --tags)" -o "${BASE}-${SUFFIX}"
 
+        # Build the HTTP-server too
+        cd ./goserver && go build -o goserver-${SUFFIX} . && cd ..
     done
 done

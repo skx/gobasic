@@ -12,7 +12,9 @@ deploy:
   api_key:
     secure: qNmdcviq8VNPflYK05YfG0gCCX1JtwFJZcstLUBuNdqqx7mqBWWeENaQ9XPaA6QrJE1SAkNnSNPW4x3h0JnIGSkMAjQHNiihs3nRZfGsyZRDOYdpH4PcPBzFDh42c7SeLo8XjAA91529LkGce/j8sNYA3IwdeDV7k58f/P4pCntFiEgo+CpvW2Adi/b/FeaB6FqHFeTFm6I8md6FZTUvkjyowiZioD2CHoajQOyP4AVcTeXSgBp/Q394Vu/tUFt2rL2bmdslZONCinz22lDxCtkBATsU46sXzpUMqG+v6DJFFBLjLEZRoYcI5l3dKtYYklmLmNZnK2+JgbalmrU+aM+xylYMpVioIczWDzjnlAq0XhVpimrfY/+vWov1UWzo30vz4RBIra/hzi3708vSWXFPaPu/mOGqiKMYO59X6RCNj2NtXgpUbyXXAcgrXhrjYWqZWjs6JGdQtBgqNfu2H0dYRpsWoh/LmB4pw0ki1M2aDK5WpkMzyjrxSrvW503mw8nuQrCwDd+hbb1AvvCq23XN58w8MnLp8z1U0WlXBej6qEKhYTGHM0PPujmJP+o/Y3BdCvmsW2iM7GKRCp7PpSBJQ9AvcUMn+QnZ1wrFWb4We7/0PEORGEle9gdzHM9orjshcAfpw4uCdskB0eq1HUJlsDrk2lqNJBBSJnc2GCw=
   file_glob: true
-  file: gobasic-*
+  file:
+    - "gobasic-*"
+    - "goserver/goserver-*"
   skip_cleanup: true
   on:
     tags: true
