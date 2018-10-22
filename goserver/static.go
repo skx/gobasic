@@ -1,0 +1,97 @@
+//
+// This file was generated via github.com/skx/implant/
+//
+// Local edits will be lost.
+//
+package main
+
+import (
+	"bytes"
+	"compress/gzip"
+	"encoding/hex"
+	"errors"
+	"io/ioutil"
+)
+
+//
+// EmbeddedResource is the structure which is used to record details of
+// each embedded resource in your binary.
+//
+// The resource contains the (original) filename, relative to the input
+// directory `implant` was generated with, along with the original size
+// and the compressed/encoded data.
+//
+type EmbeddedResource struct {
+	Filename string
+	Contents string
+	Length   int
+}
+
+//
+// RESOURCES is a simple array containing one entry for each embedded
+// resource.
+//
+// It is exposed to callers via the `getResources()` function.
+//
+var RESOURCES []EmbeddedResource
+
+//
+// Populate our resources
+//
+func init() {
+
+	var tmp EmbeddedResource
+
+	tmp.Filename = "data/index.html"
+	tmp.Contents = "1f8b08000000000004ffb458fd73db3693fe9d7fc5533639cb0dcd0f39761d99d44ce2288def1cdbb59d36be4ea78548584442913c00d4c765f2bfbfb30049c94ed266face8b492c095c02bbcf3efb01c4dfbdbc38b9b9bd9c20d7f362ecc4f6038873ceb2b10300b116bae0e35f846a5881174c8914c7bb7160a7adc89c6b86346752719db86f6f5eed1db908da872a95a2d650324ddc5ceb5a8d8220ad32eebfffbf86cbb59f56f3e0bdf9bab7efeffb913f17a5ff5eb910a5e63329f43a7155ce8607877baf66f5c934f89ffffeb9383bbfbb689e459aed0fabe0fccdffae0abdbcaa8e7ed6f30f6faeb2e7cd51e22295955295143351262e2bab723daf1ae58ee3401995eeeba7d7354f5ccd573a78cf16cc6aed8e1d63218200d75c3735f88acdeb822b3bbd60b29f4182df7e3fb6f39d945f372a1fe023443642e4c1803682fb52b225aa059705ab6b51ce900a99165cb91e089a11fe8c425c4dde3843f3819b5c285895b014458129075ff1b4d13cc352e81cacc45118ae0ec31062ce66dcd9376f3a4fcd875da0d50a99644bf5a5ed7de7c0883b87215e5d5ce1140942dc5c60188621ae6f26971886ce8f2170727a757236c1a987530fa7ce5188f3c9bb1b9c3acf425c3fff65e280b8f3a745e31376ff0a97e1035c94283193acce3768a08503ff1c0fec5bd3f07544189420e792061c4bb6e0be831611b490ac1203c851183a2020ce26375823c10a01a2e1117ec0e5a983a310fd936118e2090634f703ae4fcfb1c6ae836721707976718395b776a230b4f8ad9c280a2d807ffe1d6cfb0f604baba26a24cfa0b414f53697d0c3f7efe0d703f817084e8b2afda050ddb5da28df418f2041783579835f45a673926915ed191d85d84314850e085a42766944135c9dbf444490138adb0facc01398979e59d6aead8b0e499e9085b8c31a8f5b59c3e8d79373fc7471fdf60509840e6d0ac3f86df746c36d1f21da0fd17909d1d3d07e5f3b880e5a97213a0c31397f49feb4648b424b5c4a1e6090acccaab9c1463a5168c9ec44e17e688c92ada5c38303270a9fdac9d9bdc9033b39bd377918e2e4e2ece20ad2c3ccc3d489c21f69ff9bb757e736020d99ecd73609dc4f4d4f1f70693b3515a2bc47266bd17f38143f53e0f348dc4e4e3637110928260d98ef8084bc6b83d14cddd2940dc7531b8166fadd3b24380843721becd4ed2d1223b987531392c0d9e9f904efbc5b0fefde79b7b70eb1e3dce63c62c6f526e9e1d3aee3b475e3d1e0ae29532daa72b08b8fd603a69adc54b359c1a1738e9c17f55e26545db07527f168e07e4ff3eeae9f1622fdb059866fad835eee0f55b394bbbbbe36eb0e5a67d3e07e2df98297fa25bf634da1075d32063eed1eb77a1a9dae9be95c68a31355a12d5dee2a3977777d6504bea60b154312448247039d0bb5db2f0e3cf2d97bb61af410d0a0923b827b79717de37add6e341a598ce006f72733a6d9c86ce02b2e052bc4fff3c1eebdf75493a65ca9117ad0e9a52d2cb0f1811d84b36672c6b5bbeb33ade5c05532753d975e1c09aaa4c14cdc1d4f99e2874f3d174f8c1e1b08697cdae84e88d294197f897c8f4d10e0795df33243179ad015aa46e2f5cd9bb36eb5bb4a6240080bca60c710887b79bfe0e54ce7c7104f9e7cc68e6e51b2cf6c33d8890b318e19d2822995b845c5b23f5a2917b9e47789fbbd0b9125ee0e9ef49bfc267ef7458627d871c70fe74d5b438fe2808de3a010e39d0d429fb62d9d94aa9196f6ed960a4c721892b3694115d78e4703d7bfa7daae3f156536d831a23b5eefe27b161b84b20d03ad4fe18acced9b101a24a7571a49afc66f22a3eaf3bb9f5619df8405c83f8adba8d07ca5f15f904d09a121e6739e09a679b1a632d70e62142de1eefa0b560cf44a6fa0a078dda110d9e96369f390a863bd4ddf68b538b02d5fd7a8ea35658c75dfa7a64ab9f699d18c49ce3eda2a378ac2f0f171474c319fe123a695ccb81c21aa57505521324c0b967ee8a534c18f6e014a9d8f8f51b32c13e56c84837ab591ccf0110b2eb54859b1c70a312b47d0557d6c03210e8ca6a4591c740789785a656b9aa21385d9a95d3a71a3b0b302b196e358534b9be93c718fc2c7fd232026e430e73aafb2c4660dc35291bda2f48492cd79d2ff6226eb266eb0b5026dc05706a856da78caac62bfc96aa912773f74a9482bd2c01d3b6dc5b3e51ab82c38531cbcd45c624d81fae2f9f5e909722eb9874a5a325310137fdb461c55c9a9e7a184afec110277b29a9b092966b9de9bf3b2f1db86bd6dc481e767bf3ebfbd06a507b3552dab9964f3b6e9c70ed59d1d28cd349ff35253e74e3dd63217696e1b2b95574b7a97fe4b7b38f0a987a7e305b1cc8e38e890b14eb2231665dd6893a813d7667f8b96a94d58b0a2e189fb7a7276e98ebf2adbbdd74a5fbd3dc7c9c5cbc977fd1191461c9077bbbde340b7c74f7259cf87e17d3ee4c3f1b585320ef261f72e10378571699761b61810074dd1099a4de240cb7ea2655f5a15aa6665e20eb7dfccc4c2ac4aa6b7e51686e889db16ef515995fc78eb1d3a4847e3d7bca8e3208fba6d68c4f5f8b4d495f1fe9de0450636ad169c7c8494952db958cbacd6e9deb65bef9d00735e9a57f3b67cc7c4e6718f746c0edc634c1badabd28f83fa812e3739ef36b1a4c9d98283996a4a447e78ba7ca889e4ba91259d454913a171274aa172aebeb4578539fb604c95fda64d9d316deb8229bac61a02a25176f6ae2a8a6a4947e52ef1abd1433bb2deb576c4991e9fd883eacac3da838c83accda6dd88b36c4cd65bc4ac740757b71332490766d69ed2298c25cb44a37005662b435a55321325d35cd189ce075e55fdd5805134ae251f475da73e3c38f0422fa49c62f7c441e8997f942f28a8e3805e2013e320eb83c10e6398e9f89987a987f4cb765db7658b4e86b2e58e50046966fa09ca4564da3d547d80f06072d65042b1e5d9bde299ebc1fd49725eba1e5899c17d5134dc85e4aae6a9160b5eac7de0ba82aeac83196624be67ef368c479755536496dcff08146b3ef077e098667d157958471e56430febe197218aeb2defd35b5ff53d1d8330e57ac9796990d3cb0a75254aad4008883bc1b32ffabd773dad8fa7a177187a380abd6868fcff2dce6e6f0ab0fe062b48f6332b14274f4289924e1db558f1a2a36eaf3c3624f6bf99bdb41b71170786b9e66714861efda15a46d6fdadbb48e81b2cb36226b56d6253b1055744aeb6b6610fb75583783a9e374ac7c1746c8a272b0a2bd4e652ba75a06bb336f0b797ee8ba9495e0fa32f0eeea7994d15c2b5b9567c508c40b99e226a93c1b8bd4334b1f7c57b38ca307cc1e59e2853c91979adcd386dd48ce3cbab096593afdfd2d1e5459b5aba5b3abac0a0cb13b9757bf0b4bda9dabe663868e7b66f190e433cb864f8b1bd0131b77f163f528a3256df57c44126165b3fa986b63593da8dae774c4d2ff5a07252d76a0a6e7b3eb337c80f9a86ade54d396f77de54f53830dd263d88836995adc74e1ce47a5e8c9d7f050000ffffb04837b8fe160000"
+	tmp.Length = 5886
+	RESOURCES = append(RESOURCES, tmp)
+
+}
+
+//
+// Return the contents of a resource.
+//
+func getResource(path string) ([]byte, error) {
+	for _, entry := range RESOURCES {
+		//
+		// We found the file contents.
+		//
+		if entry.Filename == path {
+			var raw bytes.Buffer
+			var err error
+
+			// Decode the data.
+			in, err := hex.DecodeString(entry.Contents)
+			if err != nil {
+				return nil, err
+			}
+
+			// Gunzip the data to the client
+			gr, err := gzip.NewReader(bytes.NewBuffer(in))
+			if err != nil {
+				return nil, err
+			}
+			defer gr.Close()
+			data, err := ioutil.ReadAll(gr)
+			if err != nil {
+				return nil, err
+			}
+			_, err = raw.Write(data)
+			if err != nil {
+				return nil, err
+			}
+
+			// Return it.
+			return raw.Bytes(), nil
+		}
+	}
+	return nil, errors.New("Failed to find resource")
+}
+
+//
+// Return the available resources.
+//
+func getResources() []EmbeddedResource {
+	return RESOURCES
+}
