@@ -113,11 +113,11 @@ func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, er
 	return &object.NumberObject{Value: 0.0}, nil
 }
 
-// dotFunction is the golang implementation of the DOT primitive.
+// plotFunction is the golang implementation of the PLOT primitive.
 //
 // It is invoked with three arguments (NUMBER COMMA NUMBER) and sets
 // the corresponding pixel in our canvas to be Red.
-func dotFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func plotFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
 
 	//
 	// Get the args: X, Y
@@ -183,7 +183,7 @@ func main() {
  90 FOR I = 1 TO 100
 100  LET x = RND 600
 110  LET y = RND 400
-120  DOT x, y
+120  PLOT x, y
 130 NEXT I
 140 REM
 150 REM Draw a random number of circles
@@ -214,11 +214,12 @@ func main() {
 	//
 	// Register some  functions.
 	//
-	e.RegisterBuiltin("PEEK", 1, peekFunction)
-	e.RegisterBuiltin("POKE", 3, pokeFunction)
-	e.RegisterBuiltin("DOT", 3, dotFunction)
-	e.RegisterBuiltin("SAVE", 0, saveFunction)
 	e.RegisterBuiltin("CIRCLE", 5, circleFunction)
+	e.RegisterBuiltin("DOT", 3, plotFunction)
+	e.RegisterBuiltin("PEEK", 1, peekFunction)
+	e.RegisterBuiltin("PLOT", 3, plotFunction)
+	e.RegisterBuiltin("POKE", 3, pokeFunction)
+	e.RegisterBuiltin("SAVE", 0, saveFunction)
 
 	//
 	// Set an initial value to the variable "S".

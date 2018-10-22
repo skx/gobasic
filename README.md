@@ -183,13 +183,13 @@ The example defines four new functions:
 
 * `PEEK`
 * `POKE`
-* `DOT`
+* `PLOT`
 * `SAVE`
 * `CIRCLE`
 
 When the script runs it does some basic variable manipulation and it also
-creates a PNG file - the `DOT` function allows your script to set a pixel
-and the `CIRCLE` primitive draws an (outline of a) circle.  Finally the
+creates a PNG file - the `PLOT` function allows your script to set a pixel
+and the `CIRCLE` primitive draws an outline of a circle.  Finally the
 `SAVE` function writes out the result.
 
 Extending this example to draw filled circles, boxes, etc, is left as an
@@ -209,7 +209,6 @@ HTTP-server which will accept BASIC code, and render images!
 To run this:
 
     cd goserver ; go build . ; ./goserver
-
 
 Once running open your browser at the URL:
 
