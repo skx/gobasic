@@ -19,8 +19,7 @@
 400 INPUT "Do you want more stars? ", A$
 410 IF LEN A$ = 0 THEN GOTO 400
 420 LET A$ = LEFT$ A$, 1
-430 IF A$ = "Y" THEN GOTO 200
-440 IF A$ = "y" THEN GOTO 200
+430 IF A$ = "Y"  OR  A$ = "y"  THEN GOTO 200
 
 500 PRINT "Goodbye ", U$
 510 END
