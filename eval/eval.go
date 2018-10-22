@@ -266,7 +266,9 @@ func (e *Interpreter) expr() object.Object {
 	tok := e.program[e.offset]
 
 	for tok.Type == token.PLUS ||
-		tok.Type == token.MINUS {
+		tok.Type == token.MINUS ||
+		tok.Type == token.AND ||
+		tok.Type == token.OR {
 
 		// skip the operator
 		e.offset++
@@ -308,6 +310,10 @@ func (e *Interpreter) expr() object.Object {
 				t1 = &object.NumberObject{Value: n1 + n2}
 			} else if tok.Type == token.MINUS {
 				t1 = &object.NumberObject{Value: n1 - n2}
+			} else if tok.Type == token.AND {
+				t1 = &object.NumberObject{Value: float64(int(n1) & int(n2))}
+			} else if tok.Type == token.OR {
+				t1 = &object.NumberObject{Value: float64(int(n1) | int(n2))}
 			} else {
 				fmt.Printf("Token not handled for two numbers: %s\n", tok.Literal)
 				os.Exit(2)
