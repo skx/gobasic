@@ -659,3 +659,24 @@ func TestBIN(t *testing.T) {
 		t.Errorf("BIN 3!")
 	}
 }
+
+// TestIfBIN tests our IF function
+func TestIFBIN(t *testing.T) {
+	input := `
+10 LET A = 1
+20 LET B = 0
+30 LET C = 0
+40 LET D = 0
+50 IF A = 1 OR B = 1 THEN LET C = 1
+60 IF A = 1 AND B = 0 THEN LET D = 1
+`
+	obj := Compile(input)
+	obj.Run()
+
+	if getFloat(t, obj, "C") != 1 {
+		t.Errorf("1 Failed!")
+	}
+	if getFloat(t, obj, "D") != 1 {
+		t.Errorf("2 Failed!")
+	}
+}
