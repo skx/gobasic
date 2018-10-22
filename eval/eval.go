@@ -931,6 +931,9 @@ func (e *Interpreter) runNEXT() error {
 	// If it has we remove the for-loop
 	//
 	data := GetForLoop(target.Literal)
+	if data.id == "" {
+		return fmt.Errorf("NEXT %s found - without opening FOR", target.Literal)
+	}
 
 	//
 	// Get the variable value, and increase it.
