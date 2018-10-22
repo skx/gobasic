@@ -395,6 +395,24 @@ func TestFor(t *testing.T) {
 	}
 }
 
+// TestForTerm ensures that a for-loop with start/end the same runs only once.
+func TestForTerm(t *testing.T) {
+	input := `
+10 LET COUNT=0
+20 FOR I = 1 TO 1
+30  LET COUNT = COUNT + 1
+40 NEXT I
+50 PRINT COUNT
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	if getFloat(t, obj, "COUNT") != 1 {
+		t.Errorf("Value not expected!")
+	}
+}
+
 // TestBogusFor ensures that bogus-FOR-loops are found
 func TestBogusFor(t *testing.T) {
 

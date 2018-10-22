@@ -927,6 +927,17 @@ func (e *Interpreter) runNEXT() error {
 	iVal := cur.(*object.NumberObject).Value
 
 	//
+	// If the start/end offsets are the same then
+	// we terminate immediately.
+	//
+	if data.start == data.end {
+		data.finished = true
+
+		// updates-in-place.  bad name
+		AddForLoop(data)
+	}
+
+	//
 	// Increment the number.
 	//
 	iVal += float64(data.step)
