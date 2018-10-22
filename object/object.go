@@ -1,4 +1,4 @@
-// Package object contains code to store values passed too/from BASIC.
+// Package object contains code to store values passed to/from BASIC.
 //
 // Go allows a rich number of types, but when interpreting BASIC only
 // two types are supported: Numbers and Strings.
