@@ -171,7 +171,7 @@ func (e *Interpreter) factor() object.Object {
 		e.offset++
 
 		// handle the expr
-		ret := e.expr()
+		ret := e.expr(true)
 
 		// skip past the rbracket
 		tok = e.program[e.offset]
@@ -259,7 +259,7 @@ func (e *Interpreter) term() object.Object {
 }
 
 // expression
-func (e *Interpreter) expr() object.Object {
+func (e *Interpreter) expr(allowBinOp bool) object.Object {
 
 	t1 := e.term()
 
@@ -270,6 +270,15 @@ func (e *Interpreter) expr() object.Object {
 		tok.Type == token.AND ||
 		tok.Type == token.OR {
 
+		//
+		// Sometimes we disable this.
+		//
+		if allowBinOp == false {
+			if tok.Type == token.AND ||
+				tok.Type == token.OR {
+				return t1
+			}
+		}
 		// skip the operator
 		e.offset++
 
@@ -328,20 +337,20 @@ func (e *Interpreter) expr() object.Object {
 }
 
 // compare runs a comparison function (!)
-func (e *Interpreter) compare() bool {
+func (e *Interpreter) compare(allowBinOp bool) bool {
 
 	// Get the first statement
-	t1 := e.expr()
+	t1 := e.expr(allowBinOp)
 
 	// Get the comparison function
 	op := e.program[e.offset]
 	e.offset++
 
 	// Get the second expression
-	t2 := e.expr()
+	t2 := e.expr(allowBinOp)
 
 	//
-	// We'll handle string equality testing here.
+	// String-tests here
 	//
 	if t1.Type() == object.STRING && t2.Type() == object.STRING {
 
@@ -733,11 +742,49 @@ func (e *Interpreter) runIF() error {
 
 	// Get the result of the comparison-function
 	// against the two arguments.
-	result := e.compare()
+	result := e.compare(false)
 
-	// We now expect THEN
+	//
+	// The general form of an IF statement is
+	//  IF $COMPARE THEN .. ELSE .. NEWLINE
+	//
+	// However we also want to allow people to write:
+	//
+	//  IF A=3 OR A=4 THEN ..
+	//
+	// So we'll special case things here.
+	//
+
+	// We now expect THEN most of the time
 	target := e.program[e.offset]
 	e.offset++
+
+	for target.Type == token.AND ||
+		target.Type == token.OR {
+
+		//
+		// Get the next expression
+		//
+		extra := e.compare(false)
+
+		//
+		// Update our result appropriately.
+		//
+		if target.Type == token.AND {
+			result = result && extra
+		}
+		if target.Type == token.OR {
+			result = result || extra
+		}
+
+		// Repeat?
+		target = e.program[e.offset]
+		e.offset++
+	}
+
+	//
+	// Now we're in the THEN section.
+	//
 	if target.Type != token.THEN {
 		return fmt.Errorf("Expected THEN after IF EXPR, got %v", target)
 	}
@@ -840,7 +887,7 @@ func (e *Interpreter) runLET() error {
 	e.offset++
 
 	// now we're at the expression/value/whatever
-	res := e.expr()
+	res := e.expr(true)
 
 	// Store the result
 	e.vars.Set(target.Literal, res)
@@ -949,7 +996,9 @@ func (e *Interpreter) runPRINT() error {
 			// GetVariable handles both.
 			//
 			val := e.GetVariable(tok.Literal)
-
+			if val == nil {
+				fmt.Printf("Failed to get variable '%s'\n", tok.Literal)
+			}
 			if val.Type() == object.STRING {
 				fmt.Printf("%s", val.(*object.StringObject).Value)
 			}
@@ -975,7 +1024,7 @@ func (e *Interpreter) runPRINT() error {
 			// As a fall-back we'll assume we've been given
 			// an expression, and print the result.
 			//
-			out := e.expr()
+			out := e.expr(true)
 
 			if out.Type() == object.STRING {
 				fmt.Printf("%s", out.(*object.StringObject).Value)
