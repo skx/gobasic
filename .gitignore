@@ -3,3 +3,4 @@ gobasic-*
 embed/embed
 embed/*.png
 goserver/goserver
+goserver/goserver-*
