@@ -90,7 +90,13 @@
            data: form.serialize(),
            success: function(data)
            {
-             $("#target").attr("src","data:image/gif;base64," + data);
+             if ( data.Error === "" ) {
+               $("#target").attr("src","data:image/gif;base64," + data.Result);
+               $("#target_error").html( "" )
+             } else {
+               $("#target").attr("src","" );
+               $("#target_error").html( '<p>' + data.Error + '</p>')
+             }
            }
          });
          e.preventDefault();
@@ -179,6 +185,7 @@
         </div>
         <div style="text-align: center;">
           <img  id="target" src="" />
+          <div id="target_error"></div>
         </div>
       </td>
       </tr>

@@ -14,6 +14,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
@@ -326,7 +327,7 @@ func lineFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 //
 // More reliable than it has any reason to be.
 //
-func runScript(code string) string {
+func runScript(code string) (string, error) {
 	t := tokenizer.New(code)
 
 	e := eval.New(t)
@@ -339,15 +340,21 @@ func runScript(code string) string {
 
 	err := e.Run()
 	if err != nil {
-		fmt.Printf("Error running code: %s\n", err.Error())
+		return "", err
 	}
 
 	// Get the name of the file the SAVE function wrote to
 	pathObj := e.GetVariable("file.name")
+	if pathObj == nil {
+		return "", fmt.Errorf("Your script did not include a 'SAVE' statement!")
+	}
 	path := pathObj.(*object.StringObject).Value
 
 	// Read the file
-	b, _ := ioutil.ReadFile(path)
+	b, err := ioutil.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
 
 	// BASE64 encode it.
 	encoded := base64.StdEncoding.EncodeToString(b)
@@ -356,7 +363,7 @@ func runScript(code string) string {
 	os.Remove(path)
 
 	// And return the value.
-	return encoded
+	return encoded, nil
 }
 
 //
@@ -386,8 +393,36 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		code := r.FormValue("code")
-		out := runScript(code)
-		fmt.Fprintf(w, "%s\n", out)
+		out, err := runScript(code)
+
+		// Encode as JSON
+		type Result struct {
+			Result string
+			Error  string
+		}
+
+		//
+		// The error, if any, as a string,
+		//
+		error := ""
+		if err != nil {
+			error = err.Error()
+		}
+
+		//
+		// Create the result-object and JSON-encode.
+		//
+		res := &Result{Result: out, Error: error}
+		js, err := json.Marshal(res)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+
+		// Send out the message
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+
 	default:
 		fmt.Fprintf(w, "Sorry, only GET and POST methods are supported.")
 	}
