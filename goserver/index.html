@@ -5,12 +5,56 @@
     <meta charset="UTF-8" />
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script type="text/javascript">
+
+     // Setup examples
+     var examples = [];
+     examples.push( { id: 1, title: "Draw curves", code: `
+10 REM
+20 REM This script will be executed with an 800x600 image
+30 REM
+40 REM This example draws overlapping circles.
+50 REM
+60 FOR I = 0 TO 2000 STEP 20
+70  CIRCLE I, I, I
+80 NEXT I
+90 SAVE
+     `
+     } );
+     examples.push( { id: 2, title: "Draw lines", code: "10 .." } );
+     examples.push( { id: 3, title: "Draw colours", code: `
+10 REM
+20 REM This script will be executed with an 800x600 image
+30 REM
+40 REM This example draws blocks of colours.
+50 REM
+60 FOR y=0 TO 600
+70  if y % 50 = 0 THEN GOSUB 1000
+80  FOR x=0 TO 800
+90   PLOT x,y
+100  NEXT x
+110 NEXT y
+120 SAVE
+130 END
+
+1000 REM LET r = 0
+1005 LET r = RND 255
+1009 REM LET g= 0
+1010 LET g = RND 255
+1019 REM LET b= 0
+1020 LET b = RND 255
+1030 COLOR r, g, b
+1040 RETURN
+` } );
+
+
      $(function() {
+       // Toggle the help-display
        $("#help").click(function(e) {
          $("#help_space").toggle()
          e.preventDefault();
        });
 
+       // Submit the code
        $("form").submit(function(e) {
          var form = $(this)
 
@@ -23,66 +67,91 @@
              $("#target").attr("src","data:image/gif;base64," + data);
            }
          });
-
          e.preventDefault();
        })
+
+       // Append examples to our HTML
+       for (var i = 0; i < examples.length; i++) {
+         $("#examples").append('<li><a class="load_example" href="#" id="' + examples[i].id + '">' + examples[i].title + '</a></li>');
+       }
+
+       // Ensure the examples are clickable.
+       $(".load_example").bind('click',function() {
+         var id = $(this).attr( "id" );
+         var txt = examples[id - 1].code;
+
+         // set the text & run it immediately.
+         $("#code").val(txt);
+         $('form').submit();
+       });
+
      });
     </script>
     <style type="text/css">
-     textarea
-     {
-       width:100%;
-     }
-     img
-     {
-       border: 1px solid black;
-     }
+     textarea{ width:100%; }
+     img { border: 1px solid black; }
+     table { width: 100%; padding: 5px; }
+     td { vertical-align: top;}
     </style>
   </head>
   <body>
-    <div>
-      <form method="POST" id="idForm" name="idForm" action="/">
-        <textarea name="code" id="code" rows="30" cols="80">10 REM
+    <table>
+      <tr><td width="80%">
+        <form method="POST" id="idForm" name="idForm" action="/">
+          <textarea name="code" id="code" rows="30" cols="80">10 REM
 20 REM This script will be executed with an 800x600 image
 30 FOR x=0 TO 800
 40 LET y = x / 128 * PI
 50 LET y = 100 + ( 80 * SIN y )
 60 PLOT x,y
 70 NEXT x
-    </textarea>
-    <input type="submit" id="help" value="HELP"><input type="submit" id="submit" value="RUN CODE!" />
-      </form>
-    </div>
-    <div id="help_space" style="display:none;">
-      <h1>Help</h1>
-      <p>Into the field above you can enter a BASIC program, which will be executed when you hit the <code>RUN CODE!</code> button.</p>
-      <p>The program will have access to an 800x600 image, which will be returned when it finishes.</p>
-      <p>To make your program update the image you can use the following functions:</p>
-      <dl>
-        <dt>CIRCLE x, y, r</dt>
-        <dd>The <code>CIRCLE</code> function draws a circle of radius R at the coordinates x,y.  For example:</p><pre>10 COLOR 255,0,0
-20 CIRCLE 50,50,50</pre></p></dd>
-        <dt>COLOR a, b, c</dt>
-        <dd>Set the color which is used for the drawing functions.  The arguments are "Red", "Green", and "Blue" respectively.  So to make a green-circle you would enter:</p><pre>10 COLOR 255,0,0
-20 CIRCLE 50,50,50</pre></p></dd>
-        <dt>PLOT x, y</dt>
-        <dd>The <code>PLOT</code> function sets a single pixel at the specified coordinate.For example:</p><pre>10 COLOR 255,0,0
+          </textarea>
+          <input type="submit" id="help" value="HELP"><input type="submit" id="submit" value="RUN CODE!" />
+        </form>
+      </td>
+      <td width="20%">
+        <h2>Samples</h2>
+        <ul id="examples">
+        </ul>
+      </td></tr>
+      <tr><td colspan="2">
+        <div id="help_space" style="display:none;">
+          <h1>Help</h1>
+          <p>Into the field above you can enter a BASIC program, which will be executed when you hit the <code>RUN CODE!</code> button.</p>
+          <p>The program will have access to an 800x600 image, which will be returned when it finishes.</p>
+          <p>To make your program update the image you can use the following functions:</p>
+          <dl>
+            <dt>CIRCLE x, y, r</dt>
+            <dd>The <code>CIRCLE</code> function draws a circle of radius R at the coordinates x,y.  For example:</p><pre>10 COLOR 255,0,0
+20 CIRCLE 50,50,50
+30 SAVE</pre></p></dd>
+            <dt>COLOR a, b, c</dt>
+            <dd>Set the color which is used for the drawing functions.  The arguments are "Red", "Green", and "Blue" respectively.  So to make a green-circle you would enter:</p><pre>10 COLOR 255,0,0
+20 CIRCLE 50,50,50
+30 SAVE        </pre></p></dd>
+            <dt>PLOT x, y</dt>
+            <dd><p>The <code>PLOT</code> function sets a single pixel at the specified coordinate.For example:</p><pre>10 COLOR 255,0,0
 20 PLOT 50, 50
 30 PLOT 100, 100
-       </pre></p></dd>
-      </dl>
-      <h2>Sample Scripts</h2>
-      <p>The following example draws overlapping circles of ever-increasing radius:</p><p><PRE>10 FOR I = 0 TO 2000 STEP 20
+40 SAVE </pre></p></dd>
+            <dt>SAVE</dt>
+            <dd><p>The <code>SAVE</code> function saves your image - You <b>must</b> end all your programs with a <code>SAVE</code> statement.</p></dd>
+          </dl>
+          <h2>Sample Scripts</h2>
+          <p>The following example draws overlapping circles of ever-increasing radius:</p><p><PRE>10 FOR I = 0 TO 2000 STEP 20
 20  CIRCLE I, I, I
 30  LET r = RND 255
 40  LET g = RND 255
 50  LET b = RND 255
 60  COLOR r, g, b
 70 NEXT I
-</PRE></p>
-    </div>
-    <div style="text-align: center;">
-      <img  id="target" src="" />
-    </div>
+80 SAVE</PRE></p>
+        </div>
+        <div style="text-align: center;">
+          <img  id="target" src="" />
+        </div>
+      </td>
+      </tr>
+    </table>
   </body>
 </html>
