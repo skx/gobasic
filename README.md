@@ -208,8 +208,8 @@ HTTP-server which will accept BASIC code, and render images!
 
 To run this:
 
-    cd goserver
-    go run ./main.go
+    cd goserver ; go build . ; ./goserver
+
 
 Once running open your browser at the URL:
 
@@ -220,11 +220,8 @@ be shown in the bottom of the screen.  Something like this:
 
 ![alt text](https://github.com/skx/gobasic/raw/master/goserver/screenshot.png "Sample view")
 
-Enter your program, and hit `RUN CODE!` to see your output.  There is a sample already present, or you could try entering a simple script like this:
+There are several included examples which you can load/launch by clicking upon them.
 
-    10 FOR I = 0 TO 2000 STEP 20
-    20  CIRCLE I, I, I
-    30 NEXT I
 
 
 
