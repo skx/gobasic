@@ -49,6 +49,10 @@ const (
 	THEN = "THEN"
 	ELSE = "ELSE"
 
+	// Binary operators
+	AND = "AND"
+	OR  = "OR"
+
 	// Woo-operators
 	ASSIGN   = "=" // LET x = 3
 	ASTERISK = "*" // integer multiplication
@@ -72,6 +76,7 @@ const (
 
 // reversed keywords
 var keywords = map[string]Type{
+	"and":    AND,
 	"else":   ELSE,
 	"end":    END,
 	"for":    FOR,
@@ -81,6 +86,7 @@ var keywords = map[string]Type{
 	"input":  INPUT,
 	"let":    LET,
 	"next":   NEXT,
+	"or":     OR,
 	"print":  PRINT,
 	"rem":    REM,
 	"return": RETURN,
