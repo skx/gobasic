@@ -8,8 +8,7 @@
 
      // Setup examples
      var examples = [];
-     examples.push( { id: 1, title: "Draw curves", code: `
-10 REM
+     examples.push( { id: 1, title: "Draw overlapping circles", code: `10 REM
 20 REM This script will be executed with an 800x600 image
 30 REM
 40 REM This example draws overlapping circles.
@@ -20,31 +19,58 @@
 90 SAVE
      `
      } );
-     examples.push( { id: 2, title: "Draw lines", code: "10 .." } );
-     examples.push( { id: 3, title: "Draw colours", code: `
-10 REM
-20 REM This script will be executed with an 800x600 image
-30 REM
-40 REM This example draws blocks of colours.
-50 REM
-60 FOR y=0 TO 600
-70  if y % 50 = 0 THEN GOSUB 1000
-80  FOR x=0 TO 800
-90   PLOT x,y
-100  NEXT x
-110 NEXT y
-120 SAVE
-130 END
-
-1000 REM LET r = 0
-1005 LET r = RND 255
-1009 REM LET g= 0
-1010 LET g = RND 255
-1019 REM LET b= 0
-1020 LET b = RND 255
-1030 COLOR r, g, b
-1040 RETURN
+     examples.push( { id: 2, title: "Draw sin graph", code: ` 10 REM
+ 20 REM This script will be executed with an 800x600 image
+ 30 REM
+ 40 REM This example draws a simple sine wave.
+ 50 REM
+ 60 FOR x=0 TO 800
+ 70  LET y = x / 128 * PI
+ 80  LET y = 200 + ( 80 * SIN y )
+ 90  PLOT x,y
+100 NEXT x
+110 SAVE
 ` } );
+     examples.push( { id: 3, title: "Draw coloured stripes", code: `  10 REM
+  20 REM This script will be executed with an 800x600 image
+  30 REM
+  40 REM This example draws blocks of colours.
+  50 REM
+  60 REM Width of stripes will be 10 - 110
+  70 LET width = RND 100
+  80 LET width = width + 10
+  90 FOR y=0 TO 600
+ 100  if y % width = 0 THEN GOSUB 1000
+ 110  FOR x=0 TO 800
+ 120  PLOT x,y
+ 130  NEXT x
+ 140 NEXT y
+ 150 SAVE
+ 160 END
+1000 REM
+1010 REM Set a random color
+1020 REM
+1030 LET r = RND 255
+1040 LET g = RND 255
+1050 LET b = RND 255
+1060 COLOR r, g, b
+1070 RETURN
+     ` } )
+     examples.push( { id: 4, title: "Draw overlapping lines", code: ` 10 REM
+ 20 REM This script will be executed with an 800x600 image
+ 30 REM
+ 40 REM This example draws overlapping lines.
+ 50 REM
+ 60 FOR I = 0 TO 200 STEP 10
+ 70   LET X  = 100
+ 80   LET Y  = 200 + I
+ 90   LET XX = 500
+100   LET YY = 200 - I
+110   LINE X,Y, XX,YY
+120 NEXT I
+130 SAVE
+     ` })
+
 
 
      $(function() {
@@ -95,16 +121,17 @@
     </style>
   </head>
   <body>
-    <table>
+    <table padding="10">
       <tr><td width="80%">
         <form method="POST" id="idForm" name="idForm" action="/">
-          <textarea name="code" id="code" rows="30" cols="80">10 REM
-20 REM This script will be executed with an 800x600 image
-30 FOR x=0 TO 800
-40 LET y = x / 128 * PI
-50 LET y = 100 + ( 80 * SIN y )
-60 PLOT x,y
-70 NEXT x
+          <textarea name="code" id="code" rows="30" cols="80">
+10 REM
+20 REM  Please enter your BASIC here, or click to load
+30 REM one of the samples from the right-menu.
+40 REM
+50 REM  ALWAYS end your program with a 'SAVE' statement
+60 REM which will show you your image.
+70 REM
           </textarea>
           <input type="submit" id="help" value="HELP"><input type="submit" id="submit" value="RUN CODE!" />
         </form>
@@ -129,6 +156,9 @@
             <dd>Set the color which is used for the drawing functions.  The arguments are "Red", "Green", and "Blue" respectively.  So to make a green-circle you would enter:</p><pre>10 COLOR 255,0,0
 20 CIRCLE 50,50,50
 30 SAVE        </pre></p></dd>
+            <dt>LINE x1, y1, x2, y2</dt>
+            <dd><p>The <code>LINE</code> function draws a line between the two points specified.  For example:</p><p><pre>10 LINE 40,60, 80,120
+20 SAVE</pre></p></dd>
             <dt>PLOT x, y</dt>
             <dd><p>The <code>PLOT</code> function sets a single pixel at the specified coordinate.For example:</p><pre>10 COLOR 255,0,0
 20 PLOT 50, 50
