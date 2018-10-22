@@ -4,9 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/skx/gobasic/eval"
 	"github.com/skx/gobasic/token"
@@ -17,13 +15,6 @@ import (
 var version = "master/unreleased"
 
 func main() {
-
-	//
-	// Ensure we seed our random-number source
-	//
-	// This is required such that RND() returns suitable values.
-	//
-	rand.Seed(time.Now().UnixNano())
 
 	//
 	// Setup some command-line flags

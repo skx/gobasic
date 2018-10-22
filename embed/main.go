@@ -18,9 +18,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/skx/gobasic/eval"
 	"github.com/skx/gobasic/object"
@@ -160,13 +158,6 @@ func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 }
 
 func main() {
-
-	//
-	// Ensure we seed our random-number source
-	//
-	// This is required such that RND returns suitable values.
-	//
-	rand.Seed(time.Now().UnixNano())
 
 	//
 	// This is the program we're going to execute

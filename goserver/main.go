@@ -21,10 +21,8 @@ import (
 	"image/png"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/skx/gobasic/eval"
 	"github.com/skx/gobasic/object"
@@ -399,12 +397,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 // Entry-point.
 //
 func main() {
-	//
-	// Ensure we seed our random-number source
-	//
-	// This is required such that RND() returns suitable values.
-	//
-	rand.Seed(time.Now().UnixNano())
 
 	http.HandleFunc("/", handler)
 	fmt.Printf("goserver running on http://localhost:8080/\n")

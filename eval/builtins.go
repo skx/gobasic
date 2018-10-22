@@ -11,10 +11,16 @@ import (
 	"math"
 	"math/rand"
 	"strconv"
+	"time"
 
 	"github.com/skx/gobasic/object"
 	"github.com/skx/gobasic/token"
 )
+
+// init ensures that we've initialized our random-number state
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 // TokenToFloat is a helper for getting the value of a token as a floating
 // point number.
