@@ -421,9 +421,10 @@ func TestBogusFor(t *testing.T) {
 		"10 FOR I=\n",
 		"10 FOR I=1\n",
 		"10 FOR I=1 TO\n",
-		//		"10 FOR I=1 TO N\n",
 		"10 FOR I=1 TO 10 STEP STEP\n",
 		"10 FOR I=1 TO 20\n20NEXT 3\n",
+		`10 LET TERM="steve"
+20 FOR I = 1 TO TERM`,
 	}
 
 	for _, prg := range txt {
@@ -783,8 +784,8 @@ func TestExprTerm(t *testing.T) {
 
 // TestIfFail tests that IF returns an error.
 func TestIfFail(t *testing.T) {
-	tst := []string{"10 IF CODE \"*\" = \"42\" THEN PRINT \"OK\"",
-		"10 IF  \"42\" = CODE \"*\" THEN PRINT \"OK\"",
+	tst := []string{"10 IF \"*\" * 10 = 42 THEN PRINT \"OK\"",
+		"10 IF 42 = \"*\" / 44 THEN PRINT \"OK\"",
 	}
 
 	for _, input := range tst {
@@ -794,7 +795,7 @@ func TestIfFail(t *testing.T) {
 		if err == nil {
 			t.Errorf("Expected to see an error, but didn't.")
 		}
-		if !strings.Contains(err.Error(), "Unhandled comparison") {
+		if !strings.Contains(err.Error(), "only handles integers") {
 			t.Errorf("Our error-message wasn't what we expected:%s", err.Error())
 		}
 	}

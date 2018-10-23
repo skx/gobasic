@@ -584,7 +584,7 @@ func (e *Interpreter) runForLoop() error {
 
 		x := e.GetVariable(endI.Literal)
 		if x.Type() != object.NUMBER {
-			return fmt.Errorf("End-variable must be an integer!")
+			return fmt.Errorf("FOR: end-variable must be an integer!")
 		}
 		end = int(x.(*object.NumberObject).Value)
 	} else {
