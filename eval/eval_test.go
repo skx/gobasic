@@ -496,7 +496,8 @@ func TestIf(t *testing.T) {
 130 IF "STEVE" >= "STEVE" THEN LET l=1
 140 IF "STEVE" < "steve" then let m=1
 150 IF "steve" <= "steve" then let n=1
-160 LET x=1
+160 IF "steve" = "fsteve" then PRINT "NOP"
+170 LET x=1
 `
 
 	obj := Compile(input)
