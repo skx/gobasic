@@ -727,6 +727,22 @@ func TestMismatchedTypes(t *testing.T) {
 	}
 }
 
+// TestMismatchedTypesTerm tests that term() errors on mismatched types.
+func TestMismatchedTypesTerm(t *testing.T) {
+	input := `10 LET a="steve"
+20 LET b = ( a * 2 ) + ( a * 33 )
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "handles integers") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
 // TestStringFail tests that expr() errors on bogus string operations.
 func TestStringFail(t *testing.T) {
 	input := `10 LET a="steve"

@@ -209,13 +209,19 @@ func (e *Interpreter) factor() object.Object {
 	return object.Error("factor() - unhandled token: %v\n", tok)
 }
 
-// terminal
+// terminal - handles parsing of the form
+//  ARG1 OP ARG2
+//
+// See also expr() which is similar.
 func (e *Interpreter) term() object.Object {
 
+	// First argument
 	f1 := e.factor()
 
+	// Get the operator
 	tok := e.program[e.offset]
 
+	// Here we handle the obvious ones.
 	for tok.Type == token.ASTERISK ||
 		tok.Type == token.SLASH ||
 		tok.Type == token.MOD {
@@ -223,21 +229,24 @@ func (e *Interpreter) term() object.Object {
 		// skip the operator
 		e.offset++
 
-		// get the next factor
+		// get the second argument
 		f2 := e.factor()
 
 		//
-		// Type-check
+		// We allow operations of the form:
 		//
-		if f1.Type() != object.NUMBER {
-			fmt.Printf("term() only handles integers")
-			os.Exit(3)
-		}
-		if f2.Type() != object.NUMBER {
-			fmt.Printf("term() only handles integers")
-			os.Exit(3)
+		//  NUMBER OP NUMBER
+		//
+		// We can error on strings.
+		//
+		if f1.Type() != object.NUMBER ||
+			f2.Type() != object.NUMBER {
+			return object.Error("term() only handles integers")
 		}
 
+		//
+		// Handle the operator.
+		//
 		if tok.Type == token.ASTERISK {
 			f1 = &object.NumberObject{Value: f1.(*object.NumberObject).Value * f2.(*object.NumberObject).Value}
 		}
@@ -256,10 +265,16 @@ func (e *Interpreter) term() object.Object {
 
 // expression - handles parsing of the form
 //  ARG1 OP ARG2
+// See also term() which is similar.
 func (e *Interpreter) expr(allowBinOp bool) object.Object {
 
 	// First argument.
 	t1 := e.term()
+
+	// Did this error?
+	if t1.Type() == object.ERROR {
+		return t1
+	}
 
 	// Get the operator
 	tok := e.program[e.offset]
@@ -288,6 +303,11 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 
 		// Get the second argument.
 		t2 := e.term()
+
+		// Did this error?
+		if t2.Type() == object.ERROR {
+			return t2
+		}
 
 		//
 		// We allow operations of the form:
