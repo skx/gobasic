@@ -179,7 +179,7 @@ if you're crazy enough to want to do that!
 
 You can see an example in the file [embed/main.go](embed/main.go).
 
-The example defines four new functions:
+The example defines several new functions which can be called by BASIC:
 
 * `PEEK`
 * `POKE`
