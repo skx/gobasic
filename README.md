@@ -11,11 +11,11 @@ The implementation is simple for three main reasons:
 
 * There is no UI, which means any and all graphics-primitives are ruled out.
   * However the embedded sample, described later in this file, demonstrates using BASIC to create a PNG image.
-  * There is also a HTTP-based BASIC server, which is described later.
+  * There is also a HTTP-based BASIC server, which is described later, which allows you to create images "interactively".
 * I deliberately set a low bar for myself initially, as this was originally going to be a [weekend project](https://blog.steve.fi/monkeying_around_with_intepreters.html).
   * This is _still_ a weekend-project, but happened over the course of a couple  of hours of evening/morning time instead.
 * I didn't implement the full BASIC set of primitives.
-  * Not even remotely.
+  * Although most of the commands available to the ZX Spectrum are implemented. I only excluded things relating to tape, user-defined functions, etc.
 
 Currently the following obvious primitives work:
 
@@ -103,9 +103,9 @@ Providing you have a working [go-installation](https://golang.org/) you should b
 
 **NOTE** This will only install the command-line driver, rather than the HTTP-server, or the embedded example code.
 
-If you don't have a golang environment setup you should be able to download a binary of the interpreter from the github release page:
+If you don't have a golang environment setup you should be able to download various binaries from the github release page:
 
-* [Binary Release](https://github.com/skx/gobasic/releases)
+* [Binary Releases](https://github.com/skx/gobasic/releases)
 
 
 
@@ -114,7 +114,7 @@ If you don't have a golang environment setup you should be able to download a bi
 gobasic is very simple, and just requires the name of a BASIC-program to
 execute.  Write your input in a file and invoke `gobasic` with the path.
 
-For example the following program was useful to test my implementation of the `TOTO` primitive:
+For example the following program was useful to test my implementation of the `GOTO` primitive:
 
      10 GOTO 80
      20 GOTO 70
@@ -153,7 +153,7 @@ As is common with early 8-bit home-computers this implementation is a little mor
     * [eval/vars.go](eval/vars.go) holds all our variable references.
     * We have a facility to allow golang code to be made available to BASIC programs, and we use that facility to implement a bunch of our functions.
     * Specifically we use [eval/builtin-support.go](eval/builtin-support.go) to define a lot of functions in [eval/builtins.go](eval/builtins.go) which allow BASIC to call SIN, ABS, PI, etc.
-    * Because we support both strings and ints/floats in our BASIC scripts we use a wrapper to hold them on the golang-side.  This can be found in [object/object.go](object/object.go).
+* Because we support both strings and ints/floats in our BASIC scripts we use a wrapper to hold them on the golang-side.  This can be found in [object/object.go](object/object.go).
 
 As there is no AST step errors cannot be detected prior to the execution of programs - because we only hit them after we've started running.
 
