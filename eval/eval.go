@@ -51,7 +51,7 @@ type Interpreter struct {
 	// STDIN is an input-reader used for the INPUT statement
 	STDIN *bufio.Reader
 
-	// Hack: Was the previous statement a GOTO?
+	// Hack: Was the previous statement a GOTO/GOSUB?
 	jump bool
 
 	// lines is a lookup table - the key is the line-number of
@@ -172,12 +172,14 @@ func (e *Interpreter) factor() object.Object {
 
 		// handle the expr
 		ret := e.expr(true)
+		if ret.Type() == object.ERROR {
+			return ret
+		}
 
 		// skip past the rbracket
 		tok = e.program[e.offset]
 		if tok.Type != token.RBRACKET {
-			fmt.Printf("Unclosed bracket around expression!\n")
-			os.Exit(1)
+			return object.Error("Unclosed bracket around expression!")
 		}
 		e.offset++
 
@@ -189,8 +191,7 @@ func (e *Interpreter) factor() object.Object {
 			e.offset++
 			return &object.NumberObject{Value: i}
 		}
-		fmt.Printf("Failed to convert %s -> float64 %s\n", tok.Literal, err.Error())
-		os.Exit(3)
+		return object.Error("Failed to convert %s -> float64 %s", tok.Literal, err.Error())
 
 	case token.STRING:
 		e.offset++
