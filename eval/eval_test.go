@@ -644,7 +644,7 @@ func TestBIN(t *testing.T) {
 	input := `
 10 LET a = BIN 11111111
 20 LET b = BIN 00000010
-20 LET c = BIN 00002010
+30 LET c = BIN 00002010
 `
 	obj := Compile(input)
 	obj.Run()
@@ -678,5 +678,34 @@ func TestIFBIN(t *testing.T) {
 	}
 	if getFloat(t, obj, "D") != 1 {
 		t.Errorf("2 Failed!")
+	}
+}
+
+// TestBogusVariable tests that retrieving a bogus variable fails
+func TestBogusVariable(t *testing.T) {
+	input := `10 PRINT A`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "The variable") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+}
+
+// TestBogusBuiltIn tests that retrieving a bogus builtin fails
+func TestBogusBuiltIn(t *testing.T) {
+	input := `10 AARDVARK`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Failed to find built-in") {
+		t.Errorf("Our error-message wasn't what we expected")
 	}
 }

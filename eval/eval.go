@@ -1025,8 +1025,8 @@ func (e *Interpreter) runPRINT() error {
 			// GetVariable handles both.
 			//
 			val := e.GetVariable(tok.Literal)
-			if val == nil {
-				fmt.Printf("Failed to get variable '%s'\n", tok.Literal)
+			if val.Type() == object.ERROR {
+				return fmt.Errorf("%s", val.(*object.ErrorObject).Value)
 			}
 			if val.Type() == object.STRING {
 				fmt.Printf("%s", val.(*object.StringObject).Value)
@@ -1223,7 +1223,7 @@ func (e *Interpreter) Run() error {
 	return nil
 }
 
-// SetVariable sets the contents of a variable in the interpreterr environment.
+// SetVariable sets the contents of a variable in the interpreter environment.
 //
 // Useful for testing/embedding.
 //
@@ -1253,7 +1253,11 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 		return out
 	}
 
-	return (e.vars.Get(id))
+	val := e.vars.Get(id)
+	if val != nil {
+		return val
+	}
+	return object.Error("The variable '%s' doesn't exist", id)
 }
 
 // RegisterBuiltin registers a function as a built-in, so that it can
