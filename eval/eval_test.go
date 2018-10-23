@@ -759,3 +759,19 @@ func TestStringFail(t *testing.T) {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 }
+
+// TestExprTerm tests that expr() errors on unclosed brackets.
+func TestExprTerm(t *testing.T) {
+	input := `10 LET a = ( 3 + 3 * 33
+20 PRINT a "\n"
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Unclosed bracket") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
