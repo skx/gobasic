@@ -709,3 +709,37 @@ func TestBogusBuiltIn(t *testing.T) {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 }
+
+// TestMismatchedTypes tests that expr() errors on mismatched types.
+func TestMismatchedTypes(t *testing.T) {
+	input := `10 LET a=3
+20 LET b="steve"
+30 LET c = a + b
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "type mismatch") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestStringFail tests that expr() errors on bogus string operations.
+func TestStringFail(t *testing.T) {
+	input := `10 LET a="steve"
+20 LET b="steve"
+30 LET c = a - b
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "not supported for strings") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}

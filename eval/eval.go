@@ -206,11 +206,7 @@ func (e *Interpreter) factor() object.Object {
 		return val
 	}
 
-	fmt.Printf("factor() - unhandled token: %v\n", tok)
-	os.Exit(33)
-
-	// never-reached
-	return &object.NumberObject{Value: 1}
+	return object.Error("factor() - unhandled token: %v\n", tok)
 }
 
 // terminal
@@ -258,20 +254,27 @@ func (e *Interpreter) term() object.Object {
 	return f1
 }
 
-// expression
+// expression - handles parsing of the form
+//  ARG1 OP ARG2
 func (e *Interpreter) expr(allowBinOp bool) object.Object {
 
+	// First argument.
 	t1 := e.term()
 
+	// Get the operator
 	tok := e.program[e.offset]
 
+	// Here we handle the obvious ones.
 	for tok.Type == token.PLUS ||
 		tok.Type == token.MINUS ||
 		tok.Type == token.AND ||
 		tok.Type == token.OR {
 
 		//
-		// Sometimes we disable this.
+		// Sometimes we disable binary AND + binary OR.
+		//
+		// This is mostly due to our naive parser, because
+		// it gets confused handling "IF BLAH AND BLAH  .."
 		//
 		if allowBinOp == false {
 			if tok.Type == token.AND ||
@@ -279,38 +282,53 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 				return t1
 			}
 		}
+
 		// skip the operator
 		e.offset++
 
+		// Get the second argument.
 		t2 := e.term()
 
 		//
-		// Strings can be joined
+		// We allow operations of the form:
+		//
+		//  NUMBER OP NUMBER
+		//
+		//  STRING OP STRING
+		//
+		// We support ZERO operations where the operand types
+		// do not match.  If we hit this it's a bug.
 		//
 		if t1.Type() != t2.Type() {
-			fmt.Printf("expr() - type mismatch\n")
-			os.Exit(1)
+			return object.Error("expr() - type mismatch between '%v' + '%v'", t1, t2)
 		}
 
 		//
-		// Strings?
+		// Are the operands strings?
 		//
 		if t1.Type() == object.STRING {
 
+			//
+			// Get their values.
+			//
 			s1 := t1.(*object.StringObject).Value
 			s2 := t2.(*object.StringObject).Value
 
+			//
+			// We only support "+" for concatenation
+			//
 			if tok.Type == token.PLUS {
 				t1 = &object.StringObject{Value: s1 + s2}
 			} else {
-				fmt.Printf("Token not handled for two strings: %s\n", tok.Literal)
-				os.Exit(2)
+				return object.Error("expr() operation '%s' not supported for strings", tok.Literal)
 			}
 
 		} else {
 
 			//
-			// Working with numbers.
+			// Here we have two operands that are numbers.
+			//
+			// Get their values for neatness.
 			//
 			n1 := t1.(*object.NumberObject).Value
 			n2 := t2.(*object.NumberObject).Value
@@ -324,11 +342,10 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 			} else if tok.Type == token.OR {
 				t1 = &object.NumberObject{Value: float64(int(n1) | int(n2))}
 			} else {
-				fmt.Printf("Token not handled for two numbers: %s\n", tok.Literal)
-				os.Exit(2)
-
+				return object.Error("Token not handled for two numbers: %s\n", tok.Literal)
 			}
 		}
+
 		// repeat?
 		tok = e.program[e.offset]
 	}
@@ -903,6 +920,11 @@ func (e *Interpreter) runLET() error {
 
 	// now we're at the expression/value/whatever
 	res := e.expr(true)
+
+	// Did we get an error in the expression?
+	if res.Type() == object.ERROR {
+		return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+	}
 
 	// Store the result
 	e.vars.Set(target.Literal, res)
