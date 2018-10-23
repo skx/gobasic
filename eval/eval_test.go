@@ -492,7 +492,11 @@ func TestIf(t *testing.T) {
 90 IF a = 1 THEN let h=1
 100 IF "steve" = "steve" THEN LET i=1
 110 IF "steve" <> "kemp" THEN LET j=1
-120 LET x=1
+120 IF "steve" > "STEVE" THEN LET k=1
+130 IF "STEVE" >= "STEVE" THEN LET l=1
+140 IF "STEVE" < "steve" then let m=1
+150 IF "steve" <= "steve" then let n=1
+160 LET x=1
 `
 
 	obj := Compile(input)
@@ -501,7 +505,7 @@ func TestIf(t *testing.T) {
 	//
 	// Get our variables - they should all be equal to one
 	//
-	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x"}
+	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x", "k", "l", "m", "n"}
 
 	for _, nm := range vars {
 		out := getFloat(t, obj, nm)
