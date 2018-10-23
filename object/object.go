@@ -9,11 +9,14 @@
 // would be sufficient.
 package object
 
+import "fmt"
+
 // Type describes the type of an object.
 type Type string
 
 // These are our object-types.
 const (
+	ERROR  = "ERROR"
 	NUMBER = "NUMBER"
 	STRING = "STRING"
 )
@@ -47,4 +50,22 @@ type NumberObject struct {
 // Type returns the type of this object.
 func (s *NumberObject) Type() Type {
 	return NUMBER
+}
+
+// ErrorObject holds a string, which describes an error
+type ErrorObject struct {
+
+	// Value is the message our object wraps.
+	Value string
+}
+
+// Error is a helper for creating a new error-object with the given message.
+func Error(format string, args ...interface{}) *ErrorObject {
+	msg := fmt.Sprintf(format, args...)
+	return &ErrorObject{Value: msg}
+}
+
+// Type returns the type of this object.
+func (s *ErrorObject) Type() Type {
+	return ERROR
 }

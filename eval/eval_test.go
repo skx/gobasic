@@ -421,9 +421,10 @@ func TestBogusFor(t *testing.T) {
 		"10 FOR I=\n",
 		"10 FOR I=1\n",
 		"10 FOR I=1 TO\n",
-		//		"10 FOR I=1 TO N\n",
 		"10 FOR I=1 TO 10 STEP STEP\n",
 		"10 FOR I=1 TO 20\n20NEXT 3\n",
+		`10 LET TERM="steve"
+20 FOR I = 1 TO TERM`,
 	}
 
 	for _, prg := range txt {
@@ -492,7 +493,12 @@ func TestIf(t *testing.T) {
 90 IF a = 1 THEN let h=1
 100 IF "steve" = "steve" THEN LET i=1
 110 IF "steve" <> "kemp" THEN LET j=1
-120 LET x=1
+120 IF "steve" > "STEVE" THEN LET k=1
+130 IF "STEVE" >= "STEVE" THEN LET l=1
+140 IF "STEVE" < "steve" then let m=1
+150 IF "steve" <= "steve" then let n=1
+160 IF "steve" = "fsteve" then PRINT "NOP"
+170 LET x=1
 `
 
 	obj := Compile(input)
@@ -501,7 +507,7 @@ func TestIf(t *testing.T) {
 	//
 	// Get our variables - they should all be equal to one
 	//
-	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x"}
+	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x", "k", "l", "m", "n"}
 
 	for _, nm := range vars {
 		out := getFloat(t, obj, nm)
@@ -644,7 +650,7 @@ func TestBIN(t *testing.T) {
 	input := `
 10 LET a = BIN 11111111
 20 LET b = BIN 00000010
-20 LET c = BIN 00002010
+30 LET c = BIN 00002010
 `
 	obj := Compile(input)
 	obj.Run()
@@ -678,5 +684,141 @@ func TestIFBIN(t *testing.T) {
 	}
 	if getFloat(t, obj, "D") != 1 {
 		t.Errorf("2 Failed!")
+	}
+}
+
+// TestBogusVariable tests that retrieving a bogus variable fails
+func TestBogusVariable(t *testing.T) {
+	input := `10 PRINT A`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "The variable") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+}
+
+// TestBogusBuiltIn tests that retrieving a bogus builtin fails
+func TestBogusBuiltIn(t *testing.T) {
+	input := `10 AARDVARK`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Failed to find built-in") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestMismatchedTypes tests that expr() errors on mismatched types.
+func TestMismatchedTypes(t *testing.T) {
+	input := `10 LET a=3
+20 LET b="steve"
+30 LET c = a + b
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "type mismatch") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestMismatchedTypesTerm tests that term() errors on mismatched types.
+func TestMismatchedTypesTerm(t *testing.T) {
+	input := `10 LET a="steve"
+20 LET b = ( a * 2 ) + ( a * 33 )
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "handles integers") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestStringFail tests that expr() errors on bogus string operations.
+func TestStringFail(t *testing.T) {
+	input := `10 LET a="steve"
+20 LET b="steve"
+30 LET c = a - b
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "not supported for strings") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestExprTerm tests that expr() errors on unclosed brackets.
+func TestExprTerm(t *testing.T) {
+	input := `10 LET a = ( 3 + 3 * 33
+20 PRINT a "\n"
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Unclosed bracket") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestIfFail tests that IF returns an error.
+func TestIfFail(t *testing.T) {
+	tst := []string{"10 IF \"*\" * 10 = 42 THEN PRINT \"OK\"",
+		"10 IF 42 = \"*\" / 44 THEN PRINT \"OK\"",
+	}
+
+	for _, input := range tst {
+		obj := Compile(input)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("Expected to see an error, but didn't.")
+		}
+		if !strings.Contains(err.Error(), "only handles integers") {
+			t.Errorf("Our error-message wasn't what we expected:%s", err.Error())
+		}
+	}
+}
+
+// TestBogusInput ensures that bogus INPUTs are handled.
+func TestBogusInput(t *testing.T) {
+
+	txt := []string{"10 INPUT \n20 REM\n",
+		"10 INPUT ID ID\n20 REM\n",
+		"10 INPUT \"steve\", 33\n20 REM\n",
+	}
+
+	for _, prg := range txt {
+
+		obj := Compile(prg)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("Expected to receive an error in the program '%s' - but didn't", prg)
+		}
+		if !strings.Contains(err.Error(), "INPUT") {
+			t.Errorf("Received error for '%s' but the wrong thing? %s", prg, err.Error())
+		}
 	}
 }

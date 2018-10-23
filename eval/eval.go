@@ -51,7 +51,7 @@ type Interpreter struct {
 	// STDIN is an input-reader used for the INPUT statement
 	STDIN *bufio.Reader
 
-	// Hack: Was the previous statement a GOTO?
+	// Hack: Was the previous statement a GOTO/GOSUB?
 	jump bool
 
 	// lines is a lookup table - the key is the line-number of
@@ -172,12 +172,14 @@ func (e *Interpreter) factor() object.Object {
 
 		// handle the expr
 		ret := e.expr(true)
+		if ret.Type() == object.ERROR {
+			return ret
+		}
 
 		// skip past the rbracket
 		tok = e.program[e.offset]
 		if tok.Type != token.RBRACKET {
-			fmt.Printf("Unclosed bracket around expression!\n")
-			os.Exit(1)
+			return object.Error("Unclosed bracket around expression!")
 		}
 		e.offset++
 
@@ -189,8 +191,7 @@ func (e *Interpreter) factor() object.Object {
 			e.offset++
 			return &object.NumberObject{Value: i}
 		}
-		fmt.Printf("Failed to convert %s -> float64 %s\n", tok.Literal, err.Error())
-		os.Exit(3)
+		return object.Error("Failed to convert %s -> float64 %s", tok.Literal, err.Error())
 
 	case token.STRING:
 		e.offset++
@@ -206,20 +207,22 @@ func (e *Interpreter) factor() object.Object {
 		return val
 	}
 
-	fmt.Printf("factor() - unhandled token: %v\n", tok)
-	os.Exit(33)
-
-	// never-reached
-	return &object.NumberObject{Value: 1}
+	return object.Error("factor() - unhandled token: %v\n", tok)
 }
 
-// terminal
+// terminal - handles parsing of the form
+//  ARG1 OP ARG2
+//
+// See also expr() which is similar.
 func (e *Interpreter) term() object.Object {
 
+	// First argument
 	f1 := e.factor()
 
+	// Get the operator
 	tok := e.program[e.offset]
 
+	// Here we handle the obvious ones.
 	for tok.Type == token.ASTERISK ||
 		tok.Type == token.SLASH ||
 		tok.Type == token.MOD {
@@ -227,21 +230,24 @@ func (e *Interpreter) term() object.Object {
 		// skip the operator
 		e.offset++
 
-		// get the next factor
+		// get the second argument
 		f2 := e.factor()
 
 		//
-		// Type-check
+		// We allow operations of the form:
 		//
-		if f1.Type() != object.NUMBER {
-			fmt.Printf("term() only handles integers")
-			os.Exit(3)
-		}
-		if f2.Type() != object.NUMBER {
-			fmt.Printf("term() only handles integers")
-			os.Exit(3)
+		//  NUMBER OP NUMBER
+		//
+		// We can error on strings.
+		//
+		if f1.Type() != object.NUMBER ||
+			f2.Type() != object.NUMBER {
+			return object.Error("term() only handles integers")
 		}
 
+		//
+		// Handle the operator.
+		//
 		if tok.Type == token.ASTERISK {
 			f1 = &object.NumberObject{Value: f1.(*object.NumberObject).Value * f2.(*object.NumberObject).Value}
 		}
@@ -258,20 +264,33 @@ func (e *Interpreter) term() object.Object {
 	return f1
 }
 
-// expression
+// expression - handles parsing of the form
+//  ARG1 OP ARG2
+// See also term() which is similar.
 func (e *Interpreter) expr(allowBinOp bool) object.Object {
 
+	// First argument.
 	t1 := e.term()
 
+	// Did this error?
+	if t1.Type() == object.ERROR {
+		return t1
+	}
+
+	// Get the operator
 	tok := e.program[e.offset]
 
+	// Here we handle the obvious ones.
 	for tok.Type == token.PLUS ||
 		tok.Type == token.MINUS ||
 		tok.Type == token.AND ||
 		tok.Type == token.OR {
 
 		//
-		// Sometimes we disable this.
+		// Sometimes we disable binary AND + binary OR.
+		//
+		// This is mostly due to our naive parser, because
+		// it gets confused handling "IF BLAH AND BLAH  .."
 		//
 		if allowBinOp == false {
 			if tok.Type == token.AND ||
@@ -279,38 +298,58 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 				return t1
 			}
 		}
+
 		// skip the operator
 		e.offset++
 
+		// Get the second argument.
 		t2 := e.term()
 
-		//
-		// Strings can be joined
-		//
-		if t1.Type() != t2.Type() {
-			fmt.Printf("expr() - type mismatch\n")
-			os.Exit(1)
+		// Did this error?
+		if t2.Type() == object.ERROR {
+			return t2
 		}
 
 		//
-		// Strings?
+		// We allow operations of the form:
+		//
+		//  NUMBER OP NUMBER
+		//
+		//  STRING OP STRING
+		//
+		// We support ZERO operations where the operand types
+		// do not match.  If we hit this it's a bug.
+		//
+		if t1.Type() != t2.Type() {
+			return object.Error("expr() - type mismatch between '%v' + '%v'", t1, t2)
+		}
+
+		//
+		// Are the operands strings?
 		//
 		if t1.Type() == object.STRING {
 
+			//
+			// Get their values.
+			//
 			s1 := t1.(*object.StringObject).Value
 			s2 := t2.(*object.StringObject).Value
 
+			//
+			// We only support "+" for concatenation
+			//
 			if tok.Type == token.PLUS {
 				t1 = &object.StringObject{Value: s1 + s2}
 			} else {
-				fmt.Printf("Token not handled for two strings: %s\n", tok.Literal)
-				os.Exit(2)
+				return object.Error("expr() operation '%s' not supported for strings", tok.Literal)
 			}
 
 		} else {
 
 			//
-			// Working with numbers.
+			// Here we have two operands that are numbers.
+			//
+			// Get their values for neatness.
 			//
 			n1 := t1.(*object.NumberObject).Value
 			n2 := t2.(*object.NumberObject).Value
@@ -324,11 +363,10 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 			} else if tok.Type == token.OR {
 				t1 = &object.NumberObject{Value: float64(int(n1) | int(n2))}
 			} else {
-				fmt.Printf("Token not handled for two numbers: %s\n", tok.Literal)
-				os.Exit(2)
-
+				return object.Error("Token not handled for two numbers: %s\n", tok.Literal)
 			}
 		}
+
 		// repeat?
 		tok = e.program[e.offset]
 	}
@@ -337,10 +375,15 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 }
 
 // compare runs a comparison function (!)
-func (e *Interpreter) compare(allowBinOp bool) bool {
+//
+// It is only used by the `IF` statement.
+func (e *Interpreter) compare(allowBinOp bool) object.Object {
 
 	// Get the first statement
 	t1 := e.expr(allowBinOp)
+	if t1.Type() == object.ERROR {
+		return t1
+	}
 
 	// Get the comparison function
 	op := e.program[e.offset]
@@ -348,6 +391,9 @@ func (e *Interpreter) compare(allowBinOp bool) bool {
 
 	// Get the second expression
 	t2 := e.expr(allowBinOp)
+	if t2.Type() == object.ERROR {
+		return t2
+	}
 
 	//
 	// String-tests here
@@ -360,81 +406,86 @@ func (e *Interpreter) compare(allowBinOp bool) bool {
 		switch op.Type {
 		case token.ASSIGN:
 			if v1 == v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.NOT_EQUALS:
 			if v1 != v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.GT:
 			if v1 > v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.GT_EQUALS:
 			if v1 >= v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.LT:
 			if v1 < v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.LT_EQUALS:
 			if v1 <= v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		}
-		return false
+		// false
+		return &object.NumberObject{Value: 0}
 	}
 
 	//
-	// Type-checks because most of our comparison functions only work
-	// upon integers.
+	// String-tests here
 	//
-	if t1.Type() != object.NUMBER {
-		fmt.Printf("compare() only accepts integers right now")
-		os.Exit(2)
+	if t1.Type() == object.NUMBER && t2.Type() == object.NUMBER {
+
+		v1 := t1.(*object.NumberObject).Value
+		v2 := t2.(*object.NumberObject).Value
+
+		switch op.Type {
+		case token.ASSIGN:
+			if v1 == v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+
+		case token.GT:
+			if v1 > v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+		case token.GT_EQUALS:
+			if v1 >= v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+		case token.LT:
+			if v1 < v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+
+		case token.LT_EQUALS:
+			if v1 <= v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+		case token.NOT_EQUALS:
+			if v1 != v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+		}
+		// false
+		return &object.NumberObject{Value: 0}
 	}
-	if t2.Type() != object.NUMBER {
-		fmt.Printf("compare() only accepts integers right now")
-		os.Exit(2)
-	}
 
-	// Cast to int.
-	v1 := t1.(*object.NumberObject).Value
-	v2 := t2.(*object.NumberObject).Value
-
-	switch op.Type {
-	case token.ASSIGN:
-		if v1 == v2 {
-			return true
-		}
-
-	case token.GT:
-		if v1 > v2 {
-			return true
-		}
-	case token.GT_EQUALS:
-		if v1 >= v2 {
-			return true
-		}
-	case token.LT:
-		if v1 < v2 {
-			return true
-		}
-
-	case token.LT_EQUALS:
-		if v1 <= v2 {
-			return true
-		}
-	case token.NOT_EQUALS:
-		if v1 != v2 {
-			return true
-		}
-	default:
-		fmt.Printf("Unknown comparison: %v\n", op)
-		os.Exit(32)
-	}
-	return false
+	return object.Error("Unhandled comparison: %v %v %v\n", t1, op, t2)
 }
 
 // Call the built-in with the given name if we can.
@@ -533,7 +584,7 @@ func (e *Interpreter) runForLoop() error {
 
 		x := e.GetVariable(endI.Literal)
 		if x.Type() != object.NUMBER {
-			return fmt.Errorf("End-variable must be an integer!")
+			return fmt.Errorf("FOR: end-variable must be an integer!")
 		}
 		end = int(x.(*object.NumberObject).Value)
 	} else {
@@ -757,7 +808,20 @@ func (e *Interpreter) runIF() error {
 
 	// Get the result of the comparison-function
 	// against the two arguments.
-	result := e.compare(false)
+	res := e.compare(false)
+
+	// Error?
+	if res.Type() == object.ERROR {
+		return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+	}
+
+	//
+	// We need a boolean result, so we convert here.
+	//
+	result := false
+	if res.Type() == object.NUMBER {
+		result = (res.(*object.NumberObject).Value == 1)
+	}
 
 	//
 	// The general form of an IF statement is
@@ -778,18 +842,30 @@ func (e *Interpreter) runIF() error {
 		target.Type == token.OR {
 
 		//
-		// Get the next expression
+		// See what the next comparison looks like.
 		//
 		extra := e.compare(false)
+
+		if extra.Type() == object.ERROR {
+			return fmt.Errorf("%s", extra.(*object.ErrorObject).Value)
+		}
+
+		//
+		// We need a boolean answer.
+		//
+		extra_result := false
+		if extra.Type() == object.NUMBER {
+			extra_result = (extra.(*object.NumberObject).Value == 1)
+		}
 
 		//
 		// Update our result appropriately.
 		//
 		if target.Type == token.AND {
-			result = result && extra
+			result = result && extra_result
 		}
 		if target.Type == token.OR {
-			result = result || extra
+			result = result || extra_result
 		}
 
 		// Repeat?
@@ -903,6 +979,11 @@ func (e *Interpreter) runLET() error {
 
 	// now we're at the expression/value/whatever
 	res := e.expr(true)
+
+	// Did we get an error in the expression?
+	if res.Type() == object.ERROR {
+		return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+	}
 
 	// Store the result
 	e.vars.Set(target.Literal, res)
@@ -1025,8 +1106,8 @@ func (e *Interpreter) runPRINT() error {
 			// GetVariable handles both.
 			//
 			val := e.GetVariable(tok.Literal)
-			if val == nil {
-				fmt.Printf("Failed to get variable '%s'\n", tok.Literal)
+			if val.Type() == object.ERROR {
+				return fmt.Errorf("%s", val.(*object.ErrorObject).Value)
 			}
 			if val.Type() == object.STRING {
 				fmt.Printf("%s", val.(*object.StringObject).Value)
@@ -1223,7 +1304,7 @@ func (e *Interpreter) Run() error {
 	return nil
 }
 
-// SetVariable sets the contents of a variable in the interpreterr environment.
+// SetVariable sets the contents of a variable in the interpreter environment.
 //
 // Useful for testing/embedding.
 //
@@ -1253,7 +1334,11 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 		return out
 	}
 
-	return (e.vars.Get(id))
+	val := e.vars.Get(id)
+	if val != nil {
+		return val
+	}
+	return object.Error("The variable '%s' doesn't exist", id)
 }
 
 // RegisterBuiltin registers a function as a built-in, so that it can
