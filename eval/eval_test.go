@@ -800,3 +800,25 @@ func TestIfFail(t *testing.T) {
 		}
 	}
 }
+
+// TestBogusInput ensures that bogus INPUTs are handled.
+func TestBogusInput(t *testing.T) {
+
+	txt := []string{"10 INPUT \n20 REM\n",
+		"10 INPUT ID ID\n20 REM\n",
+		"10 INPUT \"steve\", 33\n20 REM\n",
+	}
+
+	for _, prg := range txt {
+
+		obj := Compile(prg)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("Expected to receive an error in the program '%s' - but didn't", prg)
+		}
+		if !strings.Contains(err.Error(), "INPUT") {
+			t.Errorf("Received error for '%s' but the wrong thing? %s", prg, err.Error())
+		}
+	}
+}
