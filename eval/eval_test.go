@@ -780,3 +780,22 @@ func TestExprTerm(t *testing.T) {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 }
+
+// TestIfFail tests that IF returns an error.
+func TestIfFail(t *testing.T) {
+	tst := []string{"10 IF CODE \"*\" = \"42\" THEN PRINT \"OK\"",
+		"10 IF  \"42\" = CODE \"*\" THEN PRINT \"OK\"",
+	}
+
+	for _, input := range tst {
+		obj := Compile(input)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("Expected to see an error, but didn't.")
+		}
+		if !strings.Contains(err.Error(), "Unhandled comparison") {
+			t.Errorf("Our error-message wasn't what we expected:%s", err.Error())
+		}
+	}
+}
