@@ -374,10 +374,15 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 }
 
 // compare runs a comparison function (!)
-func (e *Interpreter) compare(allowBinOp bool) bool {
+//
+// It is only used by the `IF` statement.
+func (e *Interpreter) compare(allowBinOp bool) object.Object {
 
 	// Get the first statement
 	t1 := e.expr(allowBinOp)
+	if t1.Type() == object.ERROR {
+		return t1
+	}
 
 	// Get the comparison function
 	op := e.program[e.offset]
@@ -385,6 +390,9 @@ func (e *Interpreter) compare(allowBinOp bool) bool {
 
 	// Get the second expression
 	t2 := e.expr(allowBinOp)
+	if t2.Type() == object.ERROR {
+		return t2
+	}
 
 	//
 	// String-tests here
@@ -397,81 +405,86 @@ func (e *Interpreter) compare(allowBinOp bool) bool {
 		switch op.Type {
 		case token.ASSIGN:
 			if v1 == v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.NOT_EQUALS:
 			if v1 != v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.GT:
 			if v1 > v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.GT_EQUALS:
 			if v1 >= v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.LT:
 			if v1 < v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		case token.LT_EQUALS:
 			if v1 <= v2 {
-				return true
+				//true
+				return &object.NumberObject{Value: 1}
 			}
 		}
-		return false
+		// false
+		return &object.NumberObject{Value: 0}
 	}
 
 	//
-	// Type-checks because most of our comparison functions only work
-	// upon integers.
+	// String-tests here
 	//
-	if t1.Type() != object.NUMBER {
-		fmt.Printf("compare() only accepts integers right now")
-		os.Exit(2)
+	if t1.Type() == object.NUMBER && t2.Type() == object.NUMBER {
+
+		v1 := t1.(*object.NumberObject).Value
+		v2 := t2.(*object.NumberObject).Value
+
+		switch op.Type {
+		case token.ASSIGN:
+			if v1 == v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+
+		case token.GT:
+			if v1 > v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+		case token.GT_EQUALS:
+			if v1 >= v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+		case token.LT:
+			if v1 < v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+
+		case token.LT_EQUALS:
+			if v1 <= v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+		case token.NOT_EQUALS:
+			if v1 != v2 {
+				//true
+				return &object.NumberObject{Value: 1}
+			}
+		}
+		// false
+		return &object.NumberObject{Value: 0}
 	}
-	if t2.Type() != object.NUMBER {
-		fmt.Printf("compare() only accepts integers right now")
-		os.Exit(2)
-	}
 
-	// Cast to int.
-	v1 := t1.(*object.NumberObject).Value
-	v2 := t2.(*object.NumberObject).Value
-
-	switch op.Type {
-	case token.ASSIGN:
-		if v1 == v2 {
-			return true
-		}
-
-	case token.GT:
-		if v1 > v2 {
-			return true
-		}
-	case token.GT_EQUALS:
-		if v1 >= v2 {
-			return true
-		}
-	case token.LT:
-		if v1 < v2 {
-			return true
-		}
-
-	case token.LT_EQUALS:
-		if v1 <= v2 {
-			return true
-		}
-	case token.NOT_EQUALS:
-		if v1 != v2 {
-			return true
-		}
-	default:
-		fmt.Printf("Unknown comparison: %v\n", op)
-		os.Exit(32)
-	}
-	return false
+	return object.Error("Unhandled comparison: %v %v %v\n", t1, op, t2)
 }
 
 // Call the built-in with the given name if we can.
@@ -794,7 +807,20 @@ func (e *Interpreter) runIF() error {
 
 	// Get the result of the comparison-function
 	// against the two arguments.
-	result := e.compare(false)
+	res := e.compare(false)
+
+	// Error?
+	if res.Type() == object.ERROR {
+		return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+	}
+
+	//
+	// We need a boolean result, so we convert here.
+	//
+	result := false
+	if res.Type() == object.NUMBER {
+		result = (res.(*object.NumberObject).Value == 1)
+	}
 
 	//
 	// The general form of an IF statement is
@@ -815,18 +841,30 @@ func (e *Interpreter) runIF() error {
 		target.Type == token.OR {
 
 		//
-		// Get the next expression
+		// See what the next comparison looks like.
 		//
 		extra := e.compare(false)
+
+		if extra.Type() == object.ERROR {
+			return fmt.Errorf("%s", extra.(*object.ErrorObject).Value)
+		}
+
+		//
+		// We need a boolean answer.
+		//
+		extra_result := false
+		if extra.Type() == object.NUMBER {
+			extra_result = (extra.(*object.NumberObject).Value == 1)
+		}
 
 		//
 		// Update our result appropriately.
 		//
 		if target.Type == token.AND {
-			result = result && extra
+			result = result && extra_result
 		}
 		if target.Type == token.OR {
-			result = result || extra
+			result = result || extra_result
 		}
 
 		// Repeat?
