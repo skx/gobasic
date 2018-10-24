@@ -35,24 +35,24 @@ var img *image.RGBA
 // peekFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
 // We just log that we've been invoked here.
-func peekFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func peekFunction(env eval.Interpreter, args []object.Object) object.Object {
 	fmt.Printf("PEEK called with %v\n", args[0])
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // pokeFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
 // We just log that we've been invoked here, along with the (three) args.
-func pokeFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func pokeFunction(env eval.Interpreter, args []object.Object) object.Object {
 	fmt.Printf("POKE called.\n")
 	for i, e := range args {
 		fmt.Printf(" Arg %d -> %v\n", i, e)
 	}
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // circleFunction allows drawing a circle upon our image.
-func circleFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func circleFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	var xx, yy, rr float64
 
@@ -62,12 +62,12 @@ func circleFunction(env eval.Interpreter, args []object.Object) (object.Object, 
 	if args[1].Type() == object.NUMBER {
 		yy = args[1].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for Y"), nil
+		return object.Error("Wrong type for Y")
 	}
 	if args[2].Type() == object.NUMBER {
 		rr = args[2].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for R"), nil
+		return object.Error("Wrong type for R")
 	}
 
 	//
@@ -114,23 +114,23 @@ func circleFunction(env eval.Interpreter, args []object.Object) (object.Object, 
 	}
 
 	// All done.
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // plotFunction is the golang implementation of the PLOT primitive.
-func plotFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func plotFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	var x, y float64
 
 	if args[0].Type() == object.NUMBER {
 		x = args[0].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for X"), nil
+		return object.Error("Wrong type for X")
 	}
 	if args[1].Type() == object.NUMBER {
 		y = args[1].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for Y"), nil
+		return object.Error("Wrong type for Y")
 	}
 
 	// If we have no image, create it.
@@ -143,13 +143,13 @@ func plotFunction(env eval.Interpreter, args []object.Object) (object.Object, er
 	// Draw the dot
 	img.Set(int(x), int(y), color.RGBA{255, 0, 0, 255})
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // saveFunction is the golang implementation of the SAVE primitive,
 // which is made available to BASIC.
 // We save the image-canvas to the file `out.png`.
-func saveFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func saveFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	// If we have no image, create it.
 	if img == nil {
@@ -163,7 +163,7 @@ func saveFunction(env eval.Interpreter, args []object.Object) (object.Object, er
 	defer f.Close()
 	png.Encode(f, img)
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 func main() {

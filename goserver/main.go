@@ -45,7 +45,7 @@ func init() {
 //
 // It is invoked with two arguments (NUMBER NUMBER) and sets
 // the corresponding pixel in our canvas to be Red.
-func plotFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func plotFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	var x, y float64
 
@@ -55,12 +55,12 @@ func plotFunction(env eval.Interpreter, args []object.Object) (object.Object, er
 	if args[0].Type() == object.NUMBER {
 		x = args[0].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for X"), fmt.Errorf("Wrong type for X")
+		return object.Error("Wrong type for X")
 	}
 	if args[1].Type() == object.NUMBER {
 		y = args[1].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for Y"), fmt.Errorf("Wrong type for Y")
+		return object.Error("Wrong type for Y")
 	}
 
 	// If we have no image, create it.
@@ -73,7 +73,7 @@ func plotFunction(env eval.Interpreter, args []object.Object) (object.Object, er
 	// Draw the dot
 	img.Set(int(x), int(y), col)
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // saveFunction is the golang implementation of the SAVE primitive,
@@ -81,7 +81,7 @@ func plotFunction(env eval.Interpreter, args []object.Object) (object.Object, er
 //
 // We save the image-canvas to a temporary file, and set that filename
 // within the BASIC environment.
-func saveFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func saveFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	// If we have no image, create it.
 	if img == nil {
@@ -104,11 +104,11 @@ func saveFunction(env eval.Interpreter, args []object.Object) (object.Object, er
 	// Finally we can nuke the image
 	img = nil
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // colorFunction allows the user to change the current colour.
-func colorFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func colorFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	var r, g, b float64
 
@@ -118,29 +118,29 @@ func colorFunction(env eval.Interpreter, args []object.Object) (object.Object, e
 	if args[0].Type() == object.NUMBER {
 		r = args[0].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for R"), fmt.Errorf("Wrong type for R")
+		return object.Error("Wrong type for R")
 	}
 
 	if args[1].Type() == object.NUMBER {
 		g = args[1].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for G"), fmt.Errorf("Wrong type for G")
+		return object.Error("Wrong type for G")
 	}
 
 	if args[2].Type() == object.NUMBER {
 		b = args[2].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for B"), fmt.Errorf("Wrong type for B")
+		return object.Error("Wrong type for B")
 	}
 
 	// Update the colour.
 	col = color.RGBA{uint8(r), uint8(g), uint8(b), 255}
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // circleFunction allows drawing a circle upon our image.
-func circleFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func circleFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	var xx, yy, rr float64
 
@@ -150,19 +150,19 @@ func circleFunction(env eval.Interpreter, args []object.Object) (object.Object, 
 	if args[0].Type() == object.NUMBER {
 		xx = args[0].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for X"), fmt.Errorf("Wrong type for X")
+		return object.Error("Wrong type for X")
 	}
 
 	if args[1].Type() == object.NUMBER {
 		yy = args[1].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for Y"), fmt.Errorf("Wrong type for Y")
+		return object.Error("Wrong type for Y")
 	}
 
 	if args[2].Type() == object.NUMBER {
 		rr = args[2].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for R"), fmt.Errorf("Wrong type for R")
+		return object.Error("Wrong type for R")
 	}
 
 	//
@@ -206,33 +206,33 @@ func circleFunction(env eval.Interpreter, args []object.Object) (object.Object, 
 	}
 
 	// All done.
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // lineFunction draws a line.
-func lineFunction(env eval.Interpreter, args []object.Object) (object.Object, error) {
+func lineFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	var xx1, yy1, xx2, yy2 float64
 
 	if args[0].Type() == object.NUMBER {
 		xx1 = args[0].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for X1"), fmt.Errorf("Wrong type for X1")
+		return object.Error("Wrong type for X1")
 	}
 	if args[1].Type() == object.NUMBER {
 		yy1 = args[1].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for Y1"), fmt.Errorf("Wrong type for Y1")
+		return object.Error("Wrong type for Y1")
 	}
 	if args[2].Type() == object.NUMBER {
 		xx2 = args[2].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for X2"), fmt.Errorf("Wrong type for X2")
+		return object.Error("Wrong type for X2")
 	}
 	if args[3].Type() == object.NUMBER {
 		yy2 = args[3].(*object.NumberObject).Value
 	} else {
-		return object.Error("Wrong type for Y2"), fmt.Errorf("Wrong type for Y2")
+		return object.Error("Wrong type for Y2")
 	}
 
 	//
@@ -365,7 +365,7 @@ func lineFunction(env eval.Interpreter, args []object.Object) (object.Object, er
 		img.Set(x2, y2, col)
 	}
 	// All done.
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 //

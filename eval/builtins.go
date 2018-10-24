@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/skx/gobasic/object"
@@ -21,7 +22,7 @@ func init() {
 }
 
 // DUMP just displays the only argument it received.
-func DUMP(env Interpreter, args []object.Object) (object.Object, error) {
+func DUMP(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() == object.NUMBER {
@@ -32,100 +33,110 @@ func DUMP(env Interpreter, args []object.Object) (object.Object, error) {
 		s := args[0].(*object.StringObject).Value
 		fmt.Printf("STRING: %s\n", s)
 	}
+	if args[0].Type() == object.ERROR {
+		s := args[0].(*object.ErrorObject).Value
+		fmt.Printf("Error: %s\n", s)
+	}
 
 	// Otherwise return as-is.
-	return &object.NumberObject{Value: 0}, nil
+	return &object.NumberObject{Value: 0}
 }
 
 // ABS implements ABS
-func ABS(env Interpreter, args []object.Object) (object.Object, error) {
+func ABS(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
 	// If less than zero make it positive.
 	if i < 0 {
-		return &object.NumberObject{Value: -1 * i}, nil
+		return &object.NumberObject{Value: -1 * i}
 	}
 
 	// Otherwise return as-is.
-	return &object.NumberObject{Value: i}, nil
+	return &object.NumberObject{Value: i}
 }
 
 // BIN converts a number from binary.
-func BIN(env Interpreter, args []object.Object) (object.Object, error) {
+func BIN(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	// TODO!
-	return &object.NumberObject{Value: float64(i)}, nil
+	s := fmt.Sprintf("%d", int(i))
+
+	b, err := strconv.ParseInt(s, 2, 64)
+	if err != nil {
+		return object.Error("BIN:%s", err.Error())
+	}
+
+	return &object.NumberObject{Value: float64(b)}
 
 }
 
 // CHR returns the character specified by the given ASCII code.
-func CHR(env Interpreter, args []object.Object) (object.Object, error) {
+func CHR(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
 	// Now
 	r := rune(i)
 
-	return &object.StringObject{Value: string(r)}, nil
+	return &object.StringObject{Value: string(r)}
 }
 
 // CODE returns the integer value of the specified character.
-func CODE(env Interpreter, args []object.Object) (object.Object, error) {
+func CODE(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.StringObject).Value
 
 	if len(i) > 0 {
 		s := i[0]
-		return &object.NumberObject{Value: float64(rune(s))}, nil
+		return &object.NumberObject{Value: float64(rune(s))}
 	}
-	return &object.NumberObject{Value: float64(0)}, nil
+	return &object.NumberObject{Value: float64(0)}
 
 }
 
 // INT implements INT
-func INT(env Interpreter, args []object.Object) (object.Object, error) {
+func INT(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
 	// Truncate.
-	return &object.NumberObject{Value: float64(int(i))}, nil
+	return &object.NumberObject{Value: float64(int(i))}
 }
 
 // LEFT returns the N left-most characters of the string.
-func LEFT(env Interpreter, args []object.Object) (object.Object, error) {
+func LEFT(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	in := args[0].(*object.StringObject).Value
 
 	// Get the (float) argument.
 	if args[1].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	n := args[1].(*object.NumberObject).Value
 
@@ -135,45 +146,45 @@ func LEFT(env Interpreter, args []object.Object) (object.Object, error) {
 
 	left := in[0:int(n)]
 
-	return &object.StringObject{Value: left}, nil
+	return &object.StringObject{Value: left}
 }
 
 // LEN returns the length of the given string
-func LEN(env Interpreter, args []object.Object) (object.Object, error) {
+func LEN(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	in := args[0].(*object.StringObject).Value
 
-	return &object.NumberObject{Value: float64(len(in))}, nil
+	return &object.NumberObject{Value: float64(len(in))}
 }
 
 // MID returns the N characters from the given offset
-func MID(env Interpreter, args []object.Object) (object.Object, error) {
+func MID(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	in := args[0].(*object.StringObject).Value
 
 	// Get the (float) argument.
 	if args[1].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	offset := args[1].(*object.NumberObject).Value
 
 	// Get the (float) argument.
 	if args[2].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	count := args[2].(*object.NumberObject).Value
 
 	// too far
 	if int(offset) > len(in) {
-		return &object.StringObject{Value: ""}, nil
+		return &object.StringObject{Value: ""}
 	}
 
 	// get the string from the position
@@ -184,21 +195,21 @@ func MID(env Interpreter, args []object.Object) (object.Object, error) {
 		count = float64(len(out))
 	}
 	out = out[:int(count)]
-	return &object.StringObject{Value: out}, nil
+	return &object.StringObject{Value: out}
 }
 
 // RIGHT returns the N right-most characters of the string.
-func RIGHT(env Interpreter, args []object.Object) (object.Object, error) {
+func RIGHT(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	in := args[0].(*object.StringObject).Value
 
 	// Get the (float) argument.
 	if args[1].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	n := args[1].(*object.NumberObject).Value
 
@@ -207,166 +218,166 @@ func RIGHT(env Interpreter, args []object.Object) (object.Object, error) {
 	}
 	right := in[len(in)-int(n):]
 
-	return &object.StringObject{Value: right}, nil
+	return &object.StringObject{Value: right}
 }
 
 // RND implements RND
-func RND(env Interpreter, args []object.Object) (object.Object, error) {
+func RND(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
 	// Return the random number
-	return &object.NumberObject{Value: float64(rand.Intn(int(i)))}, nil
+	return &object.NumberObject{Value: float64(rand.Intn(int(i)))}
 }
 
 // SGN is the sign function (sometimes called signum).
-func SGN(env Interpreter, args []object.Object) (object.Object, error) {
+func SGN(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
 	if i < 0 {
-		return &object.NumberObject{Value: -1}, nil
+		return &object.NumberObject{Value: -1}
 	}
 	if i == 0 {
-		return &object.NumberObject{Value: 0}, nil
+		return &object.NumberObject{Value: 0}
 	}
-	return &object.NumberObject{Value: 1}, nil
+	return &object.NumberObject{Value: 1}
 
 }
 
 // SQR implements square root.
-func SQR(env Interpreter, args []object.Object) (object.Object, error) {
+func SQR(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Sqrt(i)}, nil
+	return &object.NumberObject{Value: math.Sqrt(i)}
 }
 
 // TL returns a string, minus the first character.
-func TL(env Interpreter, args []object.Object) (object.Object, error) {
+func TL(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	in := args[0].(*object.StringObject).Value
 
 	if len(in) > 1 {
 		rest := in[1:]
 
-		return &object.StringObject{Value: rest}, nil
+		return &object.StringObject{Value: rest}
 	}
-	return &object.StringObject{Value: ""}, nil
+	return &object.StringObject{Value: ""}
 }
 
 // PI returns the value of PI
-func PI(env Interpreter, args []object.Object) (object.Object, error) {
-	return &object.NumberObject{Value: math.Pi}, nil
+func PI(env Interpreter, args []object.Object) object.Object {
+	return &object.NumberObject{Value: math.Pi}
 }
 
 // COS implements the COS function..
-func COS(env Interpreter, args []object.Object) (object.Object, error) {
+func COS(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Cos(i)}, nil
+	return &object.NumberObject{Value: math.Cos(i)}
 }
 
 // SIN operats the sin function.
-func SIN(env Interpreter, args []object.Object) (object.Object, error) {
+func SIN(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Sin(i)}, nil
+	return &object.NumberObject{Value: math.Sin(i)}
 }
 
 // TAN implements the tan function.
-func TAN(env Interpreter, args []object.Object) (object.Object, error) {
+func TAN(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Tan(i)}, nil
+	return &object.NumberObject{Value: math.Tan(i)}
 }
 
 // ASN (arcsine)
-func ASN(env Interpreter, args []object.Object) (object.Object, error) {
+func ASN(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Asin(i)}, nil
+	return &object.NumberObject{Value: math.Asin(i)}
 }
 
 // ACS (arccosine)
-func ACS(env Interpreter, args []object.Object) (object.Object, error) {
+func ACS(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Acos(i)}, nil
+	return &object.NumberObject{Value: math.Acos(i)}
 }
 
 // ATN (arctan)
-func ATN(env Interpreter, args []object.Object) (object.Object, error) {
+func ATN(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Atan(i)}, nil
+	return &object.NumberObject{Value: math.Atan(i)}
 }
 
 // EXP x=e^x EXP
-func EXP(env Interpreter, args []object.Object) (object.Object, error) {
+func EXP(env Interpreter, args []object.Object) object.Object {
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Exp(i)}, nil
+	return &object.NumberObject{Value: math.Exp(i)}
 }
 
 // LN calculates logarithms to the base e - LN
-func LN(env Interpreter, args []object.Object) (object.Object, error) {
+func LN(env Interpreter, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
-		return object.Error("Wrong type"), fmt.Errorf("Wrong type")
+		return object.Error("Wrong type")
 	}
 	i := args[0].(*object.NumberObject).Value
 
-	return &object.NumberObject{Value: math.Log(i)}, nil
+	return &object.NumberObject{Value: math.Log(i)}
 }
