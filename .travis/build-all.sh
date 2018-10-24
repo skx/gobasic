@@ -6,6 +6,9 @@ BASE="gobasic"
 # Get the dependencies
 go get -t -v -d $(go list ./...)
 
+# Run the test-cases
+go test ./...
+
 #
 # We build on multiple platforms/archs
 #
