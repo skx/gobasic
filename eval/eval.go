@@ -206,12 +206,9 @@ func (e *Interpreter) factor() object.Object {
 	case token.BUILTIN:
 
 		//
-		// Call the built-in
+		// Call the built-in and return the value.
 		//
-		val, err := e.callBuiltin(tok.Literal)
-		if err != nil {
-			return object.Error(err.Error())
-		}
+		val := e.callBuiltin(tok.Literal)
 		return val
 
 	case token.IDENT:
@@ -502,11 +499,11 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 		return &object.NumberObject{Value: 0}
 	}
 
-	return object.Error("Unhandled comparison: %v %v %v\n", t1, op, t2)
+	return object.Error("Unhandled comparison: %v[%s] %v %v[%s]\n", t1, t1.Type(), op, t2, t2.Type())
 }
 
 // Call the built-in with the given name if we can.
-func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
+func (e *Interpreter) callBuiltin(name string) object.Object {
 
 	if e.functions.Exists(name) {
 
@@ -556,7 +553,7 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 
 				ii, err = strconv.ParseFloat(tok.Literal, 64)
 				if err != nil {
-					return &object.NumberObject{Value: 0}, err
+					return object.Error("Failed to parse %s as float %s", tok.Literal, err.Error())
 				}
 				obj = &object.NumberObject{Value: ii}
 
@@ -565,11 +562,7 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 			} else if tok.Type == token.IDENT {
 				obj = e.GetVariable(tok.Literal)
 			} else if tok.Type == token.BUILTIN {
-
-				obj, err = e.callBuiltin(tok.Literal)
-				if err != nil {
-					return obj, err
-				}
+				obj = e.callBuiltin(tok.Literal)
 			}
 
 			// bump past the argument now we handled it.
@@ -582,10 +575,10 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 		//
 		// Call the function
 		//
-		out, err := fun(*e, args)
-		return out, err
+		out := fun(*e, args)
+		return out
 	}
-	return nil, fmt.Errorf("Failed to find built-in %s", name)
+	return object.Error("Failed to find built-in %s", name)
 }
 
 ////
@@ -1168,12 +1161,9 @@ func (e *Interpreter) runPRINT() error {
 		} else if tok.Type == token.BUILTIN {
 
 			// Call the function.
-			val, err := e.callBuiltin(tok.Literal)
+			val := e.callBuiltin(tok.Literal)
 
 			// Did it error?
-			if err != nil {
-				return err
-			}
 			if val.Type() == object.ERROR {
 				return fmt.Errorf("%s", val.(*object.ErrorObject).Value)
 			}
@@ -1352,9 +1342,11 @@ func (e *Interpreter) RunOnce() error {
 	case token.RETURN:
 		err = e.runRETURN()
 	case token.BUILTIN:
-		_, err = e.callBuiltin(tok.Literal)
-		if err != nil {
-			return err
+
+		obj := e.callBuiltin(tok.Literal)
+
+		if obj.Type() == object.ERROR {
+			return fmt.Errorf("%s", obj.(*object.ErrorObject).Value)
 		}
 
 		e.offset--
