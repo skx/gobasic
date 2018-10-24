@@ -7,7 +7,9 @@ BASE="gobasic"
 go get -t -v -d $(go list ./...)
 
 # Run the test-cases
-go test ./...
+if (!  go test ./... ) ; then
+    exit 1
+fi
 
 #
 # We build on multiple platforms/archs
@@ -48,3 +50,5 @@ for OS in ${BUILD_PLATFORMS[@]}; do
         cd ./goserver && go build -o goserver-${SUFFIX} . && cd ..
     done
 done
+
+exit 0
