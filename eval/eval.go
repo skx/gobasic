@@ -150,10 +150,10 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	// Primitives that operate upon strings
 	t.RegisterBuiltin("CHR$", 1, CHR)
 	t.RegisterBuiltin("CODE", 1, CODE)
-	t.RegisterBuiltin("LEFT$", 3, LEFT)
+	t.RegisterBuiltin("LEFT$", 2, LEFT)
 	t.RegisterBuiltin("LEN", 1, LEN)
-	t.RegisterBuiltin("MID$", 5, MID)
-	t.RegisterBuiltin("RIGHT$", 3, RIGHT)
+	t.RegisterBuiltin("MID$", 3, MID)
+	t.RegisterBuiltin("RIGHT$", 2, RIGHT)
 	t.RegisterBuiltin("TL$", 1, TL)
 
 	return t
@@ -510,10 +510,56 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 		//
 		e.offset++
 
-		var args []token.Token
+		//
+		// Each built-in takes a specific number of arguments.
+		//
+		// We pass only `string` or `number` to it.
+		//
+		var args []object.Object
+
+		//
+		// Build up the args, converting and evaluating as we go.
+		//
 		for i := 0; i < n; i++ {
-			args = append(args, e.program[e.offset])
+
+			var obj object.Object
+			var err error
+
+			tok := e.program[e.offset]
 			e.offset++
+
+			//
+			// Skip commas.
+			//
+			if tok.Type == token.COMMA {
+				continue
+			}
+
+			//
+			// We only pass string/int
+			//
+			if tok.Type == token.INT {
+				var ii float64
+
+				ii, err = strconv.ParseFloat(tok.Literal, 64)
+				if err != nil {
+					return &object.NumberObject{Value: 0}, err
+				}
+				obj = &object.NumberObject{Value: ii}
+
+			} else if tok.Type == token.STRING {
+				obj = &object.StringObject{Value: tok.Literal}
+			} else if tok.Type == token.IDENT {
+				obj = e.GetVariable(tok.Literal)
+			} else if tok.Type == token.BUILTIN {
+
+				obj, err = e.callBuiltin(tok.Literal)
+				if err != nil {
+					return obj, err
+				}
+			}
+
+			args = append(args, obj)
 		}
 
 		//
@@ -1103,7 +1149,30 @@ func (e *Interpreter) runPRINT() error {
 		} else if tok.Type == token.COMMA {
 			fmt.Printf(" ")
 		} else if tok.Type == token.BUILTIN {
-			fmt.Printf("BUILTIN\n")
+
+			val, err := e.callBuiltin(tok.Literal)
+
+			if err != nil {
+				return err
+			}
+			if val.Type() == object.ERROR {
+				return fmt.Errorf("%s", val.(*object.ErrorObject).Value)
+			}
+			if val.Type() == object.STRING {
+				fmt.Printf("%s", val.(*object.StringObject).Value)
+			}
+			if val.Type() == object.NUMBER {
+				n := val.(*object.NumberObject).Value
+
+				// If the value is basically an
+				// int then cast it to avoid
+				// 3 looking like 3.0000
+				if n == float64(int(n)) {
+					fmt.Printf("%d", int(n))
+				} else {
+					fmt.Printf("%f", n)
+				}
+			}
 		} else if tok.Type == token.IDENT {
 
 			//
@@ -1165,6 +1234,7 @@ func (e *Interpreter) runPRINT() error {
 }
 
 // REM handles a REM statement
+//
 // This merely swallows input until the following newline / EOF.
 func (e *Interpreter) runREM() error {
 
@@ -1260,7 +1330,7 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runREM()
 	case token.RETURN:
 		err = e.runRETURN()
-	case token.IDENT:
+	case token.BUILTIN:
 		_, err = e.callBuiltin(tok.Literal)
 		if err != nil {
 			return err
@@ -1323,22 +1393,6 @@ func (e *Interpreter) SetVariable(id string, val object.Object) {
 // Useful for testing/embedding.
 //
 func (e *Interpreter) GetVariable(id string) object.Object {
-
-	//
-	// Before we lookup the value of a variable
-	// we'll look for a built-in functin.
-	//
-	if e.functions.Exists(id) {
-
-		out, err := e.callBuiltin(id)
-
-		if err != nil {
-			fmt.Printf("Error calling builtin %s - %s [%v]\n",
-				id, err.Error(), out)
-		}
-		e.offset--
-		return out
-	}
 
 	val := e.vars.Get(id)
 	if val != nil {

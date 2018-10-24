@@ -6,14 +6,14 @@ import (
 	"sync"
 
 	"github.com/skx/gobasic/object"
-	"github.com/skx/gobasic/token"
 )
 
 // BuiltinSig is the signature of a builtin-function.
 //
-// Each built-in will receive an array of tokens, and will return a
+// Each built-in will receive an array of objects, and will return a
 // result/error which will be made available to the BASIC caller.
-type BuiltinSig func(env Interpreter, args []token.Token) (object.Object, error)
+//
+type BuiltinSig func(env Interpreter, args []object.Object) (object.Object, error)
 
 // Builtins holds our state.
 type Builtins struct {
