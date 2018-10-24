@@ -20,6 +20,23 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+// DUMP just displays the only argument it received.
+func DUMP(env Interpreter, args []object.Object) (object.Object, error) {
+
+	// Get the (float) argument.
+	if args[0].Type() == object.NUMBER {
+		i := args[0].(*object.NumberObject).Value
+		fmt.Printf("NUMBER: %f\n", i)
+	}
+	if args[0].Type() == object.STRING {
+		s := args[0].(*object.StringObject).Value
+		fmt.Printf("STRING: %s\n", s)
+	}
+
+	// Otherwise return as-is.
+	return &object.NumberObject{Value: 0}, nil
+}
+
 // ABS implements ABS
 func ABS(env Interpreter, args []object.Object) (object.Object, error) {
 

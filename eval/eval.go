@@ -156,6 +156,8 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("RIGHT$", 2, RIGHT)
 	t.RegisterBuiltin("TL$", 1, TL)
 
+	t.RegisterBuiltin("DUMP", 1, DUMP)
+
 	return t
 }
 
@@ -520,18 +522,18 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 		//
 		// Build up the args, converting and evaluating as we go.
 		//
-		for i := 0; i < n; i++ {
+		for len(args) < n {
 
 			var obj object.Object
 			var err error
 
 			tok := e.program[e.offset]
-			e.offset++
 
 			//
 			// Skip commas.
 			//
 			if tok.Type == token.COMMA {
+				e.offset++
 				continue
 			}
 
@@ -559,6 +561,10 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 				}
 			}
 
+			// bump past the argument now we handled it.
+			e.offset++
+
+			// Append the argument
 			args = append(args, obj)
 		}
 
@@ -1150,17 +1156,23 @@ func (e *Interpreter) runPRINT() error {
 			fmt.Printf(" ")
 		} else if tok.Type == token.BUILTIN {
 
+			// Call the function.
 			val, err := e.callBuiltin(tok.Literal)
 
+			// Did it error?
 			if err != nil {
 				return err
 			}
 			if val.Type() == object.ERROR {
 				return fmt.Errorf("%s", val.(*object.ErrorObject).Value)
 			}
+
+			// Otherwise handle the output
+			// 1.  String
 			if val.Type() == object.STRING {
 				fmt.Printf("%s", val.(*object.StringObject).Value)
 			}
+			// 2.  Number
 			if val.Type() == object.NUMBER {
 				n := val.(*object.NumberObject).Value
 
@@ -1176,9 +1188,7 @@ func (e *Interpreter) runPRINT() error {
 		} else if tok.Type == token.IDENT {
 
 			//
-			// This might be a variable, or a function-call.
-			//
-			// GetVariable handles both.
+			// Get the variable.
 			//
 			val := e.GetVariable(tok.Literal)
 			if val.Type() == object.ERROR {
