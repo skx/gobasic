@@ -203,6 +203,17 @@ func (e *Interpreter) factor() object.Object {
 		e.offset++
 		return &object.StringObject{Value: tok.Literal}
 
+	case token.BUILTIN:
+
+		//
+		// Call the built-in
+		//
+		val, err := e.callBuiltin(tok.Literal)
+		if err != nil {
+			return object.Error(err.Error())
+		}
+		return val
+
 	case token.IDENT:
 
 		//
