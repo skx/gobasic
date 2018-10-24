@@ -79,35 +79,6 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	// Built-in functions are stored here.
 	t.functions = NewBuiltins()
 
-	// Add in our builtins.
-	//
-	// These are implemented in golang in the file builtins.go
-	//
-	t.functions.Register("ABS", 1, ABS)
-	t.functions.Register("ACS", 1, ACS)
-	t.functions.Register("ASN", 1, ASN)
-	t.functions.Register("ATN", 1, ATN)
-	t.functions.Register("BIN", 1, BIN)
-	t.functions.Register("COS", 1, COS)
-	t.functions.Register("EXP", 1, EXP)
-	t.functions.Register("INT", 1, INT)
-	t.functions.Register("LN", 1, LN)
-	t.functions.Register("PI", 0, PI)
-	t.functions.Register("RND", 1, RND)
-	t.functions.Register("SGN", 1, SGN)
-	t.functions.Register("SIN", 1, SIN)
-	t.functions.Register("SQR", 1, SQR)
-	t.functions.Register("TAN", 1, TAN)
-
-	// Primitives that operate upon strings
-	t.functions.Register("CHR$", 1, CHR)
-	t.functions.Register("CODE", 1, CODE)
-	t.functions.Register("LEFT$", 3, LEFT)
-	t.functions.Register("LEN", 1, LEN)
-	t.functions.Register("MID$", 5, MID)
-	t.functions.Register("RIGHT$", 3, RIGHT)
-	t.functions.Register("TL$", 1, TL)
-
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
 
@@ -151,6 +122,39 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 
 		offset++
 	}
+
+	//
+	// Add in our builtins.
+	//
+	// These are implemented in golang in the file builtins.go
+	//
+	// We have to do this after we've loaded our program, because
+	// the registration involves rewriting our program.
+	//
+	t.RegisterBuiltin("ABS", 1, ABS)
+	t.RegisterBuiltin("ACS", 1, ACS)
+	t.RegisterBuiltin("ASN", 1, ASN)
+	t.RegisterBuiltin("ATN", 1, ATN)
+	t.RegisterBuiltin("BIN", 1, BIN)
+	t.RegisterBuiltin("COS", 1, COS)
+	t.RegisterBuiltin("EXP", 1, EXP)
+	t.RegisterBuiltin("INT", 1, INT)
+	t.RegisterBuiltin("LN", 1, LN)
+	t.RegisterBuiltin("PI", 0, PI)
+	t.RegisterBuiltin("RND", 1, RND)
+	t.RegisterBuiltin("SGN", 1, SGN)
+	t.RegisterBuiltin("SIN", 1, SIN)
+	t.RegisterBuiltin("SQR", 1, SQR)
+	t.RegisterBuiltin("TAN", 1, TAN)
+
+	// Primitives that operate upon strings
+	t.RegisterBuiltin("CHR$", 1, CHR)
+	t.RegisterBuiltin("CODE", 1, CODE)
+	t.RegisterBuiltin("LEFT$", 3, LEFT)
+	t.RegisterBuiltin("LEN", 1, LEN)
+	t.RegisterBuiltin("MID$", 5, MID)
+	t.RegisterBuiltin("RIGHT$", 3, RIGHT)
+	t.RegisterBuiltin("TL$", 1, TL)
 
 	return t
 }
@@ -1098,6 +1102,8 @@ func (e *Interpreter) runPRINT() error {
 			fmt.Printf("%s", tok.Literal)
 		} else if tok.Type == token.COMMA {
 			fmt.Printf(" ")
+		} else if tok.Type == token.BUILTIN {
+			fmt.Printf("BUILTIN\n")
 		} else if tok.Type == token.IDENT {
 
 			//
@@ -1347,5 +1353,21 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 // Useful for embedding.
 //
 func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft BuiltinSig) {
+
+	// Register the built-in
 	e.functions.Register(name, nArgs, ft)
+
+	// Now ensure that in the future if we hit this built-in
+	// we regard it as a function-call, not a variable
+	for i := 0; i < len(e.program); i++ {
+
+		// Is this token a reference to the function
+		// as an ident?
+		if e.program[i].Type == token.IDENT &&
+			e.program[i].Literal == name {
+
+			// Change the type.  (Hack!)
+			e.program[i].Type = token.BUILTIN
+		}
+	}
 }

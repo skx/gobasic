@@ -24,9 +24,10 @@ const (
 	LINENO  = "LINENO"  // Line-number of each input.
 
 	// Types
-	IDENT  = "IDENT"  // Identifier (i.e. variable name)
-	INT    = "INT"    // integer literal
-	STRING = "STRING" // string literal
+	IDENT   = "IDENT"   // Identifier (i.e. variable name)
+	INT     = "INT"     // integer literal
+	STRING  = "STRING"  // string literal
+	BUILTIN = "BUILTIN" // builtin-function
 
 	// Implemented keywords.
 	END    = "END"
