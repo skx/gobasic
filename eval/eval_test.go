@@ -229,6 +229,25 @@ func TestSQR(t *testing.T) {
 	}
 }
 
+// TestBinOp tests that binary AND + binary OR work
+func TestBinOp(t *testing.T) {
+	input := `
+10 LET a = BIN 00001111 OR BIN 01110000
+20 LET b = 129 AND 128
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	if getFloat(t, obj, "a") != 255-128 {
+		t.Errorf("Value not expected!")
+	}
+	if getFloat(t, obj, "b") != 128 {
+		t.Errorf("Value not expected!")
+	}
+
+}
+
 // TestBogusLet tests error-handling in LET
 func TestBogusLet(t *testing.T) {
 
@@ -348,8 +367,6 @@ func TestMaths(t *testing.T) {
 110 LET R = RND 100
 120 LET KEY = "STEVE"
 130 LET RT = RND KEY
-140 LET a = BIN 00001111 OR BIN 01110000
-150 LET b = 129 AND 128
 `
 
 	obj := Compile(input)
@@ -382,15 +399,6 @@ func TestMaths(t *testing.T) {
 	if getString(t, obj, "KEY") != "STEVE" {
 		t.Errorf("Value not expected!")
 	}
-	//
-	// TODO: AND + OR tests are needed.
-	//
-	//	if getFloat(t, obj, "a") != 255-128 {
-	//		t.Errorf("Value not expected!")
-	//	}
-	//      if getFloat(t, obj, "b") != 128 {
-	//              t.Errorf("Value not expected!")
-	//      }
 }
 
 // TestFor runs a single simple FOR loop
@@ -467,6 +475,12 @@ func TestPrint(t *testing.T) {
 50 PRINT "OK","OK"
 60 LET a = PI
 70 PRINT a
+80 LET a = "STEVE"
+90 PRINT a
+95 PRINT PI + 2
+100 PRINT LEN "STEVE"
+110 PRINT LEFT$ "Steve" 2
+120 PRINT SIN "steve"
 `
 
 	obj := Compile(input)
@@ -667,23 +681,23 @@ func TestBIN(t *testing.T) {
 	input := `
 10 LET a = BIN 11111111
 20 LET b = BIN 00000010
-30 LET c = BIN 00002010
+20 LET c = BIN 00002010
 `
 	obj := Compile(input)
-	obj.Run()
+	err := obj.Run()
 
-	// TODO
-	//  These tests all fail
-	//
-	//	if getFloat(t, obj, "a") != 255 {
-	//		t.Errorf("BIN 1!")
-	//	}
-	//	if getFloat(t, obj, "b") != 2 {
-	//		t.Errorf("BIN 2!")
-	//	}
-	//	if getFloat(t, obj, "c") != 0 {
-	//		t.Errorf("BIN 3!")
-	//	}
+	if ( err == nil ) {
+		t.Errorf("Found no error, but expected one" );
+	}
+	if getFloat(t, obj, "a") != 255 {
+		t.Errorf("BIN 1!")
+	}
+	if getFloat(t, obj, "b") != 2 {
+		t.Errorf("BIN 2!")
+	}
+	if !strings.Contains(getError(t, obj, "d"), "doesn't exist") {
+		t.Errorf("BIN 3!")
+	}
 }
 
 // TestIfBIN tests our IF function
@@ -840,5 +854,30 @@ func TestBogusInput(t *testing.T) {
 		if !strings.Contains(err.Error(), "INPUT") {
 			t.Errorf("Received error for '%s' but the wrong thing? %s", prg, err.Error())
 		}
+	}
+}
+
+// TestDump calls DUMP
+func TestDump(t *testing.T) {
+
+	obj := Compile("10 DUMP 3\n")
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("Found error calling DUMP\n")
+	}
+}
+
+// TestBuiltinError tests that a builtin-error is handled.
+func TestBuiltinError(t *testing.T) {
+
+	obj := Compile("10 ABS \"steve\"\n")
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Didn't find a type error, and we should have done.")
+	}
+	if !strings.Contains(err.Error(), "Wrong type") {
+		t.Errorf("Received error but the wrong thing? %s", err.Error())
 	}
 }

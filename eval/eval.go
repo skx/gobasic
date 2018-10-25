@@ -505,12 +505,9 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 // Call the built-in with the given name if we can.
 func (e *Interpreter) callBuiltin(name string) object.Object {
 
-	if e.functions.Exists(name) {
 
 		//
-		// OK the function exists.
-		//
-		// Fetch it, so we know how many arguments
+		// Fetch the function, so we know how many arguments
 		// it should expect.
 		//
 		n, fun := e.functions.Get(name)
@@ -577,8 +574,6 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		//
 		out := fun(*e, args)
 		return out
-	}
-	return object.Error("Failed to find built-in %s", name)
 }
 
 ////
