@@ -505,75 +505,74 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 // Call the built-in with the given name if we can.
 func (e *Interpreter) callBuiltin(name string) object.Object {
 
+	//
+	// Fetch the function, so we know how many arguments
+	// it should expect.
+	//
+	n, fun := e.functions.Get(name)
+
+	//
+	// skip past the function-call itself
+	//
+	e.offset++
+
+	//
+	// Each built-in takes a specific number of arguments.
+	//
+	// We pass only `string` or `number` to it.
+	//
+	var args []object.Object
+
+	//
+	// Build up the args, converting and evaluating as we go.
+	//
+	for len(args) < n {
+
+		var obj object.Object
+		var err error
+
+		tok := e.program[e.offset]
 
 		//
-		// Fetch the function, so we know how many arguments
-		// it should expect.
+		// Skip commas.
 		//
-		n, fun := e.functions.Get(name)
-
-		//
-		// skip past the function-call itself
-		//
-		e.offset++
-
-		//
-		// Each built-in takes a specific number of arguments.
-		//
-		// We pass only `string` or `number` to it.
-		//
-		var args []object.Object
-
-		//
-		// Build up the args, converting and evaluating as we go.
-		//
-		for len(args) < n {
-
-			var obj object.Object
-			var err error
-
-			tok := e.program[e.offset]
-
-			//
-			// Skip commas.
-			//
-			if tok.Type == token.COMMA {
-				e.offset++
-				continue
-			}
-
-			//
-			// We only pass string/int
-			//
-			if tok.Type == token.INT {
-				var ii float64
-
-				ii, err = strconv.ParseFloat(tok.Literal, 64)
-				if err != nil {
-					return object.Error("Failed to parse %s as float %s", tok.Literal, err.Error())
-				}
-				obj = &object.NumberObject{Value: ii}
-
-			} else if tok.Type == token.STRING {
-				obj = &object.StringObject{Value: tok.Literal}
-			} else if tok.Type == token.IDENT {
-				obj = e.GetVariable(tok.Literal)
-			} else if tok.Type == token.BUILTIN {
-				obj = e.callBuiltin(tok.Literal)
-			}
-
-			// bump past the argument now we handled it.
+		if tok.Type == token.COMMA {
 			e.offset++
-
-			// Append the argument
-			args = append(args, obj)
+			continue
 		}
 
 		//
-		// Call the function
+		// We only pass string/int
 		//
-		out := fun(*e, args)
-		return out
+		if tok.Type == token.INT {
+			var ii float64
+
+			ii, err = strconv.ParseFloat(tok.Literal, 64)
+			if err != nil {
+				return object.Error("Failed to parse %s as float %s", tok.Literal, err.Error())
+			}
+			obj = &object.NumberObject{Value: ii}
+
+		} else if tok.Type == token.STRING {
+			obj = &object.StringObject{Value: tok.Literal}
+		} else if tok.Type == token.IDENT {
+			obj = e.GetVariable(tok.Literal)
+		} else if tok.Type == token.BUILTIN {
+			obj = e.callBuiltin(tok.Literal)
+		}
+
+		// bump past the argument now we handled it.
+		e.offset++
+
+		// Append the argument
+		args = append(args, obj)
+	}
+
+	//
+	// Call the function
+	//
+	out := fun(*e, args)
+	return out
 }
 
 ////
@@ -603,7 +602,6 @@ func (e *Interpreter) runForLoop() error {
 		return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
 	}
 
-
 	// Now an integer/variable
 	startI := e.program[e.offset]
 	e.offset++
@@ -621,11 +619,10 @@ func (e *Interpreter) runForLoop() error {
 		if x.Type() != object.NUMBER {
 			return fmt.Errorf("FOR: start-variable must be an integer!")
 		}
-		start =   x.(*object.NumberObject).Value
+		start = x.(*object.NumberObject).Value
 	} else {
 		return fmt.Errorf("Expected INT/VARIABLE after 'FOR %s=', got %v", target.Literal, startI)
 	}
-
 
 	// Now TO
 	to := e.program[e.offset]

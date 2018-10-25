@@ -686,8 +686,8 @@ func TestBIN(t *testing.T) {
 	obj := Compile(input)
 	err := obj.Run()
 
-	if ( err == nil ) {
-		t.Errorf("Found no error, but expected one" );
+	if err == nil {
+		t.Errorf("Found no error, but expected one")
 	}
 	if getFloat(t, obj, "a") != 255 {
 		t.Errorf("BIN 1!")
@@ -883,39 +883,35 @@ func TestBuiltinError(t *testing.T) {
 }
 
 // Test the start/end condition of a loop can be variables
-func TestIfStartEnd( t *testing.T ) {
+func TestIfStartEnd(t *testing.T) {
 	type IfTest struct {
-		Input string
+		Input  string
 		Output float64
 	}
 
-
-	tsts := []IfTest{ { Input:
-		`10 LET OUT = 33
+	tsts := []IfTest{{Input: `10 LET OUT = 33
 20 LET STOP=10
 30 FOR I = 5 TO STOP
 40  LET OUT = OUT * I
 50 NEXT I
-`,		Output: 4989600 },
+`, Output: 4989600},
 		{
-		Input:
-			`10 LET START=10
+			Input: `10 LET START=10
 20 LET OUT = 22
 30 FOR I = START TO 100
 40  LET OUT = OUT + I
 50 NEXT I
 `,
-		Output: 5027 },
+			Output: 5027},
 		{
-		Input:
-			`10 LET START=1
+			Input: `10 LET START=1
 15 LET OUT = 1
 20 LET STOP=10
 30 FOR I = START TO STOP
 40  LET OUT = OUT * I
 50 NEXT I
 `,
-		Output: 3628800 },
+			Output: 3628800},
 	}
 	for _, prg := range tsts {
 
@@ -926,9 +922,9 @@ func TestIfStartEnd( t *testing.T ) {
 			t.Errorf("Found error running '%s' - %s", prg.Input, err.Error())
 		}
 
-		if  getFloat( t, obj, "OUT" ) != prg.Output {
+		if getFloat(t, obj, "OUT") != prg.Output {
 			t.Errorf("Output of program was %f not %f\n",
-				getFloat( t, obj, "OUT" ) , prg.Output )
+				getFloat(t, obj, "OUT"), prg.Output)
 		}
 
 	}
