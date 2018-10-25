@@ -958,7 +958,7 @@ func TestSTR(t *testing.T) {
 
 	input := `
 10 LET A = STR$ 33
-10 LET B = STR$  PI
+10 LET B = STR$ 19.22
 30 LET C = STR$ "steve"
 `
 	obj := Compile(input)
@@ -971,7 +971,7 @@ func TestSTR(t *testing.T) {
 	if getString(t, obj, "A") != "33" {
 		t.Errorf("Wrong value for STR" )
 	}
-	if getString(t, obj, "B") != "3.141593" {
+	if getString(t, obj, "B") != "19.22" {
 		t.Errorf("Wrong value for STR: %v",  getString(t, obj, "B"))
 	}
 	if getString(t, obj, "C") != "steve" {

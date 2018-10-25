@@ -180,7 +180,7 @@ func (l *Tokenizer) skipWhitespace() {
 func (l *Tokenizer) readNumber() string {
 	str := ""
 
-	for isDigit(l.peekChar()) {
+	for isDigit(l.peekChar()) || l.peekChar() == rune('.') {
 		str += string(l.ch)
 		l.readChar()
 	}

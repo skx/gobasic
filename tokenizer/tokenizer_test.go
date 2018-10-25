@@ -208,7 +208,7 @@ func TestComparisons(t *testing.T) {
 
 // TestNumber tests that positive and negative numbers are OK.
 func TestNumber(t *testing.T) {
-	input := `10 PRINT -4
+	input := `10 PRINT -4.3
 20 PRINT 5 - 3`
 
 	tests := []struct {
@@ -219,7 +219,7 @@ func TestNumber(t *testing.T) {
 		{token.NEWLINE, "N"},
 		{token.LINENO, "10"},
 		{token.PRINT, "PRINT"},
-		{token.INT, "-4"},
+		{token.INT, "-4.3"},
 		{token.NEWLINE, "N"},
 		{token.LINENO, "20"},
 		{token.PRINT, "PRINT"},
