@@ -573,6 +573,7 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 			obj = e.GetVariable(tok.Literal)
 		} else if tok.Type == token.BUILTIN {
 			obj = e.callBuiltin(tok.Literal)
+
 		}
 
 		// Append the argument
@@ -1212,6 +1213,13 @@ func (e *Interpreter) runPRINT() error {
 					fmt.Printf("%f", n)
 				}
 			}
+
+			//
+			// We're going to bump back one,
+			// because callBuiltin will advance
+			// to the end of the arguments.
+			//
+			e.offset--
 		} else if tok.Type == token.IDENT {
 
 			//
