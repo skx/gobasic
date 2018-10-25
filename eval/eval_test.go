@@ -958,8 +958,9 @@ func TestSTR(t *testing.T) {
 
 	input := `
 10 LET A = STR$ 33
-10 LET B = STR$ 19.22
-30 LET C = STR$ "steve"
+20 LET B = STR$ 19.22
+30 LET B = LEFT$ B 5
+40 LET C = STR$ "steve"
 `
 	obj := Compile(input)
 	err := obj.Run()
