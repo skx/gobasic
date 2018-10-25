@@ -917,19 +917,19 @@ func (e *Interpreter) runIF() error {
 		//
 		// We need a boolean answer.
 		//
-		extra_result := false
+		extraResult := false
 		if extra.Type() == object.NUMBER {
-			extra_result = (extra.(*object.NumberObject).Value == 1)
+			extraResult = (extra.(*object.NumberObject).Value == 1)
 		}
 
 		//
 		// Update our result appropriately.
 		//
 		if target.Type == token.AND {
-			result = result && extra_result
+			result = result && extraResult
 		}
 		if target.Type == token.OR {
-			result = result || extra_result
+			result = result || extraResult
 		}
 
 		// Repeat?
