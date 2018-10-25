@@ -979,6 +979,42 @@ func TestSTR(t *testing.T) {
 	}
 }
 
+// TestMismatchedNext ensures NEXT is paired with a FOR.
+func TestMisMatchedNext(t *testing.T) {
+	input := `
+10 NEXT I
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We didn't find an error, and should have done")
+	}
+
+	if !strings.Contains(err.Error(), "without opening FOR") {
+		t.Errorf("Wrong error-message was found")
+	}
+}
+
+// TestNextType ensures NEXT works on ints.
+func TestNextType(t *testing.T) {
+	input := `
+10 FOR I = 1 TO 20
+20   LET I = "steve"
+30 NEXT I
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We didn't find an error, and should have done")
+	}
+
+	if !strings.Contains(err.Error(), "is not a number!") {
+		t.Errorf("Wrong error-message was found")
+	}
+}
+
 // TestIssue32 is the test case for https://github.com/skx/gobasic/issues/32
 func TestIssue32(t *testing.T) {
 	input := `
