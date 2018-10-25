@@ -2,6 +2,7 @@ package object
 
 import (
 	"math"
+	"strings"
 	"testing"
 )
 
@@ -12,15 +13,24 @@ func TestTypes(t *testing.T) {
 	if v.Type() != STRING {
 		t.Errorf("Wrong type for String")
 	}
+	if !strings.Contains(v.String(), ":string") {
+		t.Errorf("Unexpected value for stringified object")
+	}
 
 	n := NumberObject{Value: math.Pi}
 	if n.Type() != NUMBER {
 		t.Errorf("Wrong type for Number")
 	}
+	if !strings.Contains(n.String(), ":number") {
+		t.Errorf("Unexpected value for stringified object")
+	}
 
 	e := ErrorObject{Value: "You fail!"}
 	if e.Type() != ERROR {
 		t.Errorf("Wrong type for Error")
+	}
+	if !strings.Contains(e.String(), ":error") {
+		t.Errorf("Unexpected value for stringified object")
 	}
 }
 

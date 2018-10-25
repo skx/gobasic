@@ -20,6 +20,7 @@ func main() {
 	// Setup some command-line flags
 	//
 	lex := flag.Bool("lex", false, "Show the output of the lexer.")
+	trace := flag.Bool("trace", false, "Trace execution.")
 	vers := flag.Bool("version", false, "Show our version and exit.")
 
 	//
@@ -72,11 +73,20 @@ func main() {
 	}
 
 	//
-	// OK we're running the code.  Do it.
+	// Create a new evaluator, to run the BASIC program.
 	//
 	e := eval.New(t)
+
+	//
+	// Enable debugging if we should.
+	//
+	e.SetTrace(*trace)
+
+	//
+	// Run the code, and report on any error.
+	//
 	err = e.Run()
 	if err != nil {
-		fmt.Printf("Error running program: %s\n", err.Error())
+		fmt.Printf("Error running program:\n\t%s\n", err.Error())
 	}
 }

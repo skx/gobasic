@@ -61,6 +61,9 @@ type Interpreter struct {
 
 	// functions holds builtin-functions
 	functions *Builtins
+
+	// trace is true if the user is tracing execution
+	trace bool
 }
 
 // New is our constructor.
@@ -156,11 +159,16 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("MID$", 3, MID)
 	t.RegisterBuiltin("RIGHT$", 2, RIGHT)
 	t.RegisterBuiltin("TL$", 1, TL)
-	t.RegisterBuiltin("STR$", 2, STR)
+	t.RegisterBuiltin("STR$", 1, STR)
 
 	t.RegisterBuiltin("DUMP", 1, DUMP)
 
 	return t
+}
+
+// SetTrace allows the user to enable/disable tracing.
+func (e *Interpreter) SetTrace(val bool) {
+	e.trace = val
 }
 
 ////
@@ -507,6 +515,10 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 // Call the built-in with the given name if we can.
 func (e *Interpreter) callBuiltin(name string) object.Object {
 
+	if e.trace {
+		fmt.Printf("callBultin(%s)\n", name)
+	}
+
 	//
 	// Fetch the function, so we know how many arguments
 	// it should expect.
@@ -563,17 +575,25 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 			obj = e.callBuiltin(tok.Literal)
 		}
 
-		// bump past the argument now we handled it.
-		e.offset++
-
 		// Append the argument
 		args = append(args, obj)
+
+		if e.trace {
+			fmt.Printf("\tArgument %d -> %s\n", len(args), obj.String())
+		}
+
+		// bump past the argument now we handled it.
+		e.offset++
 	}
 
 	//
 	// Call the function
 	//
 	out := fun(*e, args)
+
+	if e.trace {
+		fmt.Printf("\tReturn value %s\n", out.String())
+	}
 	return out
 }
 
