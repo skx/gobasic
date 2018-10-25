@@ -589,7 +589,7 @@ func (e *Interpreter) runForLoop() error {
 	// Bump past the FOR token
 	e.offset++
 
-	// We now expect a token
+	// We now expect a variable name.
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
@@ -603,17 +603,29 @@ func (e *Interpreter) runForLoop() error {
 		return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
 	}
 
-	// Now an integer
+
+	// Now an integer/variable
 	startI := e.program[e.offset]
 	e.offset++
-	if startI.Type != token.INT {
-		return fmt.Errorf("Expected INT after 'FOR %s=', got %v", target.Literal, startI)
+
+	var start float64
+	if startI.Type == token.INT {
+		v, err := strconv.ParseFloat(startI.Literal, 64)
+		if err != nil {
+			return fmt.Errorf("Failed to convert %s to an int %s", startI.Literal, err.Error())
+		}
+		start = v
+	} else if startI.Type == token.IDENT {
+
+		x := e.GetVariable(startI.Literal)
+		if x.Type() != object.NUMBER {
+			return fmt.Errorf("FOR: start-variable must be an integer!")
+		}
+		start =   x.(*object.NumberObject).Value
+	} else {
+		return fmt.Errorf("Expected INT/VARIABLE after 'FOR %s=', got %v", target.Literal, startI)
 	}
 
-	start, err := strconv.ParseFloat(startI.Literal, 64)
-	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s", startI.Literal, err.Error())
-	}
 
 	// Now TO
 	to := e.program[e.offset]

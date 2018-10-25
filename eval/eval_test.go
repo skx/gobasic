@@ -881,3 +881,55 @@ func TestBuiltinError(t *testing.T) {
 		t.Errorf("Received error but the wrong thing? %s", err.Error())
 	}
 }
+
+// Test the start/end condition of a loop can be variables
+func TestIfStartEnd( t *testing.T ) {
+	type IfTest struct {
+		Input string
+		Output float64
+	}
+
+
+	tsts := []IfTest{ { Input:
+		`10 LET OUT = 33
+20 LET STOP=10
+30 FOR I = 5 TO STOP
+40  LET OUT = OUT * I
+50 NEXT I
+`,		Output: 4989600 },
+		{
+		Input:
+			`10 LET START=10
+20 LET OUT = 22
+30 FOR I = START TO 100
+40  LET OUT = OUT + I
+50 NEXT I
+`,
+		Output: 5027 },
+		{
+		Input:
+			`10 LET START=1
+15 LET OUT = 1
+20 LET STOP=10
+30 FOR I = START TO STOP
+40  LET OUT = OUT * I
+50 NEXT I
+`,
+		Output: 3628800 },
+	}
+	for _, prg := range tsts {
+
+		obj := Compile(prg.Input)
+		err := obj.Run()
+
+		if err != nil {
+			t.Errorf("Found error running '%s' - %s", prg.Input, err.Error())
+		}
+
+		if  getFloat( t, obj, "OUT" ) != prg.Output {
+			t.Errorf("Output of program was %f not %f\n",
+				getFloat( t, obj, "OUT" ) , prg.Output )
+		}
+
+	}
+}
