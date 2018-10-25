@@ -146,6 +146,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("SIN", 1, SIN)
 	t.RegisterBuiltin("SQR", 1, SQR)
 	t.RegisterBuiltin("TAN", 1, TAN)
+	t.RegisterBuiltin("VAL", 1, VAL)
 
 	// Primitives that operate upon strings
 	t.RegisterBuiltin("CHR$", 1, CHR)

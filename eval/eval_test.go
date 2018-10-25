@@ -929,3 +929,26 @@ func TestIfStartEnd(t *testing.T) {
 
 	}
 }
+
+
+// Test VAL
+func TestVAL(t *testing.T) {
+
+	input := `
+10 LET A = VAL 33
+20 LET B = VAL "3.44"
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("Found error running '%s' - %s", input, err.Error())
+	}
+
+	if getFloat(t, obj, "A") != 33 {
+		t.Errorf("Wrong value for VAL output" )
+	}
+	if getFloat(t, obj, "B") != 3.44 {
+		t.Errorf("Wrong value for VAL output" )
+	}
+}

@@ -381,3 +381,26 @@ func LN(env Interpreter, args []object.Object) object.Object {
 
 	return &object.NumberObject{Value: math.Log(i)}
 }
+
+// VAL converts a string to a number
+func VAL(env Interpreter, args []object.Object) object.Object {
+
+	// Error?
+	if args[0].Type() == object.ERROR {
+		return args[0]
+	}
+
+	// Already a number?
+	if args[0].Type() == object.NUMBER {
+		return args[0]
+	}
+
+	// Get the value
+	s := args[0].(*object.StringObject).Value
+	b, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return object.Error("VAL: %s", err.Error())
+	}
+
+	return &object.NumberObject{Value: float64(b)}
+}
