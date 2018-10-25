@@ -579,7 +579,7 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		args = append(args, obj)
 
 		if e.trace {
-			fmt.Printf("\tArgument %d -> %s\n", len(args), obj)
+			fmt.Printf("\tArgument %d -> %s\n", len(args), obj.String())
 		}
 
 		// bump past the argument now we handled it.
@@ -592,7 +592,7 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 	out := fun(*e, args)
 
 	if e.trace {
-		fmt.Printf("\tReturn value %v\n", out)
+		fmt.Printf("\tReturn value %s\n", out.String())
 	}
 	return out
 }
