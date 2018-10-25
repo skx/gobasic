@@ -982,8 +982,7 @@ func TestSTR(t *testing.T) {
 // TestIssue32 is the test case for https://github.com/skx/gobasic/issues/32
 func TestIssue32(t *testing.T) {
 	input := `
-05 LET A = 49.31321
-10 LET A = LEFT$ STR$ 4, 5
+10 LET A = LEFT$ STR$ 49.31321, 5
 `
 	obj := Compile(input)
 	err := obj.Run()
@@ -993,6 +992,7 @@ func TestIssue32(t *testing.T) {
 	}
 
 	if getString(t, obj, "A") != "49.31" {
-		t.Errorf("Wrong value for LEFT$ STR$")
+		t.Errorf("Wrong value for LEFT$ STR$, got '%s'",
+			getString(t, obj, "A"))
 	}
 }
