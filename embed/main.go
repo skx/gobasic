@@ -22,7 +22,6 @@ import (
 
 	"github.com/skx/gobasic/eval"
 	"github.com/skx/gobasic/object"
-	"github.com/skx/gobasic/token"
 	"github.com/skx/gobasic/tokenizer"
 )
 
@@ -36,33 +35,40 @@ var img *image.RGBA
 // peekFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
 // We just log that we've been invoked here.
-func peekFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func peekFunction(env eval.Interpreter, args []object.Object) object.Object {
 	fmt.Printf("PEEK called with %v\n", args[0])
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // pokeFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
 // We just log that we've been invoked here, along with the (three) args.
-func pokeFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func pokeFunction(env eval.Interpreter, args []object.Object) object.Object {
 	fmt.Printf("POKE called.\n")
 	for i, e := range args {
 		fmt.Printf(" Arg %d -> %v\n", i, e)
 	}
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // circleFunction allows drawing a circle upon our image.
-func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func circleFunction(env eval.Interpreter, args []object.Object) object.Object {
 
-	//
-	// Get the args X, Y, & radius
-	//
-	xx, _ := eval.TokenToFloat(env, args[0])
-	// args1 is "COMMA"
-	yy, _ := eval.TokenToFloat(env, args[2])
-	// args[3] is COMMA
-	rr, _ := eval.TokenToFloat(env, args[4])
+	var xx, yy, rr float64
+
+	if args[0].Type() == object.NUMBER {
+		xx = args[0].(*object.NumberObject).Value
+	}
+	if args[1].Type() == object.NUMBER {
+		yy = args[1].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for Y")
+	}
+	if args[2].Type() == object.NUMBER {
+		rr = args[2].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for R")
+	}
 
 	//
 	// They need to be ints.
@@ -108,21 +114,24 @@ func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, er
 	}
 
 	// All done.
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // plotFunction is the golang implementation of the PLOT primitive.
-//
-// It is invoked with three arguments (NUMBER COMMA NUMBER) and sets
-// the corresponding pixel in our canvas to be Red.
-func plotFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func plotFunction(env eval.Interpreter, args []object.Object) object.Object {
 
-	//
-	// Get the args: X, Y
-	//
-	x, _ := eval.TokenToFloat(env, args[0])
-	// args1 is "COMMA"
-	y, _ := eval.TokenToFloat(env, args[2])
+	var x, y float64
+
+	if args[0].Type() == object.NUMBER {
+		x = args[0].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for X")
+	}
+	if args[1].Type() == object.NUMBER {
+		y = args[1].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for Y")
+	}
 
 	// If we have no image, create it.
 	if img == nil {
@@ -134,13 +143,13 @@ func plotFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	// Draw the dot
 	img.Set(int(x), int(y), color.RGBA{255, 0, 0, 255})
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // saveFunction is the golang implementation of the SAVE primitive,
 // which is made available to BASIC.
 // We save the image-canvas to the file `out.png`.
-func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func saveFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	// If we have no image, create it.
 	if img == nil {
@@ -154,7 +163,7 @@ func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	defer f.Close()
 	png.Encode(f, img)
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 func main() {
@@ -172,9 +181,7 @@ func main() {
  70 REM Draw 100 random pixels
  80 REM
  90 FOR I = 1 TO 100
-100  LET x = RND 600
-110  LET y = RND 400
-120  PLOT x, y
+120  PLOT RND 600, RND 400
 130 NEXT I
 140 REM
 150 REM Draw a random number of circles
@@ -183,10 +190,7 @@ func main() {
 180 IF R < 2 THEN LET R=2
 190 PRINT "\tWe will draw", R, "random circles upon the image\n"
 200 FOR I = 1 TO R
-210  LET x = RND 600
-220  LET y = RND 400
-230  LET r = RND 100
-240  CIRCLE x, y, r
+240  CIRCLE RND 600, RND 400, RND 100
 250 NEXT I
 260 SAVE
 270 PRINT "\tOPEN 'out.png' TO VIEW YOUR IMAGE!\n"
@@ -205,11 +209,11 @@ func main() {
 	//
 	// Register some  functions.
 	//
-	e.RegisterBuiltin("CIRCLE", 5, circleFunction)
-	e.RegisterBuiltin("DOT", 3, plotFunction)
+	e.RegisterBuiltin("CIRCLE", 3, circleFunction)
+	e.RegisterBuiltin("DOT", 2, plotFunction)
 	e.RegisterBuiltin("PEEK", 1, peekFunction)
-	e.RegisterBuiltin("PLOT", 3, plotFunction)
-	e.RegisterBuiltin("POKE", 3, pokeFunction)
+	e.RegisterBuiltin("PLOT", 2, plotFunction)
+	e.RegisterBuiltin("POKE", 2, pokeFunction)
 	e.RegisterBuiltin("SAVE", 0, saveFunction)
 
 	//

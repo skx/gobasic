@@ -27,7 +27,6 @@ import (
 
 	"github.com/skx/gobasic/eval"
 	"github.com/skx/gobasic/object"
-	"github.com/skx/gobasic/token"
 	"github.com/skx/gobasic/tokenizer"
 )
 
@@ -44,16 +43,25 @@ func init() {
 
 // plotFunction is the golang implementation of the DOT primitive.
 //
-// It is invoked with three arguments (NUMBER COMMA NUMBER) and sets
+// It is invoked with two arguments (NUMBER NUMBER) and sets
 // the corresponding pixel in our canvas to be Red.
-func plotFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func plotFunction(env eval.Interpreter, args []object.Object) object.Object {
+
+	var x, y float64
 
 	//
 	// Get the args: X, Y
 	//
-	x, _ := eval.TokenToFloat(env, args[0])
-	// args1 is "COMMA"
-	y, _ := eval.TokenToFloat(env, args[2])
+	if args[0].Type() == object.NUMBER {
+		x = args[0].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for X")
+	}
+	if args[1].Type() == object.NUMBER {
+		y = args[1].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for Y")
+	}
 
 	// If we have no image, create it.
 	if img == nil {
@@ -65,7 +73,7 @@ func plotFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	// Draw the dot
 	img.Set(int(x), int(y), col)
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // saveFunction is the golang implementation of the SAVE primitive,
@@ -73,7 +81,7 @@ func plotFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 //
 // We save the image-canvas to a temporary file, and set that filename
 // within the BASIC environment.
-func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func saveFunction(env eval.Interpreter, args []object.Object) object.Object {
 
 	// If we have no image, create it.
 	if img == nil {
@@ -96,38 +104,66 @@ func saveFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 	// Finally we can nuke the image
 	img = nil
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // colorFunction allows the user to change the current colour.
-func colorFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func colorFunction(env eval.Interpreter, args []object.Object) object.Object {
+
+	var r, g, b float64
 
 	//
-	// Get the args R, G, B values
+	// Get the args
 	//
-	r, _ := eval.TokenToFloat(env, args[0])
-	// args1 is "COMMA"
-	g, _ := eval.TokenToFloat(env, args[2])
-	// args[3] is COMMA
-	b, _ := eval.TokenToFloat(env, args[4])
+	if args[0].Type() == object.NUMBER {
+		r = args[0].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for R")
+	}
+
+	if args[1].Type() == object.NUMBER {
+		g = args[1].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for G")
+	}
+
+	if args[2].Type() == object.NUMBER {
+		b = args[2].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for B")
+	}
 
 	// Update the colour.
 	col = color.RGBA{uint8(r), uint8(g), uint8(b), 255}
 
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // circleFunction allows drawing a circle upon our image.
-func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func circleFunction(env eval.Interpreter, args []object.Object) object.Object {
+
+	var xx, yy, rr float64
 
 	//
-	// Get the args X, Y, & radius
+	// Get the args
 	//
-	xx, _ := eval.TokenToFloat(env, args[0])
-	// args1 is "COMMA"
-	yy, _ := eval.TokenToFloat(env, args[2])
-	// args[3] is COMMA
-	rr, _ := eval.TokenToFloat(env, args[4])
+	if args[0].Type() == object.NUMBER {
+		xx = args[0].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for X")
+	}
+
+	if args[1].Type() == object.NUMBER {
+		yy = args[1].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for Y")
+	}
+
+	if args[2].Type() == object.NUMBER {
+		rr = args[2].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for R")
+	}
 
 	//
 	// They need to be ints.
@@ -170,22 +206,34 @@ func circleFunction(env eval.Interpreter, args []token.Token) (object.Object, er
 	}
 
 	// All done.
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 // lineFunction draws a line.
-func lineFunction(env eval.Interpreter, args []token.Token) (object.Object, error) {
+func lineFunction(env eval.Interpreter, args []object.Object) object.Object {
 
-	//
-	// Get the args X1, Y1, X2, X3
-	//
-	xx1, _ := eval.TokenToFloat(env, args[0])
-	// args1 is "COMMA"
-	yy1, _ := eval.TokenToFloat(env, args[2])
-	// args[3] is COMMA
-	xx2, _ := eval.TokenToFloat(env, args[4])
-	// args[5] is COMMA
-	yy2, _ := eval.TokenToFloat(env, args[6])
+	var xx1, yy1, xx2, yy2 float64
+
+	if args[0].Type() == object.NUMBER {
+		xx1 = args[0].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for X1")
+	}
+	if args[1].Type() == object.NUMBER {
+		yy1 = args[1].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for Y1")
+	}
+	if args[2].Type() == object.NUMBER {
+		xx2 = args[2].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for X2")
+	}
+	if args[3].Type() == object.NUMBER {
+		yy2 = args[3].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for Y2")
+	}
 
 	//
 	// They need to be ints.
@@ -317,7 +365,7 @@ func lineFunction(env eval.Interpreter, args []token.Token) (object.Object, erro
 		img.Set(x2, y2, col)
 	}
 	// All done.
-	return &object.NumberObject{Value: 0.0}, nil
+	return &object.NumberObject{Value: 0.0}
 }
 
 //
@@ -331,11 +379,11 @@ func runScript(code string) (string, error) {
 	t := tokenizer.New(code)
 
 	e := eval.New(t)
-	e.RegisterBuiltin("CIRCLE", 5, circleFunction)
-	e.RegisterBuiltin("COLOR", 5, colorFunction)
-	e.RegisterBuiltin("COLOUR", 5, colorFunction)
-	e.RegisterBuiltin("LINE", 7, lineFunction)
-	e.RegisterBuiltin("PLOT", 3, plotFunction)
+	e.RegisterBuiltin("CIRCLE", 3, circleFunction)
+	e.RegisterBuiltin("COLOR", 3, colorFunction)
+	e.RegisterBuiltin("COLOUR", 3, colorFunction)
+	e.RegisterBuiltin("LINE", 4, lineFunction)
+	e.RegisterBuiltin("PLOT", 2, plotFunction)
 	e.RegisterBuiltin("SAVE", 0, saveFunction)
 
 	err := e.Run()

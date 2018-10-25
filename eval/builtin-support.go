@@ -6,14 +6,15 @@ import (
 	"sync"
 
 	"github.com/skx/gobasic/object"
-	"github.com/skx/gobasic/token"
 )
 
 // BuiltinSig is the signature of a builtin-function.
 //
-// Each built-in will receive an array of tokens, and will return a
-// result/error which will be made available to the BASIC caller.
-type BuiltinSig func(env Interpreter, args []token.Token) (object.Object, error)
+// Each built-in will receive an array of objects, and will return a
+// single object back to the caller.
+//
+// In the case of an error then the object will be an error-object.
+type BuiltinSig func(env Interpreter, args []object.Object) object.Object
 
 // Builtins holds our state.
 type Builtins struct {
@@ -40,24 +41,17 @@ func NewBuiltins() *Builtins {
 // Register records a built-in function.
 // The three arguments are:
 //  NAME  - The thing that the BASIC program will call
-//  nARGS - The number of arguments (tokens) it requires.
+//  nARGS - The number of arguments the built-in requires.
+//          NOTE: Arguments are comma-separated in the BASIC program,
+//          but commas are stripped out.
 //  FT    - The function which provides the implementation.
 func (b *Builtins) Register(name string, nArgs int, ft BuiltinSig) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
-	// Register our arg-count and function
+	// Record the details.
 	b.argRegistry[name] = nArgs
 	b.fnRegistry[name] = ft
-}
-
-// Exists tests if the given name exists as a built-in function.
-func (b *Builtins) Exists(name string) bool {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	// Does it exist?
-	return (b.fnRegistry[name] != nil)
 }
 
 // Get the values associated with the given built-in.

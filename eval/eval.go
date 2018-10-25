@@ -79,35 +79,6 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	// Built-in functions are stored here.
 	t.functions = NewBuiltins()
 
-	// Add in our builtins.
-	//
-	// These are implemented in golang in the file builtins.go
-	//
-	t.functions.Register("ABS", 1, ABS)
-	t.functions.Register("ACS", 1, ACS)
-	t.functions.Register("ASN", 1, ASN)
-	t.functions.Register("ATN", 1, ATN)
-	t.functions.Register("BIN", 1, BIN)
-	t.functions.Register("COS", 1, COS)
-	t.functions.Register("EXP", 1, EXP)
-	t.functions.Register("INT", 1, INT)
-	t.functions.Register("LN", 1, LN)
-	t.functions.Register("PI", 0, PI)
-	t.functions.Register("RND", 1, RND)
-	t.functions.Register("SGN", 1, SGN)
-	t.functions.Register("SIN", 1, SIN)
-	t.functions.Register("SQR", 1, SQR)
-	t.functions.Register("TAN", 1, TAN)
-
-	// Primitives that operate upon strings
-	t.functions.Register("CHR$", 1, CHR)
-	t.functions.Register("CODE", 1, CODE)
-	t.functions.Register("LEFT$", 3, LEFT)
-	t.functions.Register("LEN", 1, LEN)
-	t.functions.Register("MID$", 5, MID)
-	t.functions.Register("RIGHT$", 3, RIGHT)
-	t.functions.Register("TL$", 1, TL)
-
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
 
@@ -151,6 +122,41 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 
 		offset++
 	}
+
+	//
+	// Add in our builtins.
+	//
+	// These are implemented in golang in the file builtins.go
+	//
+	// We have to do this after we've loaded our program, because
+	// the registration involves rewriting our program.
+	//
+	t.RegisterBuiltin("ABS", 1, ABS)
+	t.RegisterBuiltin("ACS", 1, ACS)
+	t.RegisterBuiltin("ASN", 1, ASN)
+	t.RegisterBuiltin("ATN", 1, ATN)
+	t.RegisterBuiltin("BIN", 1, BIN)
+	t.RegisterBuiltin("COS", 1, COS)
+	t.RegisterBuiltin("EXP", 1, EXP)
+	t.RegisterBuiltin("INT", 1, INT)
+	t.RegisterBuiltin("LN", 1, LN)
+	t.RegisterBuiltin("PI", 0, PI)
+	t.RegisterBuiltin("RND", 1, RND)
+	t.RegisterBuiltin("SGN", 1, SGN)
+	t.RegisterBuiltin("SIN", 1, SIN)
+	t.RegisterBuiltin("SQR", 1, SQR)
+	t.RegisterBuiltin("TAN", 1, TAN)
+
+	// Primitives that operate upon strings
+	t.RegisterBuiltin("CHR$", 1, CHR)
+	t.RegisterBuiltin("CODE", 1, CODE)
+	t.RegisterBuiltin("LEFT$", 2, LEFT)
+	t.RegisterBuiltin("LEN", 1, LEN)
+	t.RegisterBuiltin("MID$", 3, MID)
+	t.RegisterBuiltin("RIGHT$", 2, RIGHT)
+	t.RegisterBuiltin("TL$", 1, TL)
+
+	t.RegisterBuiltin("DUMP", 1, DUMP)
 
 	return t
 }
@@ -196,6 +202,14 @@ func (e *Interpreter) factor() object.Object {
 	case token.STRING:
 		e.offset++
 		return &object.StringObject{Value: tok.Literal}
+
+	case token.BUILTIN:
+
+		//
+		// Call the built-in and return the value.
+		//
+		val := e.callBuiltin(tok.Literal)
+		return val
 
 	case token.IDENT:
 
@@ -485,18 +499,15 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 		return &object.NumberObject{Value: 0}
 	}
 
-	return object.Error("Unhandled comparison: %v %v %v\n", t1, op, t2)
+	return object.Error("Unhandled comparison: %v[%s] %v %v[%s]\n", t1, t1.Type(), op, t2, t2.Type())
 }
 
 // Call the built-in with the given name if we can.
-func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
+func (e *Interpreter) callBuiltin(name string) object.Object {
 
-	if e.functions.Exists(name) {
 
 		//
-		// OK the function exists.
-		//
-		// Fetch it, so we know how many arguments
+		// Fetch the function, so we know how many arguments
 		// it should expect.
 		//
 		n, fun := e.functions.Get(name)
@@ -506,19 +517,63 @@ func (e *Interpreter) callBuiltin(name string) (object.Object, error) {
 		//
 		e.offset++
 
-		var args []token.Token
-		for i := 0; i < n; i++ {
-			args = append(args, e.program[e.offset])
+		//
+		// Each built-in takes a specific number of arguments.
+		//
+		// We pass only `string` or `number` to it.
+		//
+		var args []object.Object
+
+		//
+		// Build up the args, converting and evaluating as we go.
+		//
+		for len(args) < n {
+
+			var obj object.Object
+			var err error
+
+			tok := e.program[e.offset]
+
+			//
+			// Skip commas.
+			//
+			if tok.Type == token.COMMA {
+				e.offset++
+				continue
+			}
+
+			//
+			// We only pass string/int
+			//
+			if tok.Type == token.INT {
+				var ii float64
+
+				ii, err = strconv.ParseFloat(tok.Literal, 64)
+				if err != nil {
+					return object.Error("Failed to parse %s as float %s", tok.Literal, err.Error())
+				}
+				obj = &object.NumberObject{Value: ii}
+
+			} else if tok.Type == token.STRING {
+				obj = &object.StringObject{Value: tok.Literal}
+			} else if tok.Type == token.IDENT {
+				obj = e.GetVariable(tok.Literal)
+			} else if tok.Type == token.BUILTIN {
+				obj = e.callBuiltin(tok.Literal)
+			}
+
+			// bump past the argument now we handled it.
 			e.offset++
+
+			// Append the argument
+			args = append(args, obj)
 		}
 
 		//
 		// Call the function
 		//
-		out, err := fun(*e, args)
-		return out, err
-	}
-	return nil, fmt.Errorf("Failed to find built-in %s", name)
+		out := fun(*e, args)
+		return out
 }
 
 ////
@@ -1098,12 +1153,38 @@ func (e *Interpreter) runPRINT() error {
 			fmt.Printf("%s", tok.Literal)
 		} else if tok.Type == token.COMMA {
 			fmt.Printf(" ")
+		} else if tok.Type == token.BUILTIN {
+
+			// Call the function.
+			val := e.callBuiltin(tok.Literal)
+
+			// Did it error?
+			if val.Type() == object.ERROR {
+				return fmt.Errorf("%s", val.(*object.ErrorObject).Value)
+			}
+
+			// Otherwise handle the output
+			// 1.  String
+			if val.Type() == object.STRING {
+				fmt.Printf("%s", val.(*object.StringObject).Value)
+			}
+			// 2.  Number
+			if val.Type() == object.NUMBER {
+				n := val.(*object.NumberObject).Value
+
+				// If the value is basically an
+				// int then cast it to avoid
+				// 3 looking like 3.0000
+				if n == float64(int(n)) {
+					fmt.Printf("%d", int(n))
+				} else {
+					fmt.Printf("%f", n)
+				}
+			}
 		} else if tok.Type == token.IDENT {
 
 			//
-			// This might be a variable, or a function-call.
-			//
-			// GetVariable handles both.
+			// Get the variable.
 			//
 			val := e.GetVariable(tok.Literal)
 			if val.Type() == object.ERROR {
@@ -1159,6 +1240,7 @@ func (e *Interpreter) runPRINT() error {
 }
 
 // REM handles a REM statement
+//
 // This merely swallows input until the following newline / EOF.
 func (e *Interpreter) runREM() error {
 
@@ -1254,10 +1336,12 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runREM()
 	case token.RETURN:
 		err = e.runRETURN()
-	case token.IDENT:
-		_, err = e.callBuiltin(tok.Literal)
-		if err != nil {
-			return err
+	case token.BUILTIN:
+
+		obj := e.callBuiltin(tok.Literal)
+
+		if obj.Type() == object.ERROR {
+			return fmt.Errorf("%s", obj.(*object.ErrorObject).Value)
 		}
 
 		e.offset--
@@ -1318,22 +1402,6 @@ func (e *Interpreter) SetVariable(id string, val object.Object) {
 //
 func (e *Interpreter) GetVariable(id string) object.Object {
 
-	//
-	// Before we lookup the value of a variable
-	// we'll look for a built-in functin.
-	//
-	if e.functions.Exists(id) {
-
-		out, err := e.callBuiltin(id)
-
-		if err != nil {
-			fmt.Printf("Error calling builtin %s - %s [%v]\n",
-				id, err.Error(), out)
-		}
-		e.offset--
-		return out
-	}
-
 	val := e.vars.Get(id)
 	if val != nil {
 		return val
@@ -1347,5 +1415,21 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 // Useful for embedding.
 //
 func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft BuiltinSig) {
+
+	// Register the built-in
 	e.functions.Register(name, nArgs, ft)
+
+	// Now ensure that in the future if we hit this built-in
+	// we regard it as a function-call, not a variable
+	for i := 0; i < len(e.program); i++ {
+
+		// Is this token a reference to the function
+		// as an ident?
+		if e.program[i].Type == token.IDENT &&
+			e.program[i].Literal == name {
+
+			// Change the type.  (Hack!)
+			e.program[i].Type = token.BUILTIN
+		}
+	}
 }
