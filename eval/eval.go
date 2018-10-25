@@ -159,7 +159,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("MID$", 3, MID)
 	t.RegisterBuiltin("RIGHT$", 2, RIGHT)
 	t.RegisterBuiltin("TL$", 1, TL)
-	t.RegisterBuiltin("STR$", 2, STR)
+	t.RegisterBuiltin("STR$", 1, STR)
 
 	t.RegisterBuiltin("DUMP", 1, DUMP)
 
