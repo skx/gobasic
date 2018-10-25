@@ -930,7 +930,6 @@ func TestIfStartEnd(t *testing.T) {
 	}
 }
 
-
 // Test VAL
 func TestVAL(t *testing.T) {
 
@@ -946,10 +945,10 @@ func TestVAL(t *testing.T) {
 	}
 
 	if getFloat(t, obj, "A") != 33 {
-		t.Errorf("Wrong value for VAL output" )
+		t.Errorf("Wrong value for VAL output")
 	}
 	if getFloat(t, obj, "B") != 3.44 {
-		t.Errorf("Wrong value for VAL output" )
+		t.Errorf("Wrong value for VAL output")
 	}
 }
 
@@ -970,12 +969,30 @@ func TestSTR(t *testing.T) {
 	}
 
 	if getString(t, obj, "A") != "33" {
-		t.Errorf("Wrong value for STR" )
+		t.Errorf("Wrong value for STR")
 	}
 	if getString(t, obj, "B") != "19.22" {
-		t.Errorf("Wrong value for STR: %v",  getString(t, obj, "B"))
+		t.Errorf("Wrong value for STR: %v", getString(t, obj, "B"))
 	}
 	if getString(t, obj, "C") != "steve" {
-		t.Errorf("Wrong value for STR" )
+		t.Errorf("Wrong value for STR")
+	}
+}
+
+// TestIssue32 is the test case for https://github.com/skx/gobasic/issues/32
+func TestIssue32(t *testing.T) {
+	input := `
+05 LET A = 49.31321
+10 LET A = LEFT$ STR$ 4, 5
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("Found error running '%s' - %s", input, err.Error())
+	}
+
+	if getString(t, obj, "A") != "49.31" {
+		t.Errorf("Wrong value for LEFT$ STR$")
 	}
 }
