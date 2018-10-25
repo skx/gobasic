@@ -26,6 +26,10 @@ type Object interface {
 
 	// Type returns the type of the object.
 	Type() Type
+
+	// String converts the object to a printable version for
+	// debugging.
+	String() string
 }
 
 // StringObject holds a string.
@@ -40,6 +44,11 @@ func (s *StringObject) Type() Type {
 	return STRING
 }
 
+// String returns a string representation of this object.
+func (s *StringObject) String() string {
+	return (fmt.Sprintf("{Type:string, Value:%s}", s.Value))
+}
+
 // NumberObject holds a number.
 type NumberObject struct {
 
@@ -50,6 +59,11 @@ type NumberObject struct {
 // Type returns the type of this object.
 func (s *NumberObject) Type() Type {
 	return NUMBER
+}
+
+// String returns a string representation of this object.
+func (s *NumberObject) String() string {
+	return (fmt.Sprintf("{Type:number, Value:%f}", s.Value))
 }
 
 // ErrorObject holds a string, which describes an error
@@ -68,4 +82,9 @@ func Error(format string, args ...interface{}) *ErrorObject {
 // Type returns the type of this object.
 func (s *ErrorObject) Type() Type {
 	return ERROR
+}
+
+// String returns a string representation of this object.
+func (s *ErrorObject) String() string {
+	return (fmt.Sprintf("{Type:error, Value:%s}", s.Value))
 }
