@@ -404,3 +404,29 @@ func VAL(env Interpreter, args []object.Object) object.Object {
 
 	return &object.NumberObject{Value: float64(b)}
 }
+
+// STR$ converts a number to a string
+func STR(env Interpreter, args []object.Object) object.Object {
+
+	// Error?
+	if args[0].Type() == object.ERROR {
+		return args[0]
+	}
+
+	// Already a string?
+	if args[0].Type() == object.STRING {
+		return args[0]
+	}
+
+	// Get the value
+	var i float64
+	i = args[0].(*object.NumberObject).Value
+	s := ""
+
+	if ( i == float64( int( i )  ) ) {
+		s = fmt.Sprintf("%d", int(i))
+	} else {
+		s = fmt.Sprintf("%f", i)
+	}
+	return &object.StringObject{Value:s}
+}

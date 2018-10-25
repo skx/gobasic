@@ -952,3 +952,29 @@ func TestVAL(t *testing.T) {
 		t.Errorf("Wrong value for VAL output" )
 	}
 }
+
+// Test STR$
+func TestSTR(t *testing.T) {
+
+	input := `
+10 LET A = STR$ 33
+10 LET B = STR$  PI
+30 LET C = STR$ "steve"
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("Found error running '%s' - %s", input, err.Error())
+	}
+
+	if getString(t, obj, "A") != "33" {
+		t.Errorf("Wrong value for STR" )
+	}
+	if getString(t, obj, "B") != "3.141593" {
+		t.Errorf("Wrong value for STR: %v",  getString(t, obj, "B"))
+	}
+	if getString(t, obj, "C") != "steve" {
+		t.Errorf("Wrong value for STR" )
+	}
+}
