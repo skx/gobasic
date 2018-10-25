@@ -54,14 +54,6 @@ func (b *Builtins) Register(name string, nArgs int, ft BuiltinSig) {
 	b.fnRegistry[name] = ft
 }
 
-// Exists tests if the given name exists as a built-in function.
-func (b *Builtins) Exists(name string) bool {
-	b.lock.Lock()
-	defer b.lock.Unlock()
-
-	return (b.fnRegistry[name] != nil)
-}
-
 // Get the values associated with the given built-in.
 func (b *Builtins) Get(name string) (int, BuiltinSig) {
 	b.lock.Lock()
