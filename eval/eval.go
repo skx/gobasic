@@ -285,6 +285,7 @@ func (e *Interpreter) term() object.Object {
 		// repeat?
 		tok = e.program[e.offset]
 	}
+
 	return f1
 }
 
@@ -981,6 +982,11 @@ func (e *Interpreter) runIF() error {
 		e.RunOnce()
 
 		//
+		// Help me, I'm in Hell.
+		//
+		e.offset -= 1
+
+		//
 		// If the user made a jump then we'll
 		// abort here, because if the single-statement modified our
 		// flow control we're screwed.
@@ -993,19 +999,13 @@ func (e *Interpreter) runIF() error {
 		}
 
 		//
-		// We get the next token, it should either be ELSE
-		// or newline.  Handle the newline first.
+		// We get the next token, it should either be ELSE + expr
+		// or newline.
+		//
+		// Skip until we hit the end of line.
 		//
 		tmp := e.program[e.offset]
 		e.offset++
-		if tmp.Type == token.NEWLINE {
-			return nil
-		}
-
-		//
-		// OK then we hit else so we skip forward until we
-		// hit the newline.
-		//
 		for tmp.Type != token.NEWLINE {
 			tmp = e.program[e.offset]
 			e.offset++
@@ -1353,20 +1353,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runINPUT()
 	case token.IF:
 		err = e.runIF()
-		e.offset--
 	case token.LET:
 		err = e.runLET()
-		//
-		// NOTE:
-		//
-		//   The LET statement bumps past itself
-		//   So we need to ensure that the increment
-		//   at the end of this case-statement doesn't
-		//   run twice and get us out of sync.
-		//
-		//   This is annoying.
-		//
-		e.offset--
 	case token.NEXT:
 		err = e.runNEXT()
 	case token.PRINT:

@@ -27,8 +27,7 @@
 8000 REM REM
 8010 REM Converts the character in A$ to lower-case
 8020 REM
-8030 LET A$ = CODE A$ + 32
-8040 LET A$ = CHR$ A$
+8030 LET A$ = CHR$ CODE A$ + 32
 8045 RETURN
 
 
@@ -36,6 +35,5 @@
 9000 REM
 9010 REM Converts the character in A$ to upper-case
 9020 REM
-9030 LET A$ = CODE A$ - 32
-9040 LET A$ = CHR$ A$
-9050 RETURN
+9030 LET A$ = CHR$ CODE A$ - 32
+9040 RETURN
