@@ -226,14 +226,19 @@ There are several included examples which you can load/launch by clicking upon t
 
 ## Bugs?
 
-Probably.  Good luck!
+It is probable that bugs exist in this interpreter, but I've tried to do
+as much testing as I can.  If you spot anything that
+seems wrong please do [report an issue](https://github.com/skx/gobasic/issues).
 
-The code _does_ contain a number of test-cases.  You can exercise them via:
+* If the interpreter segfaults that is a bug.
+  * Even if the program is invalid, bogus, or malformed the interpreter should cope with it.
+* If a valid program produces the wrong output then that is also a bug.
+
+The project contain a number of test-cases, which you can execute like so:
 
     $ go test ./...
 
-Test coverage which doesn't exceed 80% is a bug.  You can verify and view
-coverage and test-results via:
+Finally if our test-coverage drops beneath 90% that is _also_ a bug.  You can view coverage like so:
 
     $ go test -coverprofile=c.out ./...
     $ go tool cover -html=c.out
