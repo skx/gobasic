@@ -2,7 +2,10 @@
 // to parsing our BASIC input.
 package token
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Type is a string
 type Type string
@@ -96,7 +99,7 @@ var keywords = map[string]Type{
 	"to":     TO,
 }
 
-// LookupIdentifier used to determinate whether identifier is keyword nor not.
+// LookupIdentifier used to determine whether identifier is keyword nor not.
 // We handle both upper-case and lower-cased keywords, for example both
 // "print" and "PRINT" are considered identical.
 func LookupIdentifier(identifier string) Type {
@@ -105,4 +108,17 @@ func LookupIdentifier(identifier string) Type {
 		return tok
 	}
 	return IDENT
+}
+
+// String creates a string-representation of a token
+func (t Token) String() string {
+
+	//
+	// Special-case newline-token doesn't need an embedded newline.
+	//
+	lit := t.Literal
+	if t.Type == NEWLINE {
+		lit = "\\n"
+	}
+	return (fmt.Sprintf("Token{Type:%s Value:%s}", t.Type, lit))
 }
