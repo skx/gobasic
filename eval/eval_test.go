@@ -478,18 +478,19 @@ func TestPrint(t *testing.T) {
 80 LET a = "STEVE"
 90 PRINT a
 95 PRINT PI + 2
+97 PRINT "steve" + " kemp"
+99 PRINT 3 + 5 "\n"
 100 PRINT LEN "STEVE"
 110 PRINT LEFT$ "Steve" 2
-120 PRINT SIN "steve"
+120 PRINT DUMP 3, "Steve", 22, 32-1, "\n"
 `
 
 	obj := Compile(input)
-	obj.Run()
+	err := obj.Run()
 
-	// Nothing useful to test here
-	// unless we use an I/O writer..?
-	//
-	// TODO: Reconsider
+	if err != nil {
+		t.Errorf("Unexpected error in runPRINT")
+	}
 }
 
 // TestREM ensures that REM is handled.
