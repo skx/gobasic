@@ -1033,3 +1033,26 @@ func TestIssue32(t *testing.T) {
 			getString(t, obj, "A"))
 	}
 }
+
+// Test that too-few arguments are caught to builtins.
+func TestBuiltinArguments(t *testing.T) {
+
+	inputs := []string{
+		"10 PRINT STR$\n",
+		"10 PRINT STR$"}
+
+	for _, txt := range inputs {
+
+		obj := Compile(txt)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("We expected to find an error, but didn't")
+		}
+		if !strings.Contains(err.Error(), "while searching for argument") {
+			t.Errorf("The error we found was not what we expected: %s", err.Error())
+		}
+
+	}
+
+}

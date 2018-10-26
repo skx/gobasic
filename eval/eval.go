@@ -557,6 +557,17 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		}
 
 		//
+		// If we hit newline/eof then we're
+		// done.
+		//
+		if tok.Type == token.NEWLINE {
+			return (object.Error("Hit newline while searching for argument %d to %s", len(args)+1, name))
+		}
+		if tok.Type == token.EOF {
+			return (object.Error("Hit EOF while searching for argument %d to %s", len(args)+1, name))
+		}
+
+		//
 		// We only pass string/int
 		//
 		if tok.Type == token.INT {
