@@ -15,14 +15,14 @@ func TestMathOperators(t *testing.T) {
 		expectedLiteral string
 	}{
 		// implicit newline which is a pain.
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.PLUS, "+"},
 		{token.MINUS, "-"},
 		{token.SLASH, "/"},
 		{token.ASTERISK, "*"},
 		{token.MOD, "%"},
 		{token.ASSIGN, "="},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -46,12 +46,12 @@ func TestMiscTokens(t *testing.T) {
 		expectedLiteral string
 	}{
 		// implicit newline which is a pain.
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.LBRACKET, "("},
 		{token.RBRACKET, ")"},
 		{token.COMMA, ","},
 		{token.COLON, ":"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -85,13 +85,13 @@ func TestLineNo(t *testing.T) {
 		expectedLiteral string
 	}{
 		// implicit newline which is a pain.
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.PRINT, "PRINT"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.LINENO, "20"},
 		{token.PRINT, "PRINT"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -116,16 +116,16 @@ func TestStringParse(t *testing.T) {
 		expectedLiteral string
 	}{
 		// implicit newline which is a pain.
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.LET, "LET"},
 		{token.IDENT, "a"},
 		{token.ASSIGN, "="},
 		{token.STRING, "\n\r\t\\\""},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.LINENO, "20"},
 		{token.PRINT, "PRINT"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -154,44 +154,43 @@ func TestComparisons(t *testing.T) {
 		expectedLiteral string
 	}{
 		// implicit newline which is a pain.
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 
 		{token.LINENO, "10"},
 		{token.IF, "IF"},
 		{token.IDENT, "A"},
 		{token.LT, "<"},
 		{token.IDENT, "B"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 
 		{token.LINENO, "20"},
 		{token.IF, "IF"},
 		{token.IDENT, "A"},
 		{token.LT_EQUALS, "<="},
 		{token.IDENT, "B"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 
 		{token.LINENO, "30"},
 		{token.IF, "IF"},
 		{token.IDENT, "A"},
 		{token.GT, ">"},
 		{token.IDENT, "B"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 
 		{token.LINENO, "40"},
 		{token.IF, "IF"},
 		{token.IDENT, "A"},
 		{token.GT_EQUALS, ">="},
 		{token.IDENT, "B"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 
 		{token.LINENO, "50"},
 		{token.IF, "IF"},
 		{token.IDENT, "A"},
 		{token.NOT_EQUALS, "<>"},
 		{token.IDENT, "B"},
-		{token.NEWLINE, "N"},
-
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
+		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -216,11 +215,11 @@ func TestNumber(t *testing.T) {
 		expectedLiteral string
 	}{
 		// implicit newline which is a pain.
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.PRINT, "PRINT"},
 		{token.INT, "-4.3"},
-		{token.NEWLINE, "N"},
+		{token.NEWLINE, "\\n"},
 		{token.LINENO, "20"},
 		{token.PRINT, "PRINT"},
 		{token.INT, "5"},

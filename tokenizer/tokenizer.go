@@ -118,7 +118,8 @@ func (l *Tokenizer) NextToken() token.Token {
 		tok.Type = token.STRING
 		tok.Literal = l.readString()
 	case rune('\n'):
-		tok = newToken(token.NEWLINE, rune('N'))
+		tok.Type = token.NEWLINE
+		tok.Literal = "\\n"
 	case rune(0):
 		tok.Literal = ""
 		tok.Type = token.EOF
