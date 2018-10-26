@@ -46,7 +46,7 @@ func (s *StringObject) Type() Type {
 
 // String returns a string representation of this object.
 func (s *StringObject) String() string {
-	return (fmt.Sprintf("{Type:string, Value:%s}", s.Value))
+	return (fmt.Sprintf("Object{Type:string, Value:%s}", s.Value))
 }
 
 // NumberObject holds a number.
@@ -63,7 +63,7 @@ func (s *NumberObject) Type() Type {
 
 // String returns a string representation of this object.
 func (s *NumberObject) String() string {
-	return (fmt.Sprintf("{Type:number, Value:%f}", s.Value))
+	return (fmt.Sprintf("Object{Type:number, Value:%f}", s.Value))
 }
 
 // ErrorObject holds a string, which describes an error
@@ -86,5 +86,5 @@ func (s *ErrorObject) Type() Type {
 
 // String returns a string representation of this object.
 func (s *ErrorObject) String() string {
-	return (fmt.Sprintf("{Type:error, Value:%s}", s.Value))
+	return (fmt.Sprintf("Object{Type:error, Value:%s}", s.Value))
 }
