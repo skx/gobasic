@@ -1328,6 +1328,10 @@ func (e *Interpreter) RunOnce() error {
 	tok := e.program[e.offset]
 	var err error
 
+	if e.trace {
+		fmt.Printf("RunOnce( %s )\n", tok.String())
+	}
+
 	e.jump = false
 
 	//
