@@ -38,3 +38,17 @@ func TestIdentLookup(t *testing.T) {
 		}
 	}
 }
+
+// Test that we can stringify tokens.
+func TestString(t *testing.T) {
+
+	t1 := &Token{Type: IDENT, Literal: "steve"}
+	t2 := &Token{Type: NEWLINE, Literal: "\\n"}
+
+	if !strings.Contains(t1.String(), "steve") {
+		t.Errorf("Stringification failed!")
+	}
+	if !strings.Contains(t2.String(), "\\n") {
+		t.Errorf("Stringification failed!")
+	}
+}
