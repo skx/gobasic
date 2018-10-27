@@ -737,7 +737,7 @@ func (e *Interpreter) runForLoop() error {
 	//
 	// Set the variable to the starting-value
 	//
-	e.vars.Set(target.Literal, &object.NumberObject{Value: start})
+	e.SetVariable(target.Literal, &object.NumberObject{Value: start})
 
 	//
 	// And record our loop - keyed on the name of the variable
@@ -866,7 +866,7 @@ func (e *Interpreter) runINPUT() error {
 	//
 	if strings.HasSuffix(ident.Literal, "$") {
 		// We set a string
-		e.vars.Set(ident.Literal, &object.StringObject{Value: input})
+		e.SetVariable(ident.Literal, &object.StringObject{Value: input})
 		return nil
 	}
 
@@ -879,7 +879,7 @@ func (e *Interpreter) runINPUT() error {
 	//
 	// Set the value
 	//
-	e.vars.Set(ident.Literal, &object.NumberObject{Value: i})
+	e.SetVariable(ident.Literal, &object.NumberObject{Value: i})
 	return nil
 }
 
@@ -1082,7 +1082,7 @@ func (e *Interpreter) runLET() error {
 	}
 
 	// Store the result
-	e.vars.Set(target.Literal, res)
+	e.SetVariable(target.Literal, res)
 	return nil
 }
 
@@ -1115,7 +1115,7 @@ func (e *Interpreter) runNEXT() error {
 	//
 	// Get the variable value, and increase it.
 	//
-	cur := e.vars.Get(target.Literal)
+	cur := e.GetVariable(target.Literal)
 	if cur.Type() != object.NUMBER {
 		return fmt.Errorf("NEXT variable %s is not a number!", target.Literal)
 	}
@@ -1140,7 +1140,7 @@ func (e *Interpreter) runNEXT() error {
 	//
 	// Set it
 	//
-	e.vars.Set(target.Literal, &object.NumberObject{Value: iVal})
+	e.SetVariable(target.Literal, &object.NumberObject{Value: iVal})
 
 	//
 	// Have we finnished?
