@@ -453,8 +453,29 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 
 	// Get the comparison function
 	op := e.program[e.offset]
-	e.offset++
 
+	// If the next token is an IF then we're going
+	// to regard the test as a pass if the first
+	// value was not 0 (number) and not "" (string)
+	if op.Type == token.THEN {
+
+		switch t1.Type() {
+		case object.STRING:
+			if "" != t1.(*object.StringObject).Value {
+				return &object.NumberObject{Value: 1}
+			}
+		case object.NUMBER:
+			if 0 != t1.(*object.NumberObject).Value {
+				return &object.NumberObject{Value: 1}
+			}
+		}
+		return &object.NumberObject{Value: 0}
+	}
+
+	//
+	// OK bump past the comparision function.
+	//
+	e.offset++
 	// Get the second expression
 	t2 := e.expr(allowBinOp)
 	if t2.Type() == object.ERROR {
