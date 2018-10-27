@@ -77,8 +77,8 @@ func TestMiscTokens(t *testing.T) {
 
 // TestLineNot is a trivial test of line-number parsing.
 func TestLineNo(t *testing.T) {
-	input := `10 PRINT
-20 PRINT`
+	input := `10 REM
+20 REM`
 
 	tests := []struct {
 		expectedType    token.Type
@@ -87,10 +87,10 @@ func TestLineNo(t *testing.T) {
 		// implicit newline which is a pain.
 		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
-		{token.PRINT, "PRINT"},
+		{token.REM, "REM"},
 		{token.NEWLINE, "\\n"},
 		{token.LINENO, "20"},
-		{token.PRINT, "PRINT"},
+		{token.REM, "REM"},
 		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
@@ -109,7 +109,7 @@ func TestLineNo(t *testing.T) {
 // TestStringParse tests we can cope with control-characters inside strings.
 func TestStringParse(t *testing.T) {
 	input := `10 LET a="\n\r\t\\\""
-20 PRINT`
+20 REM OK`
 
 	tests := []struct {
 		expectedType    token.Type
@@ -124,7 +124,8 @@ func TestStringParse(t *testing.T) {
 		{token.STRING, "\n\r\t\\\""},
 		{token.NEWLINE, "\\n"},
 		{token.LINENO, "20"},
-		{token.PRINT, "PRINT"},
+		{token.REM, "REM"},
+		{token.IDENT, "OK"},
 		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
@@ -207,8 +208,8 @@ func TestComparisons(t *testing.T) {
 
 // TestNumber tests that positive and negative numbers are OK.
 func TestNumber(t *testing.T) {
-	input := `10 PRINT -4.3
-20 PRINT 5 - 3`
+	input := `10 REM -4.3
+20 REM 5 - 3`
 
 	tests := []struct {
 		expectedType    token.Type
@@ -217,11 +218,11 @@ func TestNumber(t *testing.T) {
 		// implicit newline which is a pain.
 		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
-		{token.PRINT, "PRINT"},
+		{token.REM, "REM"},
 		{token.INT, "-4.3"},
 		{token.NEWLINE, "\\n"},
 		{token.LINENO, "20"},
-		{token.PRINT, "PRINT"},
+		{token.REM, "REM"},
 		{token.INT, "5"},
 		{token.MINUS, "-"},
 		{token.INT, "3"},
