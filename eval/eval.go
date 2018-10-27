@@ -543,22 +543,20 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 	//
 	for len(args) < n {
 
-		var obj object.Object
-		var err error
-
+		//
+		// Get the next token, if it is a comma then eat it.
+		//
 		tok := e.program[e.offset]
-
-		//
-		// Skip commas.
-		//
 		if tok.Type == token.COMMA {
 			e.offset++
 			continue
 		}
 
 		//
-		// If we hit newline/eof then we're
-		// done.
+		// If we hit newline/eof then we're done.
+		//
+		// (And we've got an error, because we didn't receive as
+		// many arguments as we expected.)
 		//
 		if tok.Type == token.NEWLINE {
 			return (object.Error("Hit newline while searching for argument %d to %s", len(args)+1, name))
@@ -568,39 +566,33 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		}
 
 		//
-		// We only pass string/int
+		// Evaluate the next expression.
 		//
-		if tok.Type == token.INT {
-			var ii float64
+		obj := e.expr(true)
 
-			ii, err = strconv.ParseFloat(tok.Literal, 64)
-			if err != nil {
-				return object.Error("Failed to parse %s as float %s", tok.Literal, err.Error())
-			}
-			obj = &object.NumberObject{Value: ii}
-
-		} else if tok.Type == token.STRING {
-			obj = &object.StringObject{Value: tok.Literal}
-		} else if tok.Type == token.IDENT {
-			obj = e.GetVariable(tok.Literal)
-		} else if tok.Type == token.BUILTIN {
-			obj = e.callBuiltin(tok.Literal)
-
+		//
+		// If we found an error then return it.
+		//
+		if obj.Type() == object.ERROR {
+			return obj
 		}
 
-		// Append the argument
+		//
+		// Append the argument to our list.
+		//
 		args = append(args, obj)
 
+		//
+		// Show our current progress.
+		//
 		if e.trace {
 			fmt.Printf("\tArgument %d -> %s\n", len(args), obj.String())
 		}
-
-		// bump past the argument now we handled it.
-		e.offset++
 	}
 
 	//
-	// Call the function
+	// Actually call the function, now we have the correct number
+	// of arguments to do so.
 	//
 	out := fun(*e, args)
 

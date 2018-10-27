@@ -232,7 +232,7 @@ func TestSQR(t *testing.T) {
 // TestBinOp tests that binary AND + binary OR work
 func TestBinOp(t *testing.T) {
 	input := `
-10 LET a = BIN 00001111 OR BIN 01110000
+10 LET a = ( BIN 00001111 ) OR ( BIN 01110000 )
 20 LET b = 129 AND 128
 `
 

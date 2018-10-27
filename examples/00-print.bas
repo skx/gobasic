@@ -13,4 +13,5 @@
 90 LET b = LEN a$
 
 100 PRINT "String '" a$ "' is ", b, "characters long\n"
-110 PRINT "'Steve' is STILL ", LEN "Steve", "characters long\n"
+110 PRINT "'Steve' is STILL ", LEN a$, "characters long\n"
+120 PRINT "'Steve' is STILL ", LEN( a$ ), "characters long\n"
