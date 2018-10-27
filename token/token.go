@@ -38,7 +38,6 @@ const (
 	GOTO   = "GOTO"
 	INPUT  = "INPUT"
 	LET    = "LET"
-	PRINT  = "PRINT"
 	REM    = "REM"
 	RETURN = "RETURN"
 
@@ -91,7 +90,6 @@ var keywords = map[string]Type{
 	"let":    LET,
 	"next":   NEXT,
 	"or":     OR,
-	"print":  PRINT,
 	"rem":    REM,
 	"return": RETURN,
 	"step":   STEP,
