@@ -260,6 +260,10 @@ func (e *Interpreter) term() object.Object {
 	// First argument
 	f1 := e.factor()
 
+	if e.offset >= len(e.program) {
+		return object.Error("Hit end of program processing term()")
+	}
+
 	// Get the operator
 	tok := e.program[e.offset]
 
