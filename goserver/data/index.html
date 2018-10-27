@@ -80,6 +80,25 @@
 200 SAVE
 ` })
 
+          examples.push( { id: 5, title: "Finnish Flag", code: `  10 REM
+ 20 REM Draw the Finnish flag, a simple one.
+ 30 REM
+ 40 COLOR 24,68,126
+ 50 REM Up
+ 60 FOR X = 150 TO 250
+ 70   FOR Y = 0 TO 400
+ 80    PLOT X,Y
+ 90   NEXT Y
+100 NEXT X
+110 REM Along
+120 FOR X = 0 TO 800
+130   FOR Y = 150 TO 250
+140     PLOT X,Y
+150   NEXT Y
+160 NEXT X
+170 SAVE
+` })
+
 
 
      $(function() {
