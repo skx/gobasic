@@ -42,6 +42,30 @@ func DUMP(env Interpreter, args []object.Object) object.Object {
 	return &object.NumberObject{Value: 0}
 }
 
+// PRINT handles displaying strings, integers, and errors.
+func PRINT(env Interpreter, args []object.Object) object.Object {
+	for _, ent := range args {
+		switch ent.Type() {
+		case object.NUMBER:
+			n := ent.(*object.NumberObject).Value
+			if n == float64(int(n)) {
+				fmt.Printf("%d", int(n))
+			} else {
+				fmt.Printf("%f", n)
+			}
+		case object.STRING:
+			fmt.Printf("%s", ent.(*object.StringObject).Value)
+		case object.ERROR:
+			fmt.Printf("%s", ent.(*object.ErrorObject).Value)
+		default:
+			fmt.Printf("PRINT %v", ent.String())
+		}
+	}
+
+	// Return the count of values we printed.
+	return &object.NumberObject{Value: float64(len(args))}
+}
+
 // ABS implements ABS
 func ABS(env Interpreter, args []object.Object) object.Object {
 

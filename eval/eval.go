@@ -172,6 +172,8 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("TL$", 1, TL)
 	t.RegisterBuiltin("STR$", 1, STR)
 
+	// Output
+	t.RegisterBuiltin("PRINT", -1, PRINT)
 	t.RegisterBuiltin("DUMP", 1, DUMP)
 
 	return t
@@ -580,16 +582,28 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 	//
 	// Build up the args, converting and evaluating as we go.
 	//
-	for len(args) < n {
+	for n == -1 || len(args) < n {
 
 		//
 		// Get the next token, if it is a comma then eat it.
 		//
 		tok := e.program[e.offset]
 		if tok.Type == token.COMMA {
+
+			//
+			// Hack
+			//
+			if name == "PRINT" {
+
+				args = append(args, &object.StringObject{Value: " "})
+			}
 			e.offset++
 			continue
 		}
+
+		//
+		// If we've hit a colon, or a newline we're done.
+		//
 
 		//
 		// If we hit newline/eof then we're done.
@@ -598,10 +612,26 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		// many arguments as we expected.)
 		//
 		if tok.Type == token.NEWLINE {
-			return (object.Error("Hit newline while searching for argument %d to %s", len(args)+1, name))
+			if n > 0 {
+				return (object.Error("Hit newline while searching for argument %d to %s", len(args)+1, name))
+			} else {
+				break
+			}
+		}
+		if tok.Type == token.COLON {
+			if n > 0 {
+				return (object.Error("Hit ':' while searching for argument %d to %s", len(args)+1, name))
+			} else {
+				break
+			}
 		}
 		if tok.Type == token.EOF {
-			return (object.Error("Hit EOF while searching for argument %d to %s", len(args)+1, name))
+			if n > 0 {
+				return (object.Error("Hit EOF while searching for argument %d to %s", len(args)+1, name))
+			} else {
+				break
+
+			}
 		}
 
 		//
@@ -1239,126 +1269,6 @@ func (e *Interpreter) runNEXT() error {
 	return nil
 }
 
-// runPRINT handles a print!
-// NOTE:
-//  Print basically swallows input up to the next newline.
-//  However it also stops at ":" to cope with the case of printing in an IF
-func (e *Interpreter) runPRINT() error {
-
-	// Bump past the PRINT token
-	e.offset++
-
-	// Now keep lookin for things to print until we hit a newline.
-	for e.offset < len(e.program) {
-
-		// Get the token
-		tok := e.program[e.offset]
-
-		// End of the line, or statement?
-		if tok.Type == token.NEWLINE || tok.Type == token.COLON {
-			return nil
-		}
-
-		// Printing a literal?
-		if tok.Type == token.INT || tok.Type == token.STRING {
-			fmt.Printf("%s", tok.Literal)
-		} else if tok.Type == token.COMMA {
-			fmt.Printf(" ")
-		} else if tok.Type == token.BUILTIN {
-
-			// Call the function.
-			val := e.callBuiltin(tok.Literal)
-
-			// Did it error?
-			if val.Type() == object.ERROR {
-				return fmt.Errorf("%s", val.(*object.ErrorObject).Value)
-			}
-
-			// Otherwise handle the output
-			// 1.  String
-			if val.Type() == object.STRING {
-				fmt.Printf("%s", val.(*object.StringObject).Value)
-			}
-			// 2.  Number
-			if val.Type() == object.NUMBER {
-				n := val.(*object.NumberObject).Value
-
-				// If the value is basically an
-				// int then cast it to avoid
-				// 3 looking like 3.0000
-				if n == float64(int(n)) {
-					fmt.Printf("%d", int(n))
-				} else {
-					fmt.Printf("%f", n)
-				}
-			}
-
-			//
-			// We're going to bump back one,
-			// because callBuiltin will advance
-			// to the end of the arguments.
-			//
-			e.offset--
-		} else if tok.Type == token.IDENT {
-
-			//
-			// Get the variable.
-			//
-			val := e.GetVariable(tok.Literal)
-			if val.Type() == object.ERROR {
-				return fmt.Errorf("%s", val.(*object.ErrorObject).Value)
-			}
-			if val.Type() == object.STRING {
-				fmt.Printf("%s", val.(*object.StringObject).Value)
-			}
-			if val.Type() == object.NUMBER {
-				n := val.(*object.NumberObject).Value
-
-				// If the value is basically an
-				// int then cast it to avoid
-				// 3 looking like 3.0000
-				if n == float64(int(n)) {
-					fmt.Printf("%d", int(n))
-				} else {
-					fmt.Printf("%f", n)
-				}
-			}
-		} else {
-			// OK we're not printing:
-			//
-			//  an int
-			//  a string
-			//  a variable
-			//
-			// As a fall-back we'll assume we've been given
-			// an expression, and print the result.
-			//
-			out := e.expr(true)
-
-			if out.Type() == object.STRING {
-				fmt.Printf("%s", out.(*object.StringObject).Value)
-			}
-			if out.Type() == object.NUMBER {
-				n := out.(*object.NumberObject).Value
-
-				fmt.Printf("XXX\n%v\n", n)
-
-				// If the value is basically an
-				// int then cast it to avoid
-				// 3 looking like 3.0000
-				if n == float64(int(n)) {
-					fmt.Printf("%d", int(n))
-				} else {
-					fmt.Printf("%f", n)
-				}
-			}
-		}
-		e.offset++
-	}
-
-	return nil
-}
-
 // REM handles a REM statement
 //
 // This merely swallows input until the following newline / EOF.
@@ -1442,8 +1352,6 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runLET()
 	case token.NEXT:
 		err = e.runNEXT()
-	case token.PRINT:
-		err = e.runPRINT()
 	case token.REM:
 		err = e.runREM()
 	case token.RETURN:
