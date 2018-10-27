@@ -198,6 +198,9 @@ func (l *Tokenizer) readString() string {
 		if l.ch == '"' {
 			break
 		}
+		if l.ch == rune(0) {
+			break
+		}
 
 		//
 		// Handle \n, \r, \t, \", etc.
