@@ -1090,3 +1090,21 @@ func TestBuiltinArguments(t *testing.T) {
 	}
 
 }
+
+// TestIssue37 is the test case for https://github.com/skx/gobasic/issues/37
+func TestIssue37(t *testing.T) {
+
+	input := `10 FOR I = 1 TO 10
+20 PRINT I
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected to find an error, but didn't")
+	}
+	if !strings.Contains(err.Error(), "Unclosed FOR loop") {
+		t.Errorf("The error we found was not what we expected: %s", err.Error())
+	}
+
+}
