@@ -1034,6 +1034,40 @@ func TestIssue32(t *testing.T) {
 	}
 }
 
+// TestIssue34 is the test case for https://github.com/skx/gobasic/issues/34
+func TestIssue34(t *testing.T) {
+
+	// Broken examples
+	inputs := []string{
+		`10 PRINT RND 0`,
+		`10 LET A = 3 - 5
+10 PRINT RND A`,
+	}
+
+	for _, txt := range inputs {
+
+		obj := Compile(txt)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("We expected to find an error, but didn't")
+		}
+		if !strings.Contains(err.Error(), "Argument to RND must be >") {
+			t.Errorf("The error we found was not what we expected: %s", err.Error())
+		}
+
+	}
+
+	// Valid example
+	obj := Compile("10 LET A = RND 55")
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("We didn't expect an error here")
+	}
+
+}
+
 // Test that too-few arguments are caught to builtins.
 func TestBuiltinArguments(t *testing.T) {
 

@@ -230,6 +230,11 @@ func RND(env Interpreter, args []object.Object) object.Object {
 	}
 	i := args[0].(*object.NumberObject).Value
 
+	// Ensure it is valid.
+	if i < 1 {
+		return object.Error("Argument to RND must be >0")
+	}
+
 	// Return the random number
 	return &object.NumberObject{Value: float64(rand.Intn(int(i)))}
 }
@@ -405,7 +410,7 @@ func VAL(env Interpreter, args []object.Object) object.Object {
 	return &object.NumberObject{Value: float64(b)}
 }
 
-// STR$ converts a number to a string
+// STR converts a number to a string
 func STR(env Interpreter, args []object.Object) object.Object {
 
 	// Error?
@@ -423,10 +428,10 @@ func STR(env Interpreter, args []object.Object) object.Object {
 	i = args[0].(*object.NumberObject).Value
 	s := ""
 
-	if ( i == float64( int( i )  ) ) {
+	if i == float64(int(i)) {
 		s = fmt.Sprintf("%d", int(i))
 	} else {
 		s = fmt.Sprintf("%f", i)
 	}
-	return &object.StringObject{Value:s}
+	return &object.StringObject{Value: s}
 }
