@@ -260,10 +260,6 @@ func (e *Interpreter) term() object.Object {
 	// First argument
 	f1 := e.factor()
 
-	if e.offset >= len(e.program) {
-		return object.Error("Hit end of program processing term()")
-	}
-
 	// Get the operator
 	tok := e.program[e.offset]
 
@@ -274,6 +270,10 @@ func (e *Interpreter) term() object.Object {
 
 		// skip the operator
 		e.offset++
+
+		if e.offset >= len(e.program) {
+			return object.Error("Hit end of program processing term()")
+		}
 
 		// get the second argument
 		f2 := e.factor()
@@ -317,6 +317,10 @@ func (e *Interpreter) term() object.Object {
 				return object.Error("MOD 0 is an error!")
 			}
 			f1 = &object.NumberObject{Value: float64(d1 % d2)}
+		}
+
+		if e.offset >= len(e.program) {
+			return object.Error("Hit end of program processing term()")
 		}
 
 		// repeat?
@@ -605,6 +609,10 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 	//
 	for n == -1 || len(args) < n {
 
+		if e.offset >= len(e.program) {
+			return object.Error("Hit end of program processing builtin %s", name)
+		}
+
 		//
 		// Get the next token, if it is a comma then eat it.
 		//
@@ -705,11 +713,22 @@ func (e *Interpreter) runForLoop() error {
 	// Bump past the FOR token
 	e.offset++
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing FOR")
+	}
+
 	// We now expect a variable name.
 	target := e.program[e.offset]
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing FOR")
+	}
+
 	e.offset++
 	if target.Type != token.IDENT {
 		return fmt.Errorf("Expected IDENT after FOR, got %v", target)
+	}
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing FOR")
 	}
 
 	// Now an EQUALS
@@ -717,6 +736,10 @@ func (e *Interpreter) runForLoop() error {
 	e.offset++
 	if eq.Type != token.ASSIGN {
 		return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
+	}
+
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing FOR")
 	}
 
 	// Now an integer/variable
@@ -741,11 +764,20 @@ func (e *Interpreter) runForLoop() error {
 		return fmt.Errorf("Expected INT/VARIABLE after 'FOR %s=', got %v", target.Literal, startI)
 	}
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing FOR")
+	}
+
 	// Now TO
 	to := e.program[e.offset]
 	e.offset++
+
 	if to.Type != token.TO {
 		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
+	}
+
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing FOR")
 	}
 
 	// Now an integer/variable
@@ -774,6 +806,10 @@ func (e *Interpreter) runForLoop() error {
 
 	// Default step is 1.
 	stepI := "1"
+
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing FOR")
+	}
 
 	// Is the next token a step?
 	if e.program[e.offset].Type == token.STEP {
@@ -1180,8 +1216,13 @@ func (e *Interpreter) runLET() error {
 	// Bump past the LET token
 	e.offset++
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing LET")
+	}
+
 	// We now expect an ID
 	target := e.program[e.offset]
+
 	e.offset++
 	if target.Type != token.IDENT {
 		return fmt.Errorf("Expected IDENT after LET, got %v", target)
@@ -1209,8 +1250,13 @@ func (e *Interpreter) runLET() error {
 
 // runNEXT handles the NEXT statement
 func (e *Interpreter) runNEXT() error {
+
 	// Bump past the NEXT token
 	e.offset++
+
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing NEXT")
+	}
 
 	// Get the identifier
 	target := e.program[e.offset]
