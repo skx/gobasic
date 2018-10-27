@@ -48,6 +48,9 @@ type Interpreter struct {
 	// vars holds the variables set in the program, via LET.
 	vars *Variables
 
+	// loops holds references to open FOR-loops
+	loops *Loops
+
 	// STDIN is an input-reader used for the INPUT statement
 	STDIN *bufio.Reader
 
@@ -78,6 +81,9 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 
 	// setup storage for variable-contents
 	t.vars = NewVars()
+
+	// setup storage for for-loops
+	t.loops = NewLoops()
 
 	// Built-in functions are stored here.
 	t.functions = NewBuiltins()
@@ -740,7 +746,7 @@ func (e *Interpreter) runForLoop() error {
 	//
 	// Did I say this is elegent?
 	//
-	AddForLoop(f)
+	e.loops.Add(f)
 	return nil
 }
 
@@ -1101,7 +1107,7 @@ func (e *Interpreter) runNEXT() error {
 	//
 	// If it has we remove the for-loop
 	//
-	data := GetForLoop(target.Literal)
+	data := e.loops.Get(target.Literal)
 	if data.id == "" {
 		return fmt.Errorf("NEXT %s found - without opening FOR", target.Literal)
 	}
@@ -1123,7 +1129,7 @@ func (e *Interpreter) runNEXT() error {
 		data.finished = true
 
 		// updates-in-place.  bad name
-		AddForLoop(data)
+		e.loops.Add(data)
 	}
 
 	//
@@ -1140,7 +1146,7 @@ func (e *Interpreter) runNEXT() error {
 	// Have we finnished?
 	//
 	if data.finished {
-		RemoveForLoop(target.Literal)
+		e.loops.Remove(target.Literal)
 		return nil
 	}
 
@@ -1153,7 +1159,7 @@ func (e *Interpreter) runNEXT() error {
 		data.finished = true
 
 		// updates-in-place.  bad name
-		AddForLoop(data)
+		e.loops.Add(data)
 	}
 
 	//
@@ -1406,17 +1412,21 @@ func (e *Interpreter) Run() error {
 	//
 	// We walk our series of tokens.
 	//
-	for e.offset < len(e.program) {
+	for e.offset < len(e.program) && !e.finished {
 
 		err := e.RunOnce()
 
 		if err != nil {
 			return err
 		}
+	}
 
-		if e.finished {
-			return nil
-		}
+	//
+	// Here we've finished with no error, but we want to
+	// alert on unclosed FOR-loops.
+	//
+	if !e.loops.Empty() {
+		return fmt.Errorf("Unclosed FOR loop")
 	}
 
 	return nil
