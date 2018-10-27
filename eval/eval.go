@@ -172,6 +172,8 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("TL$", 1, TL)
 	t.RegisterBuiltin("STR$", 1, STR)
 
+	// Output
+	t.RegisterBuiltin("PRINT", -1, PRINT)
 	t.RegisterBuiltin("DUMP", 1, DUMP)
 
 	return t

@@ -42,6 +42,17 @@ func DUMP(env Interpreter, args []object.Object) object.Object {
 	return &object.NumberObject{Value: 0}
 }
 
+// PRINT handles displaying strings, integers, and errors.
+func PRINT(env Interpreter, args []object.Object) object.Object {
+
+	for _, ent := range args {
+		fmt.Printf("%s", ent.String())
+	}
+
+	// Return the count of values we printed.
+	return &object.NumberObject{Value: len(args)}
+}
+
 // ABS implements ABS
 func ABS(env Interpreter, args []object.Object) object.Object {
 
