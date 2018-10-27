@@ -1125,3 +1125,27 @@ func TestIssue43(t *testing.T) {
 		t.Errorf("Wrong error found for MOD 0 : %s\n", err.Error())
 	}
 }
+
+// TestIssue42 is the test case for https://github.com/skx/gobasic/issues/42
+func TestIssue42(t *testing.T) {
+	input := `
+10 IF 1 THEN LET a=1 ELSE LET a = 3
+10 IF 3 + 3 THEN LET b=1 ELSE LET b = 3
+30 IF -3 + 3 THEN LET c = 3 ELSE LET c = 1
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("We expected no error, but we got one!")
+	}
+
+	vars := []string{"a", "b", "c"}
+
+	for _, nm := range vars {
+		out := getFloat(t, obj, nm)
+		if out != 1 {
+			t.Errorf("Value not expected - got %f for %s", out, nm)
+		}
+	}
+}
