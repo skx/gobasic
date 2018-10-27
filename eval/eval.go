@@ -203,6 +203,10 @@ func (e *Interpreter) factor() object.Object {
 		// skip past the lbracket
 		e.offset++
 
+		if e.offset >= len(e.program) {
+			return object.Error("Hit end of program processing factor()")
+		}
+
 		// handle the expr
 		ret := e.expr(true)
 		if ret.Type() == object.ERROR {
@@ -484,6 +488,11 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 	// OK bump past the comparision function.
 	//
 	e.offset++
+
+	if e.offset >= len(e.program) {
+		return object.Error("Hit end of program processing compare()")
+	}
+
 	// Get the second expression
 	t2 := e.expr(allowBinOp)
 	if t2.Type() == object.ERROR {
@@ -600,6 +609,10 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 	// skip past the function-call itself
 	//
 	e.offset++
+
+	if e.offset >= len(e.program) {
+		return object.Error("Hit end of program processing builtin %s", name)
+	}
 
 	//
 	// Each built-in takes a specific number of arguments.
@@ -749,6 +762,10 @@ func (e *Interpreter) runForLoop() error {
 	// Now an integer/variable
 	startI := e.program[e.offset]
 	e.offset++
+
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing FOR")
+	}
 
 	var start float64
 	if startI.Type == token.INT {
@@ -1228,6 +1245,9 @@ func (e *Interpreter) runLET() error {
 	target := e.program[e.offset]
 
 	e.offset++
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing LET")
+	}
 	if target.Type != token.IDENT {
 		return fmt.Errorf("Expected IDENT after LET, got %v", target)
 	}
@@ -1239,6 +1259,9 @@ func (e *Interpreter) runLET() error {
 	}
 	e.offset++
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing LET")
+	}
 	// now we're at the expression/value/whatever
 	res := e.expr(true)
 
