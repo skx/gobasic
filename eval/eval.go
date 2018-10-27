@@ -289,16 +289,25 @@ func (e *Interpreter) term() object.Object {
 		}
 
 		//
+		// Get the values.
+		//
+		v1 := f1.(*object.NumberObject).Value
+		v2 := f2.(*object.NumberObject).Value
+
+		//
 		// Handle the operator.
 		//
 		if tok.Type == token.ASTERISK {
-			f1 = &object.NumberObject{Value: f1.(*object.NumberObject).Value * f2.(*object.NumberObject).Value}
+			f1 = &object.NumberObject{Value: v1 * v2}
 		}
 		if tok.Type == token.SLASH {
-			f1 = &object.NumberObject{Value: f1.(*object.NumberObject).Value / f2.(*object.NumberObject).Value}
+			if v2 == 0 {
+				return object.Error("Division by zero!")
+			}
+			f1 = &object.NumberObject{Value: v1 / v2}
 		}
 		if tok.Type == token.MOD {
-			f1 = &object.NumberObject{Value: float64(int(f1.(*object.NumberObject).Value) % int(f2.(*object.NumberObject).Value))}
+			f1 = &object.NumberObject{Value: float64(int(v1) % int(v2))}
 		}
 
 		// repeat?
