@@ -865,7 +865,7 @@ func (e *Interpreter) runGOSUB() error {
 	e.gstack.Push(e.offset)
 
 	//
-	// Lookup the offset of the given line-number in our program/
+	// Lookup the offset of the given line-number in our program.
 	//
 	offset := e.lines[target.Literal]
 
@@ -899,7 +899,7 @@ func (e *Interpreter) runGOTO() error {
 	}
 
 	//
-	// Lookup the offset of the given line-number in our program/
+	// Lookup the offset of the given line-number in our program.
 	//
 	offset := e.lines[target.Literal]
 
