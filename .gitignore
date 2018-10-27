@@ -4,3 +4,5 @@ embed/embed
 embed/*.png
 goserver/goserver
 goserver/goserver-*
+eval-fuzz.zip
+workdir/
