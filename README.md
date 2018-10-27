@@ -243,6 +243,9 @@ Finally if our test-coverage drops beneath 90% that is _also_ a bug.  You can vi
     $ go test -coverprofile=c.out ./...
     $ go tool cover -html=c.out
 
+The interpreter has been fuzz-tested pretty extensively, which has resulted in some significant improvements.  See [FUZZING.md](FUZZING.md) for details.
+
+
 
 Steve
 --
