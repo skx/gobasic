@@ -44,7 +44,6 @@ func DUMP(env Interpreter, args []object.Object) object.Object {
 
 // PRINT handles displaying strings, integers, and errors.
 func PRINT(env Interpreter, args []object.Object) object.Object {
-
 	for _, ent := range args {
 		switch ent.Type() {
 		case object.NUMBER:
@@ -58,6 +57,8 @@ func PRINT(env Interpreter, args []object.Object) object.Object {
 			fmt.Printf("%s", ent.(*object.StringObject).Value)
 		case object.ERROR:
 			fmt.Printf("%s", ent.(*object.ErrorObject).Value)
+		default:
+			fmt.Printf("PRINT %v", ent.String())
 		}
 	}
 
