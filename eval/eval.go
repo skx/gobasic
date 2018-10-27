@@ -589,6 +589,14 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		//
 		tok := e.program[e.offset]
 		if tok.Type == token.COMMA {
+
+			//
+			// Hack
+			//
+			if name == "PRINT" {
+
+				args = append(args, &object.StringObject{Value: " "})
+			}
 			e.offset++
 			continue
 		}
