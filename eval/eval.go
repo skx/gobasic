@@ -42,6 +42,11 @@ type Interpreter struct {
 	// a GOTO implemented!
 	offset int
 
+	// We record the line-number we're currently executing here.
+	// NOTE: This is a string because we take it from the lineno
+	// token, with no modification.
+	lineno string
+
 	// A stack for handling GOSUB/RETURN calls
 	gstack *Stack
 
@@ -1350,7 +1355,7 @@ func (e *Interpreter) RunOnce() error {
 	case token.NEWLINE:
 		// NOP
 	case token.LINENO:
-		// NOP
+		e.lineno = tok.Literal
 	case token.END:
 		e.finished = true
 		return nil
@@ -1417,6 +1422,8 @@ func (e *Interpreter) Run() error {
 		err := e.RunOnce()
 
 		if err != nil {
+
+			return fmt.Errorf("Line %s : %s", e.lineno, err.Error())
 			return err
 		}
 	}
