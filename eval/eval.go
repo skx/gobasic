@@ -582,7 +582,7 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 	//
 	// Build up the args, converting and evaluating as we go.
 	//
-	for len(args) < n {
+	for n == -1 || len(args) < n {
 
 		//
 		// Get the next token, if it is a comma then eat it.
@@ -594,16 +594,29 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		}
 
 		//
+		// If we've hit a colon, or a newline we're done.
+		//
+
+		//
 		// If we hit newline/eof then we're done.
 		//
 		// (And we've got an error, because we didn't receive as
 		// many arguments as we expected.)
 		//
 		if tok.Type == token.NEWLINE {
-			return (object.Error("Hit newline while searching for argument %d to %s", len(args)+1, name))
+			if n > 0 {
+				return (object.Error("Hit newline while searching for argument %d to %s", len(args)+1, name))
+			} else {
+				break
+			}
 		}
 		if tok.Type == token.EOF {
-			return (object.Error("Hit EOF while searching for argument %d to %s", len(args)+1, name))
+			if n > 0 {
+				return (object.Error("Hit EOF while searching for argument %d to %s", len(args)+1, name))
+			} else {
+				break
+
+			}
 		}
 
 		//

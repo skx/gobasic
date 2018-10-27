@@ -46,11 +46,23 @@ func DUMP(env Interpreter, args []object.Object) object.Object {
 func PRINT(env Interpreter, args []object.Object) object.Object {
 
 	for _, ent := range args {
-		fmt.Printf("%s", ent.String())
+		switch ent.Type() {
+		case object.NUMBER:
+			n := ent.(*object.NumberObject).Value
+			if n == float64(int(n)) {
+				fmt.Printf("%d", int(n))
+			} else {
+				fmt.Printf("%f", n)
+			}
+		case object.STRING:
+			fmt.Printf("%s", ent.(*object.StringObject).Value)
+		case object.ERROR:
+			fmt.Printf("%s", ent.(*object.ErrorObject).Value)
+		}
 	}
 
 	// Return the count of values we printed.
-	return &object.NumberObject{Value: len(args)}
+	return &object.NumberObject{Value: float64(len(args))}
 }
 
 // ABS implements ABS
