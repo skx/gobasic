@@ -59,23 +59,15 @@
  30 REM
  40 REM This example draws overlapping lines.
  50 REM
- 55 COLOR 255,0,0
- 60 FOR I = 0 TO 200 STEP 10
- 70   LET X  = 100
- 80   LET Y  = 200 + I
- 90   LET XX = 500
-100   LET YY = 200 - I
-110   LINE X,Y, XX,YY
-120 NEXT I
-125 COLOR 0,0,255
-130 FOR I = 0 TO 200 STEP 10
-140   LET X  = 100
-150   LET Y  = 200 - I
-160   LET XX = 500
-170   LET YY = 200 + I
-180   LINE X,Y, XX,YY
-190 NEXT I
-200 SAVE
+ 60 COLOR 255,RND 255,0
+ 70 FOR I = 0 TO 200 STEP 10
+ 80   LINE 100, 200 + I, 500, 200 -I
+ 90 NEXT I
+100 COLOR 0,RND 255,255
+110 FOR I = 0 TO 200 STEP 10
+120   LINE 100, 200 - I , 500, 200 + I
+130 NEXT I
+140 SAVE
 ` })
 
           examples.push( { id: 5, title: "Finnish Flag", code: `  10 REM
