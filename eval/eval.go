@@ -191,6 +191,10 @@ func (e *Interpreter) SetTrace(val bool) {
 // factor
 func (e *Interpreter) factor() object.Object {
 
+	if e.offset >= len(e.program) {
+		return object.Error("Hit end of program processing factor()")
+	}
+
 	tok := e.program[e.offset]
 	switch tok.Type {
 	case token.LBRACKET:
@@ -1029,6 +1033,10 @@ func (e *Interpreter) runIF() error {
 		tmp := e.program[e.offset]
 		e.offset++
 		for tmp.Type != token.NEWLINE {
+
+			if e.offset >= len(e.program) {
+				return fmt.Errorf("Hit end of program processing IF")
+			}
 			tmp = e.program[e.offset]
 			e.offset++
 		}
@@ -1043,6 +1051,11 @@ func (e *Interpreter) runIF() error {
 		//
 		//
 		for {
+
+			if e.offset >= len(e.program) {
+				return fmt.Errorf("Hit end of program processing IF")
+			}
+
 			tmp := e.program[e.offset]
 			e.offset++
 
