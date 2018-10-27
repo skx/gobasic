@@ -7,7 +7,7 @@
 
 This repository contains a naive implementation of BASIC, written in Golang.
 
-> If you'd prefer to see a more "real" interpreted language, implemented in Go you might prefer [monkey](https://github.com/skx/monkey/).
+> If you'd prefer to see a more "real" interpreted language, implemented in Go, you might prefer [monkey](https://github.com/skx/monkey/).
 
 The implementation is simple for three main reasons:
 
