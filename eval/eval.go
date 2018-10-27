@@ -307,7 +307,14 @@ func (e *Interpreter) term() object.Object {
 			f1 = &object.NumberObject{Value: v1 / v2}
 		}
 		if tok.Type == token.MOD {
-			f1 = &object.NumberObject{Value: float64(int(v1) % int(v2))}
+
+			d1 := int(v1)
+			d2 := int(v2)
+
+			if d2 == 0 {
+				return object.Error("MOD 0 is an error!")
+			}
+			f1 = &object.NumberObject{Value: float64(d1 % d2)}
 		}
 
 		// repeat?
@@ -1333,6 +1340,8 @@ func (e *Interpreter) runPRINT() error {
 			}
 			if out.Type() == object.NUMBER {
 				n := out.(*object.NumberObject).Value
+
+				fmt.Printf("XXX\n%v\n", n)
 
 				// If the value is basically an
 				// int then cast it to avoid

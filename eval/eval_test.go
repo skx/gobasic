@@ -1108,3 +1108,20 @@ func TestIssue37(t *testing.T) {
 	}
 
 }
+
+// TestIssue43 is the test case for https://github.com/skx/gobasic/issues/43
+func TestIssue43(t *testing.T) {
+	input := `
+10 LET A = 3 % 0
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error and found none")
+	}
+
+	if !strings.Contains(err.Error(), "MOD 0") {
+		t.Errorf("Wrong error found for MOD 0 : %s\n", err.Error())
+	}
+}
