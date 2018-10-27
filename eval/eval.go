@@ -254,6 +254,10 @@ func (e *Interpreter) term() object.Object {
 	// First argument
 	f1 := e.factor()
 
+	if e.offset >= len(e.program) {
+		return object.Error("Hit end of program processing term()")
+	}
+
 	// Get the operator
 	tok := e.program[e.offset]
 
@@ -311,6 +315,10 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 	// Did this error?
 	if t1.Type() == object.ERROR {
 		return t1
+	}
+
+	if e.offset >= len(e.program) {
+		return object.Error("Hit end of program processing expr()")
 	}
 
 	// Get the operator
