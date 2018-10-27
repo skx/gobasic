@@ -782,6 +782,10 @@ func (e *Interpreter) runGOSUB() error {
 	// Skip the GOSUB-instruction itself
 	e.offset++
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing GOSUB")
+	}
+
 	// Get the target
 	target := e.program[e.offset]
 
@@ -824,6 +828,10 @@ func (e *Interpreter) runGOTO() error {
 	// Skip the GOTO-instruction
 	e.offset++
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing GOTO")
+	}
+
 	// Get the GOTO-target
 	target := e.program[e.offset]
 
@@ -855,18 +863,34 @@ func (e *Interpreter) runGOTO() error {
 //   INPUT "Foo", a$  -> Reads a string
 func (e *Interpreter) runINPUT() error {
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing INPUT")
+	}
+
 	// Skip the INPUT-instruction
 	e.offset++
+
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing INPUT")
+	}
 
 	// Get the prompt
 	prompt := e.program[e.offset]
 	e.offset++
+
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing INPUT")
+	}
 
 	// We expect a comma
 	comma := e.program[e.offset]
 	e.offset++
 	if comma.Type != token.COMMA {
 		return fmt.Errorf("ERROR: INPUT should be : INPUT \"prompt\",var")
+	}
+
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing INPUT")
 	}
 
 	// Now the ID
