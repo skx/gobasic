@@ -1132,6 +1132,10 @@ func TestIssue42(t *testing.T) {
 10 IF 1 THEN LET a=1 ELSE LET a = 3
 10 IF 3 + 3 THEN LET b=1 ELSE LET b = 3
 30 IF -3 + 3 THEN LET c = 3 ELSE LET c = 1
+40 LET t=1
+50 LET f=0
+60 IF t THEN LET d=1 ELSE let d=3
+60 IF f THEN LET e=3 ELSE let e=1
 `
 	obj := Compile(input)
 	err := obj.Run()
@@ -1140,7 +1144,7 @@ func TestIssue42(t *testing.T) {
 		t.Errorf("We expected no error, but we got one!")
 	}
 
-	vars := []string{"a", "b", "c"}
+	vars := []string{"a", "b", "c", "d", "e"}
 
 	for _, nm := range vars {
 		out := getFloat(t, obj, nm)
