@@ -11,6 +11,8 @@
 
 package eval
 
+import "sync"
+
 // ForLoop is the structure used to record a for-loop
 type ForLoop struct {
 	// variable the loop refers to
@@ -32,24 +34,48 @@ type ForLoop struct {
 	finished bool
 }
 
-// FORS holds all known/current for-loops.
-var FORS map[string]ForLoop
+// Loops is the structure which holds ForLoop entries
+type Loops struct {
+	// lock ensures we're thread-safe (ha!)
+	lock sync.Mutex
 
-// AddForLoop stores a reference to a for-loop in our map
-func AddForLoop(x ForLoop) {
-	if FORS == nil {
-		FORS = make(map[string]ForLoop)
-	}
-
-	FORS[x.id] = x
+	// data stores our data
+	data map[string]ForLoop
 }
 
-// GetForLoop returns a reference to a for-loop.
-func GetForLoop(id string) ForLoop {
-	return (FORS[id])
+// NewLoops creates a new for-loop holder
+func NewLoops() *Loops {
+	return &Loops{lock: sync.Mutex{}, data: make(map[string]ForLoop)}
 }
 
-// RemoveForLoop removes a reference to a for-loop.
-func RemoveForLoop(id string) {
-	delete(FORS, id)
+// Add stores a reference to a for-loop in our map
+func (l *Loops) Add(x ForLoop) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	l.data[x.id] = x
+}
+
+// Get returns a reference to a for-loop.
+func (l *Loops) Get(id string) ForLoop {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	return (l.data[id])
+}
+
+// Remove removes a reference to a for-loop.
+func (l *Loops) Remove(id string) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	delete(l.data, id)
+}
+
+// Empty returns true if we have no open FOR loop-references.
+func (l *Loops) Empty() bool {
+	l.lock.Lock()
+	defer l.lock.Unlock()
+
+	return (len(l.data) == 0)
 }
