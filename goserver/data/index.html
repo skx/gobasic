@@ -25,11 +25,9 @@
  40 REM This example draws a simple sine wave.
  50 REM
  60 FOR x=0 TO 800
- 70  LET y = x / 128 * PI
- 80  LET y = 200 + ( 80 * SIN y )
- 90  PLOT x,y
-100 NEXT x
-110 SAVE
+ 70  PLOT x, 200 + 150 * SIN x/128 * PI
+ 80 NEXT x
+ 90 SAVE
 ` } );
      examples.push( { id: 3, title: "Draw coloured stripes", code: `  10 REM
   20 REM This script will be executed with an 800x600 image
@@ -98,8 +96,37 @@
 160 NEXT X
 170 SAVE
 ` })
+          examples.push( { id: 6, title: "Border Control", code: `  10 REM Draw a filled border
+20 COLOR RND 255, RND 255, RND 255
+30 LET N = 50
+40 GOSUB 1000
+50 SAVE
+60 END
 
 
+1000 REM
+1020 REM  DRAW A COLOURED BORDER
+1030 REM
+1040 REM  Width is expected to be set in N
+1050 REM
+
+1060 REM TOP + BOTTOM
+1070 FOR I=0 TO N
+1080  FOR X = 0 TO 800
+1090   PLOT X,I
+1095   PLOT X, 400 - I
+1100  NEXT X
+1110 NEXT I
+1300 REM LEFT + RIGHT
+1310  FOR I = 0 TO 400
+1320   FOR R = 0 TO N
+1330    PLOT R,I
+1340   LET RR = 600 -R
+1350    PLOT RR, I
+1360   NEXT R
+1370 NEXT I
+2000 RETURN
+`});
 
      $(function() {
        // Toggle the help-display
