@@ -6,10 +6,7 @@ func Fuzz(data []byte) int {
 
 	tokener := tokenizer.New(string(data))
 	e := New(tokener)
-	err := e.Run()
-	if err != nil {
-		return 0
-	}
+	e.Run()
 	return 1
 
 }

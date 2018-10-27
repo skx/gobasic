@@ -286,6 +286,9 @@ func (e *Interpreter) term() object.Object {
 		// get the second argument
 		f2 := e.factor()
 
+		if e.offset >= len(e.program) {
+			return object.Error("Hit end of program processing term()")
+		}
 		//
 		// We allow operations of the form:
 		//
