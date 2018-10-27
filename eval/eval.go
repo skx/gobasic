@@ -1030,6 +1030,10 @@ func (e *Interpreter) runIF() error {
 		//
 		// Skip until we hit the end of line.
 		//
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("Hit end of program processing IF")
+		}
+
 		tmp := e.program[e.offset]
 		e.offset++
 		for tmp.Type != token.NEWLINE {
