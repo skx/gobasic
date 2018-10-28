@@ -1153,3 +1153,47 @@ func TestIssue42(t *testing.T) {
 		}
 	}
 }
+
+// TestBuiltinWrongTypes that the builtins that refer to maths abort cleanly.
+func TestBuiltinWrongTypes(t *testing.T) {
+
+	inputs := []string{
+		"10 BIN \"steve\"\n",
+		"10 CHR$ \"steve\"\n",
+		"10 CODE 4",
+		"10 INT \"steve\"",
+		"10 LEFT$ \"steve\", \"steve\"",
+		"10 MID$ \"steve\", 1, \"cake\" ",
+		"10 MID$ 3, \"cake\", \"cake\" ",
+		"10 MID$ \"steve\", \"cake\", 3",
+		"10 RIGHT$ \"steve\", \"steve\"",
+		"10 RIGHT$ 3, \"steve\"",
+		"10 SGN \"steve\"",
+		"10 SQR \"steve\"",
+		"10 SIN \"steve\"",
+		"10 COS \"steve\"",
+		"10 TAN \"steve\"",
+		"10 ABS \"steve\"",
+		"10 ACS \"steve\"",
+		"10 ASN \"steve\"",
+		"10 LN \"steve\"",
+		"10 EXP \"steve\"",
+		"10 ATN \"steve\"",
+		"10 TL$ 3,\"steve\"",
+	}
+
+	for _, txt := range inputs {
+
+		obj := Compile(txt)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("We expected to find an error, but didn't on %s", txt)
+		}
+		if !strings.Contains(err.Error(), "Wrong type") {
+			t.Errorf("The error we found was not what we expected: %s", err.Error())
+		}
+
+	}
+
+}
