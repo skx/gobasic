@@ -1212,6 +1212,7 @@ func TestEOF(t *testing.T) {
 		"10 FOR I = 1 TO ",
 		"10 FOR I = 1 ",
 		"10 GOSUB",
+		"10 READ a,",
 		"10 GOTO",
 		"10 LET a =  ",
 		"10 LET b",
@@ -1229,6 +1230,64 @@ func TestEOF(t *testing.T) {
 			t.Errorf("We expected to find an error, but didn't on %s", txt)
 		}
 
+	}
+
+}
+
+// TestRead tests that reading DATA works as expected.
+func TestRead(t *testing.T) {
+
+	input := `
+10 DATA 1.2
+20 READ a
+30 DATA "steve", "kemp"
+40 READ b
+50 READ c
+60 READ d,e,f
+60 DATA "moi", "kissa", "blah"`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("We found an unexpected error")
+	}
+	if getFloat(t, obj, "a") != 1.2 {
+		t.Errorf("Wrong value for RAD: %f", getFloat(t, obj, "a"))
+	}
+
+	if getString(t, obj, "b") != "steve" {
+		t.Errorf("Wrong value for READ: %s", getString(t, obj, "b"))
+	}
+	if getString(t, obj, "c") != "kemp" {
+		t.Errorf("Wrong value for READ: %s", getString(t, obj, "c"))
+	}
+	if getString(t, obj, "d") != "moi" {
+		t.Errorf("Wrong value for READ: %s", getString(t, obj, "d"))
+	}
+	if getString(t, obj, "e") != "kissa" {
+		t.Errorf("Wrong value for READ: %s", getString(t, obj, "e"))
+	}
+	if getString(t, obj, "f") != "blah" {
+		t.Errorf("Wrong value for READ: %s", getString(t, obj, "f"))
+	}
+
+}
+
+// TestBogusRead tests that reading to a non-ident fails
+func TestBogusRead(t *testing.T) {
+
+	input := `
+10 DATA 1.2
+20 READ 1.3
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error, but saw none")
+	}
+	if !strings.Contains(err.Error(), "Expected identifier") {
+		t.Errorf("The error we found was not what we expected: %s", err.Error())
 	}
 
 }
