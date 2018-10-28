@@ -72,6 +72,14 @@ type Interpreter struct {
 
 	// trace is true if the user is tracing execution
 	trace bool
+
+	// dataOffset keeps track of how far we've read into any
+	// data-statements
+	dataOffset int
+
+	// data holds any value stored in DATA statements
+	// These are populated when the program is loaded
+	data []object.Object
 }
 
 // New is our constructor.
@@ -1406,15 +1414,14 @@ func (e *Interpreter) runDATA() error {
 // program.
 func (e *Interpreter) runREAD() error {
 
-	// tmp counter
-	var counter float64
-	counter = 1
-
 	//
 	// Skip the DATA statement
 	//
 	e.offset++
 
+	//
+	// Ensure we don't walk off the end of our program.
+	//
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing DATA")
 	}
@@ -1423,7 +1430,6 @@ func (e *Interpreter) runREAD() error {
 	// We assume we're invoked with an arbitrary number
 	// of tokens - each of which is a variable name.
 	//
-
 	for e.offset < len(e.program) {
 
 		if e.offset >= len(e.program) {
@@ -1450,10 +1456,23 @@ func (e *Interpreter) runREAD() error {
 		}
 
 		//
-		// NOP:  Just set the value to an incrementing tmp
+		// OK here we set the value to the appropriate index
+		// in our data-statement - first of all make sure we've
+		// not read too much.
 		//
-		e.SetVariable(tok.Literal, &object.NumberObject{Value: counter})
-		counter++
+		if e.dataOffset >= len(e.data) {
+			return fmt.Errorf("Read past the end of our DATA storage - length %d", len(e.data))
+		}
+
+		//
+		// Set the value, and bump our index
+		//
+		e.SetVariable(tok.Literal, e.data[e.dataOffset])
+		e.dataOffset++
+
+		//
+		// Repeat for more variables
+		//
 		e.offset++
 	}
 
