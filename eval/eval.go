@@ -184,6 +184,61 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("PRINT", -1, PRINT)
 	t.RegisterBuiltin("DUMP", 1, DUMP)
 
+	//
+	// Process the program looking for DATA statements
+	//
+	// For each one store the data in the line in our Data array
+	//
+	for offset, tok := range t.program {
+
+		//
+		// We found a data-token.
+		//
+		// We expect this will be "string" OR "comma" OR number.
+		//
+		if tok.Type == token.DATA {
+
+			//
+			// Walk the rest of the program - starting
+			// from the token AFTER the DATA
+			//
+			start := offset + 1
+			run := true
+
+			for start < len(t.program) && run {
+
+				tk := t.program[start]
+
+				switch tk.Type {
+
+				case token.NEWLINE:
+					run = false
+					break
+				case token.COMMA:
+					// NOP
+				case token.EOF:
+					run = false
+					break
+				case token.STRING:
+					t.data = append(t.data, &object.StringObject{Value: tk.Literal})
+				case token.INT:
+					i, _ := strconv.ParseFloat(tk.Literal, 64)
+					t.data = append(t.data, &object.NumberObject{Value: i})
+				default:
+					fmt.Printf("Error reading DATA - Unhandled token: %s", tk.String())
+					os.Exit(3)
+				}
+				start++
+			}
+
+		}
+	}
+
+	t.dataOffset = 0
+
+	//
+	// Return our configured interpreter
+	//
 	return t
 }
 
