@@ -86,6 +86,8 @@ func (l *Tokenizer) NextToken() token.Token {
 		}
 	case rune('/'):
 		tok = newToken(token.SLASH, l.ch)
+	case rune('^'):
+		tok = newToken(token.POW, l.ch)
 	case rune('%'):
 		tok = newToken(token.MOD, l.ch)
 	case rune('*'):

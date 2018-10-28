@@ -68,6 +68,7 @@ const (
 	MOD      = "%" // integer modulus
 	PLUS     = "+" // integer addition
 	SLASH    = "/" // integer division
+	POW      = "^" // power
 
 	COLON    = ":"
 	LBRACKET = "("

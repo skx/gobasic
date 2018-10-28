@@ -13,6 +13,7 @@ package eval
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -337,6 +338,7 @@ func (e *Interpreter) term() object.Object {
 	// Here we handle the obvious ones.
 	for tok.Type == token.ASTERISK ||
 		tok.Type == token.SLASH ||
+		tok.Type == token.POW ||
 		tok.Type == token.MOD {
 
 		// skip the operator
@@ -375,6 +377,9 @@ func (e *Interpreter) term() object.Object {
 		//
 		if tok.Type == token.ASTERISK {
 			f1 = &object.NumberObject{Value: v1 * v2}
+		}
+		if tok.Type == token.POW {
+			f1 = &object.NumberObject{Value: math.Pow(v1, v2)}
 		}
 		if tok.Type == token.SLASH {
 			if v2 == 0 {

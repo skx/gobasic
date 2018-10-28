@@ -238,3 +238,31 @@ func TestNumber(t *testing.T) {
 		}
 	}
 }
+
+// TestPow tests that we can parse "^".
+func TestPow(t *testing.T) {
+	input := `10 PRINT 2 ^ 3`
+
+	tests := []struct {
+		expectedType    token.Type
+		expectedLiteral string
+	}{
+		// implicit newline which is a pain.
+		{token.NEWLINE, "\\n"},
+		{token.LINENO, "10"},
+		{token.IDENT, "PRINT"},
+		{token.INT, "2"},
+		{token.POW, "^"},
+		{token.INT, "3"},
+	}
+	l := New(input)
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong, expected=%q, got=%v", i, tt.expectedType, tok)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - Literal wrong, expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
