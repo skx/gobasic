@@ -12,8 +12,8 @@ This repository contains a naive implementation of BASIC, written in Golang.
 The implementation is simple for three main reasons:
 
 * There is no UI, which means any and all graphics-primitives are ruled out.
-  * However the embedded sample, described later in this file, demonstrates using BASIC to create a PNG image.
-  * There is also a HTTP-based BASIC server, which is described later, which allows you to create images "interactively".
+  * However the embedded sample, [described later](#embedding) in this file, demonstrates using BASIC to create a PNG image.
+  * There is also a HTTP-based BASIC server, also [described later](#visual-basic), which allows you to create images "interactively".
 * I deliberately set a low bar for myself initially, as this was originally going to be a [weekend project](https://blog.steve.fi/monkeying_around_with_intepreters.html).
   * This is _still_ a weekend-project, but happened over the course of a couple  of hours of evening/morning time instead.
 * I didn't implement the full BASIC set of primitives.
@@ -86,7 +86,7 @@ Only a single statement is permitted between "THEN" and "ELSE", and again betwee
 
 In that second example you see that "`:`" was used to terminate the `PRINT` statement, which otherwise would have tried to consume all input until it hit a newline.
 
-You'll notice that the primitives which are present all suffer from the flaw (?) that they don't allow brackets around their arguments.  So this is valid:
+You'll also notice that the primitives which are present all suffer from the flaw (?) that they don't allow brackets around their arguments.  So this is valid:
 
     10 PRINT RND 100
 
@@ -131,7 +131,7 @@ Execute it like this:
 
     $ gobasic examples/10-goto.bas
 
-**NOTE**: I feel nostalgic seeing keywords in upper-case, but `PRINT` and `print` are treated identically.  (As is "`PrInT`" for that matter!)
+**NOTE**: I feel nostalgic seeing keywords in upper-case, but `PRINT` and `print` are treated identically.
 
 
 
