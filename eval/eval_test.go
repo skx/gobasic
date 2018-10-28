@@ -1197,3 +1197,38 @@ func TestBuiltinWrongTypes(t *testing.T) {
 	}
 
 }
+
+// TestEOF tests that primitives don't segfault on missing arguments
+func TestEOF(t *testing.T) {
+
+	inputs := []string{
+		"10 PRINT 3 +",
+		"10 PRINT 3 /",
+		"10 PRINT 3 *",
+		"10 IF 3 ",
+		"10 IF \"steve\" ",
+		"10 IF  ",
+		"10 FOR I = 1 TO 3 STEP",
+		"10 FOR I = 1 TO ",
+		"10 FOR I = 1 ",
+		"10 GOSUB",
+		"10 GOTO",
+		"10 LET a =  ",
+		"10 LET b",
+		"10 INPUT \"steve\", ",
+		"10 INPUT \"steve\" ",
+		"10 NEXT ",
+	}
+
+	for _, txt := range inputs {
+
+		obj := Compile(txt)
+		err := obj.Run()
+
+		if err == nil {
+			t.Errorf("We expected to find an error, but didn't on %s", txt)
+		}
+
+	}
+
+}
