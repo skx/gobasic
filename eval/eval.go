@@ -72,6 +72,14 @@ type Interpreter struct {
 
 	// trace is true if the user is tracing execution
 	trace bool
+
+	// dataOffset keeps track of how far we've read into any
+	// data-statements
+	dataOffset int
+
+	// data holds any value stored in DATA statements
+	// These are populated when the program is loaded
+	data []object.Object
 }
 
 // New is our constructor.
@@ -176,6 +184,61 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("PRINT", -1, PRINT)
 	t.RegisterBuiltin("DUMP", 1, DUMP)
 
+	//
+	// Process the program looking for DATA statements
+	//
+	// For each one store the data in the line in our Data array
+	//
+	for offset, tok := range t.program {
+
+		//
+		// We found a data-token.
+		//
+		// We expect this will be "string" OR "comma" OR number.
+		//
+		if tok.Type == token.DATA {
+
+			//
+			// Walk the rest of the program - starting
+			// from the token AFTER the DATA
+			//
+			start := offset + 1
+			run := true
+
+			for start < len(t.program) && run {
+
+				tk := t.program[start]
+
+				switch tk.Type {
+
+				case token.NEWLINE:
+					run = false
+					break
+				case token.COMMA:
+					// NOP
+				case token.EOF:
+					run = false
+					break
+				case token.STRING:
+					t.data = append(t.data, &object.StringObject{Value: tk.Literal})
+				case token.INT:
+					i, _ := strconv.ParseFloat(tk.Literal, 64)
+					t.data = append(t.data, &object.NumberObject{Value: i})
+				default:
+					fmt.Printf("Error reading DATA - Unhandled token: %s", tk.String())
+					os.Exit(3)
+				}
+				start++
+			}
+
+		}
+	}
+
+	t.dataOffset = 0
+
+	//
+	// Return our configured interpreter
+	//
 	return t
 }
 
@@ -1369,6 +1432,8 @@ func (e *Interpreter) runNEXT() error {
 // REM handles a REM statement
 //
 // This merely swallows input until the following newline / EOF.
+//
+// NOTE: Copy + Paste of runDATA
 func (e *Interpreter) runREM() error {
 
 	for e.offset < len(e.program) {
@@ -1376,6 +1441,93 @@ func (e *Interpreter) runREM() error {
 		if tok.Type == token.NEWLINE {
 			return nil
 		}
+		e.offset++
+	}
+
+	return nil
+}
+
+// DATA handles a DATA-statement
+//
+// Since DATA is processed when a program is loaded we merely skip
+// all further tokens upon the line.
+//
+// NOTE: Copy + Paste of runREM
+func (e *Interpreter) runDATA() error {
+	for e.offset < len(e.program) {
+		tok := e.program[e.offset]
+		if tok.Type == token.NEWLINE {
+			return nil
+		}
+		e.offset++
+	}
+
+	return nil
+}
+
+// READ handles reading data from the embedded DATA statements in our
+// program.
+func (e *Interpreter) runREAD() error {
+
+	//
+	// Skip the DATA statement
+	//
+	e.offset++
+
+	//
+	// Ensure we don't walk off the end of our program.
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DATA")
+	}
+
+	//
+	// We assume we're invoked with an arbitrary number
+	// of tokens - each of which is a variable name.
+	//
+	for e.offset < len(e.program) {
+
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("Hit end of program processing DATA")
+		}
+
+		// Get the token.
+		tok := e.program[e.offset]
+
+		// End of the line?
+		if tok.Type == token.NEWLINE {
+			return nil
+		}
+
+		// Comma?
+		if tok.Type == token.COMMA {
+			e.offset++
+			continue
+		}
+
+		// OK that just leaves IDENT
+		if tok.Type != token.IDENT {
+			return (fmt.Errorf("Expected identifier after DATA - found %s", tok.String()))
+		}
+
+		//
+		// OK here we set the value to the appropriate index
+		// in our data-statement - first of all make sure we've
+		// not read too much.
+		//
+		if e.dataOffset >= len(e.data) {
+			return fmt.Errorf("Read past the end of our DATA storage - length %d", len(e.data))
+		}
+
+		//
+		// Set the value, and bump our index
+		//
+		e.SetVariable(tok.Literal, e.data[e.dataOffset])
+		e.dataOffset++
+
+		//
+		// Repeat for more variables
+		//
 		e.offset++
 	}
 
@@ -1457,6 +1609,10 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runREM()
 	case token.RETURN:
 		err = e.runRETURN()
+	case token.DATA:
+		err = e.runDATA()
+	case token.READ:
+		err = e.runREAD()
 	case token.BUILTIN:
 
 		obj := e.callBuiltin(tok.Literal)

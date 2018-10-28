@@ -56,6 +56,10 @@ const (
 	AND = "AND"
 	OR  = "OR"
 
+	// Misc
+	DATA = "DATA"
+	READ = "READ"
+
 	// Woo-operators
 	ASSIGN   = "=" // LET x = 3
 	ASTERISK = "*" // integer multiplication
@@ -80,6 +84,7 @@ const (
 // reversed keywords
 var keywords = map[string]Type{
 	"and":    AND,
+	"data":   DATA,
 	"else":   ELSE,
 	"end":    END,
 	"for":    FOR,
@@ -90,6 +95,7 @@ var keywords = map[string]Type{
 	"let":    LET,
 	"next":   NEXT,
 	"or":     OR,
+	"read":   READ,
 	"rem":    REM,
 	"return": RETURN,
 	"step":   STEP,
