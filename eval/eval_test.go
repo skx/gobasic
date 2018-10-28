@@ -1291,3 +1291,28 @@ func TestBogusRead(t *testing.T) {
 	}
 
 }
+
+// TestPow tests that our POW operator works.
+func TestPow(t *testing.T) {
+
+	input := `
+10 LET a = 2
+20 LET b = 3
+30 LET c = 2 ^ 3
+40 LET d = 2 ^ 5
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("We didn't expect an error handling ^")
+	}
+
+	if getFloat(t, obj, "c") != 8 {
+		t.Errorf("Wrong value for POW: %f", getFloat(t, obj, "c"))
+	}
+	if getFloat(t, obj, "d") != 32 {
+		t.Errorf("Wrong value for POW: %f", getFloat(t, obj, "d"))
+	}
+
+}
