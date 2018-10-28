@@ -1410,6 +1410,10 @@ func (e *Interpreter) runRETURN() error {
 // RunOnce executes a single statement.
 func (e *Interpreter) RunOnce() error {
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing RunOnce()")
+	}
+
 	//
 	// Get the current token
 	//
@@ -1539,8 +1543,9 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 //
 func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft BuiltinSig) {
 
-	// Register the built-in
-	e.functions.Register(name, nArgs, ft)
+	// Register the built-in - both lower-case and upper-case
+	e.functions.Register(strings.ToLower(name), nArgs, ft)
+	e.functions.Register(strings.ToUpper(name), nArgs, ft)
 
 	// Now ensure that in the future if we hit this built-in
 	// we regard it as a function-call, not a variable
