@@ -434,7 +434,8 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 	for tok.Type == token.PLUS ||
 		tok.Type == token.MINUS ||
 		tok.Type == token.AND ||
-		tok.Type == token.OR {
+		tok.Type == token.OR ||
+		tok.Type == token.XOR {
 
 		//
 		// Sometimes we disable binary AND + binary OR.
@@ -444,7 +445,8 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 		//
 		if allowBinOp == false {
 			if tok.Type == token.AND ||
-				tok.Type == token.OR {
+				tok.Type == token.OR ||
+				tok.Type == token.XOR {
 				return t1
 			}
 		}
@@ -512,6 +514,8 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 				t1 = &object.NumberObject{Value: float64(int(n1) & int(n2))}
 			} else if tok.Type == token.OR {
 				t1 = &object.NumberObject{Value: float64(int(n1) | int(n2))}
+			} else if tok.Type == token.XOR {
+				t1 = &object.NumberObject{Value: float64(int(n1) ^ int(n2))}
 			} else {
 				return object.Error("Token not handled for two numbers: %s\n", tok.Literal)
 			}
@@ -1173,7 +1177,8 @@ func (e *Interpreter) runIF() error {
 	e.offset++
 
 	for target.Type == token.AND ||
-		target.Type == token.OR {
+		target.Type == token.OR ||
+		target.Type == token.XOR {
 
 		//
 		// See what the next comparison looks like.
@@ -1200,6 +1205,13 @@ func (e *Interpreter) runIF() error {
 		}
 		if target.Type == token.OR {
 			result = result || extraResult
+		}
+		if target.Type == token.XOR {
+			if result != extraResult {
+				result = false
+			} else {
+				result = true
+			}
 		}
 
 		// Repeat?

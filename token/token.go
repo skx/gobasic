@@ -55,6 +55,7 @@ const (
 	// Binary operators
 	AND = "AND"
 	OR  = "OR"
+	XOR = "XOR"
 
 	// Misc
 	DATA = "DATA"
@@ -102,6 +103,7 @@ var keywords = map[string]Type{
 	"step":   STEP,
 	"then":   THEN,
 	"to":     TO,
+	"xor":    XOR,
 }
 
 // LookupIdentifier used to determine whether identifier is keyword nor not.

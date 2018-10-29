@@ -229,11 +229,12 @@ func TestSQR(t *testing.T) {
 	}
 }
 
-// TestBinOp tests that binary AND + binary OR work
+// TestBinOp tests that binary AND + binary OR +binary XOR work
 func TestBinOp(t *testing.T) {
 	input := `
 10 LET a = ( BIN 00001111 ) OR ( BIN 01110000 )
 20 LET b = 129 AND 128
+30 LET c = 128 XOR 1
 `
 
 	obj := Compile(input)
@@ -243,6 +244,9 @@ func TestBinOp(t *testing.T) {
 		t.Errorf("Value not expected!")
 	}
 	if getFloat(t, obj, "b") != 128 {
+		t.Errorf("Value not expected!")
+	}
+	if getFloat(t, obj, "c") != 129 {
 		t.Errorf("Value not expected!")
 	}
 
@@ -708,8 +712,10 @@ func TestIFBIN(t *testing.T) {
 20 LET B = 0
 30 LET C = 0
 40 LET D = 0
-50 IF A = 1 OR B = 1 THEN LET C = 1
-60 IF A = 1 AND B = 0 THEN LET D = 1
+50 LET E = 0
+60 IF A = 1 OR B = 1 THEN LET C = 1
+70 IF A = 1 AND B = 0 THEN LET D = 1
+80 IF A = 1 XOR B = 0 THEN LET E = 0
 `
 	obj := Compile(input)
 	obj.Run()
@@ -719,6 +725,9 @@ func TestIFBIN(t *testing.T) {
 	}
 	if getFloat(t, obj, "D") != 1 {
 		t.Errorf("2 Failed!")
+	}
+	if getFloat(t, obj, "E") != 0 {
+		t.Errorf("3 Failed!")
 	}
 }
 
