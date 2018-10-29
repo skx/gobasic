@@ -1137,6 +1137,23 @@ func TestIssue43(t *testing.T) {
 	}
 }
 
+// TestZeroDiv is the test case X/0
+func TestZeroDiv(t *testing.T) {
+	input := `
+10 LET A = 3 / 0
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error and found none")
+	}
+
+	if !strings.Contains(err.Error(), "Division by zero") {
+		t.Errorf("Wrong error found for division by zero : %s\n", err.Error())
+	}
+}
+
 // TestIssue42 is the test case for https://github.com/skx/gobasic/issues/42
 func TestIssue42(t *testing.T) {
 	input := `
@@ -1284,6 +1301,23 @@ func TestRead(t *testing.T) {
 
 }
 
+// TestBogusIf tests that reading a short-IF fails
+func TestBogusIf(t *testing.T) {
+
+	input := `
+10 IF 3 <> 3
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error, but saw none")
+	}
+	if !strings.Contains(err.Error(), "Expected THEN after IF") {
+		t.Errorf("The error we found was not what we expected: %s", err.Error())
+	}
+}
+
 // TestBogusRead tests that reading to a non-ident fails
 func TestBogusRead(t *testing.T) {
 
@@ -1326,4 +1360,27 @@ func TestPow(t *testing.T) {
 		t.Errorf("Wrong value for POW: %f", getFloat(t, obj, "d"))
 	}
 
+}
+
+// TestUserFn applies some trivial user-function testing
+func TestUserFn(t *testing.T) {
+
+	input := `10 REM DEF FN square(x) = x * x
+20 LET a = FN square(3)
+20 LET b = FN square( -3)
+`
+
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("We didn't expect an error, but got one")
+	}
+
+	if getFloat(t, obj, "a") != 9 {
+		t.Errorf("Wrong value for square: %f", getFloat(t, obj, "a"))
+	}
+	if getFloat(t, obj, "b") != 9 {
+		t.Errorf("Wrong value for square: %f", getFloat(t, obj, "b"))
+	}
 }
