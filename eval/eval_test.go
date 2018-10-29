@@ -751,20 +751,6 @@ func TestBogusVariable(t *testing.T) {
 
 }
 
-// TestBogusBuiltIn tests that retrieving a bogus builtin fails
-func TestBogusBuiltIn(t *testing.T) {
-	input := `10 AARDVARK`
-	obj := Compile(input)
-	err := obj.Run()
-
-	if err == nil {
-		t.Errorf("Expected to see an error, but didn't.")
-	}
-	if !strings.Contains(err.Error(), "Token not handled") {
-		t.Errorf("Our error-message wasn't what we expected: %s", err.Error())
-	}
-}
-
 // TestMismatchedTypes tests that expr() errors on mismatched types.
 func TestMismatchedTypes(t *testing.T) {
 	input := `10 LET a=3
@@ -1368,7 +1354,7 @@ func TestPow(t *testing.T) {
 // TestUserFn applies some trivial user-function testing
 func TestUserFn(t *testing.T) {
 
-	input := `10 REM DEF FN square(x) = x * x
+	input := `10 DEF FN square(x) = x * x
 20 LET a = FN square(3)
 20 LET b = FN square( -3)
 `

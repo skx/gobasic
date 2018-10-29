@@ -29,10 +29,10 @@ type user_fn struct {
 	// name is the name of the user-defined function.
 	name string
 
-	// body is the expression to be evaluated
+	// body is the expression to be evaluated.
 	body string
 
-	// args is the array of variable-names to set for the arguments
+	// args is the array of variable-names to set for the arguments.
 	args []string
 }
 
@@ -258,10 +258,6 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	}
 
 	t.dataOffset = 0
-
-	//      Fake a function
-	tmp := []string{"x"}
-	t.fns["square"] = user_fn{name: "square", body: "x * x", args: tmp}
 
 	//
 	// Return our configured interpreter
@@ -1714,6 +1710,120 @@ func (e *Interpreter) runRETURN() error {
 	return nil
 }
 
+// runDEF handles a user-defined function definition
+func (e *Interpreter) runDEF_FN() error {
+
+	// The general form of a function-definition is
+	//    DEF FN NAME ( [ARG, COMMA] ) = "BLAH BLAH"
+	//
+
+	// skip past the DEF
+	e.offset++
+
+	// Next token should be "FN"
+	fn := e.program[e.offset]
+	e.offset++
+	if fn.Type != token.FN {
+		return (fmt.Errorf("Expected FN after DEF"))
+	}
+
+	// Now a name
+	name := e.program[e.offset]
+	e.offset++
+	if name.Type != token.IDENT {
+		return (fmt.Errorf("Expected function-name after 'DEF FN', got %s", name.String()))
+	}
+
+	// Now an opening parenthesis.
+	open := e.program[e.offset]
+	e.offset++
+	if open.Type != token.LBRACKET {
+		return (fmt.Errorf("Expected ( after 'DEF FN %s'", name))
+	}
+
+	//
+	// Collect the names of each variable which is an argument
+	//
+	// We loop "forever", skipping commas, and keeping going until
+	// we find the closing bracket.
+	//
+	var args []string
+
+	//
+	// Loop "forever".
+	//
+	for e.offset < len(e.program) {
+
+		// Get the next token
+		tt := e.program[e.offset]
+
+		// Is it a bracket?  If so skip it, and we're done.
+		if tt.Type == token.RBRACKET {
+			e.offset++
+			break
+		}
+
+		// Is it a comma?  Then skip it
+		if tt.Type == token.COMMA {
+			e.offset++
+			continue
+		}
+
+		// Otherwise we'll assume we have an ID.
+		// Anything else is an error.
+		if tt.Type != token.IDENT {
+			return (fmt.Errorf("Unexpected token %s in DEF FN %s", tt.String(), name))
+		}
+
+		//
+		// Save the ID in our array, and move on to the next
+		// token.
+		//
+		args = append(args, tt.Literal)
+		e.offset++
+	}
+
+	//
+	// At this point we should have a token which is "="
+	//
+	eq := e.program[e.offset]
+	e.offset++
+	if eq.Type != token.ASSIGN {
+		return (fmt.Errorf("Expected = after 'DEF FN %s(%s) - Got %s", name, strings.Join(args, ","), eq.String()))
+	}
+
+	//
+	// Build up the body of the function.
+	//
+	body := ""
+	for e.offset < len(e.program) {
+		tok := e.program[e.offset]
+		if tok.Type == token.NEWLINE {
+			break
+		}
+
+		body += " "
+
+		// Quote strings.  Sigh
+		if tok.Type == token.STRING {
+			body += "\""
+			body += tok.Literal
+			body += "\""
+		} else {
+			body += tok.Literal
+		}
+		e.offset++
+	}
+
+	//
+	// Store the definition in our map.
+	//
+	// This will let it be called, by name.
+	//
+	e.fns[name.Literal] = user_fn{name: name.Literal, body: body, args: args}
+	return nil
+}
+
 ////
 //
 // Our core public API
@@ -1774,6 +1884,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runDATA()
 	case token.READ:
 		err = e.runREAD()
+	case token.DEF:
+		err = e.runDEF_FN()
 	case token.BUILTIN:
 
 		obj := e.callBuiltin(tok.Literal)
@@ -1784,7 +1896,19 @@ func (e *Interpreter) RunOnce() error {
 
 		e.offset--
 	default:
-		err = fmt.Errorf("Token not handled: %v", tok)
+		//
+		// This is either a clever piece of code, or a terrible
+		// idea.
+		//
+		// Evaluate anything remaining, and throw away the result.
+		//
+		// Having this here allows side-effects via user-defined
+		// functions:
+		//
+		//    10 DEF FN steve() = PRINT "Hello, world\n"
+		//    20 FN steve()
+		//
+		e.expr(true)
 	}
 
 	//
