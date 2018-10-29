@@ -4,7 +4,7 @@
     <title>Visual Basic ;)</title>
     <meta charset="UTF-8" />
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <script type="text/javascript">
+    <script>
 
      // Setup examples
      var examples = [];
@@ -4953,7 +4953,7 @@ DATA 999
 
      });
     </script>
-    <style type="text/css">
+    <style>
      textarea{ width:100%; }
      img { border: 1px solid black; }
      table { width: 100%; padding: 5px; }
@@ -4989,36 +4989,27 @@ DATA 999
           <p>To make your program update the image you can use the following functions:</p>
           <dl>
             <dt>CIRCLE x, y, r</dt>
-            <dd>The <code>CIRCLE</code> function draws a circle of radius R at the coordinates x,y.  For example:</p><pre>10 COLOR 255,0,0
+            <dd><p>The <code>CIRCLE</code> function draws a circle of radius R at the coordinates x,y.  For example:</p><pre>10 COLOR 255,0,0
 20 CIRCLE 50,50,50
-30 SAVE</pre></p></dd>
+30 SAVE</pre></dd>
             <dt>COLOR a, b, c</dt>
-            <dd>Set the color which is used for the drawing functions.  The arguments are "Red", "Green", and "Blue" respectively.  So to make a green-circle you would enter:</p><pre>10 COLOR 255,0,0
+            <dd><p>Set the color which is used for the drawing functions.  The arguments are "Red", "Green", and "Blue" respectively.  So to make a green-circle you would enter:</p><pre>10 COLOR 255,0,0
 20 CIRCLE 50,50,50
-30 SAVE        </pre></p></dd>
+30 SAVE        </pre></dd>
             <dt>LINE x1, y1, x2, y2</dt>
-            <dd><p>The <code>LINE</code> function draws a line between the two points specified.  For example:</p><p><pre>10 LINE 40,60, 80,120
-20 SAVE</pre></p></dd>
+            <dd><p>The <code>LINE</code> function draws a line between the two points specified.  For example:</p><pre>10 LINE 40,60, 80,120
+20 SAVE</pre></dd>
             <dt>PLOT x, y</dt>
             <dd><p>The <code>PLOT</code> function sets a single pixel at the specified coordinate.For example:</p><pre>10 COLOR 255,0,0
 20 PLOT 50, 50
 30 PLOT 100, 100
-40 SAVE </pre></p></dd>
+40 SAVE </pre></dd>
             <dt>SAVE</dt>
             <dd><p>The <code>SAVE</code> function saves your image - You <b>must</b> end all your programs with a <code>SAVE</code> statement.</p></dd>
           </dl>
-          <h2>Sample Scripts</h2>
-          <p>The following example draws overlapping circles of ever-increasing radius:</p><p><PRE>10 FOR I = 0 TO 2000 STEP 20
-20  CIRCLE I, I, I
-30  LET r = RND 255
-40  LET g = RND 255
-50  LET b = RND 255
-60  COLOR r, g, b
-70 NEXT I
-80 SAVE</PRE></p>
         </div>
         <div style="text-align: center;">
-          <img  id="target" src="" />
+          <img  id="target" src="" alt="Result of your code!" />
           <div id="target_error"></div>
         </div>
       </td>
