@@ -15,6 +15,8 @@ import (
 func Compile(input string) *Interpreter {
 	tokener := tokenizer.New(input)
 	e := New(tokener)
+	e.SetTrace(true)
+	e.SetTrace(false)
 	return e
 }
 
