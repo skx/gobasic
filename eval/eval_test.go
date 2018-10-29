@@ -536,6 +536,9 @@ func TestIf(t *testing.T) {
 150 IF "steve" <= "steve" then let n=1
 160 IF "steve" = "fsteve" then PRINT "NOP"
 170 LET x=1
+180 LET y="steve"
+190 IF x THEN LET okA=1
+200 IF y THEN LET okB=1
 `
 
 	obj := Compile(input)
@@ -544,7 +547,7 @@ func TestIf(t *testing.T) {
 	//
 	// Get our variables - they should all be equal to one
 	//
-	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x", "k", "l", "m", "n"}
+	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x", "k", "l", "m", "n", "okA", "okB"}
 
 	for _, nm := range vars {
 		out := getFloat(t, obj, nm)
