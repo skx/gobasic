@@ -164,6 +164,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.RegisterBuiltin("INT", 1, INT)
 	t.RegisterBuiltin("LN", 1, LN)
 	t.RegisterBuiltin("PI", 0, PI)
+	t.RegisterBuiltin("π", 0, PI)
 	t.RegisterBuiltin("RND", 1, RND)
 	t.RegisterBuiltin("SGN", 1, SGN)
 	t.RegisterBuiltin("SIN", 1, SIN)
