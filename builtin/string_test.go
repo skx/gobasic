@@ -3,6 +3,7 @@
 package builtin
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/skx/gobasic/object"
@@ -185,4 +186,40 @@ func TestTl(t *testing.T) {
 }
 
 func TestVal(t *testing.T) {
+
+	// Inputs
+	num := &object.NumberObject{Value: 3.2}
+	err := object.Error("Error")
+	str := &object.StringObject{Value: "3.11"}
+
+	// err
+	var eArr []object.Object
+	eArr = append(eArr, err)
+	eOut := VAL(nil, eArr)
+	if eOut.Type() != object.ERROR {
+		fmt.Printf("Failed to find error")
+	}
+
+	var nArr []object.Object
+	nArr = append(nArr, num)
+	nOut := VAL(nil, nArr)
+	if nOut.Type() != object.NUMBER {
+		fmt.Printf("Failed to find number")
+	}
+
+	// str - this should become a number
+	var sArr []object.Object
+	sArr = append(sArr, str)
+	sOut := VAL(nil, sArr)
+	if sOut.Type() != object.NUMBER {
+		fmt.Printf("Failed to convert string to number")
+	}
+
+	// invalid input - this should become an error
+	var fArr []object.Object
+	fArr = append(fArr, &object.StringObject{Value: "Not a number!"})
+	fOut := VAL(nil, fArr)
+	if fOut.Type() != object.ERROR {
+		fmt.Printf("Error-handling failed")
+	}
 }
