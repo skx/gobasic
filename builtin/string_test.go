@@ -183,6 +183,43 @@ func TestStr(t *testing.T) {
 }
 
 func TestTl(t *testing.T) {
+
+	// Call with a non-string argument.
+	var failArgs []object.Object
+	failArgs = append(failArgs, object.Error("Bogus type"))
+	out := TL(nil, failArgs)
+	if out.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	// Now test with some valid strings.
+	//
+	// Setup a structure for testing.
+	//
+	type TLTest struct {
+		Input  string
+		Output string
+	}
+
+	// Define some tests
+	tests := []TLTest{{Input: "Steve", Output: "teve"},
+		{Input: "", Output: ""},
+		// TODO: Fix me		{Input: "ウェブの国際化", Output: "ェブの国際化"},
+	}
+
+	for _, test := range tests {
+
+		var args []object.Object
+		args = append(args, &object.StringObject{Value: test.Input})
+		output := TL(nil, args)
+		if output.Type() != object.STRING {
+			t.Errorf("We expected a string-result, but got something else")
+		}
+		if output.(*object.StringObject).Value != test.Output {
+			t.Errorf("TL %s gave '%s' not '%s'",
+				test.Input, output.(*object.StringObject).Value, test.Output)
+		}
+	}
 }
 
 func TestVal(t *testing.T) {
