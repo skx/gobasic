@@ -228,8 +228,8 @@ As is common with early 8-bit home-computers this implementation is a little mor
     * [eval/for_loop.go](eval/for_loop.go) holds a simple data-structure for handling `FOR`/`NEXT` loops.
     * [eval/stack.go](eval/stack.go) holds a call-stack to handle `GOSUB`/`RETURN`
     * [eval/vars.go](eval/vars.go) holds all our variable references.
-    * We have a facility to allow golang code to be made available to BASIC programs, and we use that facility to implement a bunch of our functions.
-    * Specifically we use [eval/builtin-support.go](eval/builtin-support.go) to define a lot of functions in [eval/builtins.go](eval/builtins.go) which allow BASIC to call SIN, ABS, PI, etc.
+    * We have a facility to allow golang code to be made available to BASIC programs, and we use that facility to implement a bunch of our functions as "builtins".
+      * Our builtin-functionss are implemented beneath [builtin/](builtin/).
 * Because we support both strings and ints/floats in our BASIC scripts we use a wrapper to hold them on the golang-side.  This can be found in [object/object.go](object/object.go).
 
 As there is no AST step errors cannot be detected prior to the execution of programs - because we only hit them after we've started running.

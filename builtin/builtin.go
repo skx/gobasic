@@ -1,6 +1,6 @@
-// builtin-support.go - Helpers for registering "built-in" functions
+// builtins.go - Helpers for registering "built-in" functions
 
-package eval
+package builtin
 
 import (
 	"sync"
@@ -14,7 +14,7 @@ import (
 // single object back to the caller.
 //
 // In the case of an error then the object will be an error-object.
-type BuiltinSig func(env Interpreter, args []object.Object) object.Object
+type BuiltinSig func(env interface{}, args []object.Object) object.Object
 
 // Builtins holds our state.
 type Builtins struct {
@@ -29,8 +29,8 @@ type Builtins struct {
 	fnRegistry map[string]BuiltinSig
 }
 
-// NewBuiltins returns a new helper/holder for builtin functions.
-func NewBuiltins() *Builtins {
+// New returns a new helper/holder for builtin functions.
+func New() *Builtins {
 	t := &Builtins{}
 	t.argRegistry = make(map[string]int)
 	t.fnRegistry = make(map[string]BuiltinSig)

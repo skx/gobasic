@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/skx/gobasic/builtin"
 	"github.com/skx/gobasic/object"
 	"github.com/skx/gobasic/token"
 	"github.com/skx/gobasic/tokenizer"
@@ -82,7 +83,7 @@ type Interpreter struct {
 	lines map[string]int
 
 	// functions holds builtin-functions
-	functions *Builtins
+	functions *builtin.Builtins
 
 	// trace is true if the user is tracing execution
 	trace bool
@@ -116,7 +117,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	t.loops = NewLoops()
 
 	// Built-in functions are stored here.
-	t.functions = NewBuiltins()
+	t.functions = builtin.New()
 
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
@@ -166,46 +167,6 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 
 		offset++
 	}
-
-	//
-	// Add in our builtins.
-	//
-	// These are implemented in golang in the file builtins.go
-	//
-	// We have to do this after we've loaded our program, because
-	// the registration involves rewriting our program.
-	//
-	t.RegisterBuiltin("ABS", 1, ABS)
-	t.RegisterBuiltin("ACS", 1, ACS)
-	t.RegisterBuiltin("ASN", 1, ASN)
-	t.RegisterBuiltin("ATN", 1, ATN)
-	t.RegisterBuiltin("BIN", 1, BIN)
-	t.RegisterBuiltin("COS", 1, COS)
-	t.RegisterBuiltin("EXP", 1, EXP)
-	t.RegisterBuiltin("INT", 1, INT)
-	t.RegisterBuiltin("LN", 1, LN)
-	t.RegisterBuiltin("PI", 0, PI)
-	t.RegisterBuiltin("π", 0, PI)
-	t.RegisterBuiltin("RND", 1, RND)
-	t.RegisterBuiltin("SGN", 1, SGN)
-	t.RegisterBuiltin("SIN", 1, SIN)
-	t.RegisterBuiltin("SQR", 1, SQR)
-	t.RegisterBuiltin("TAN", 1, TAN)
-	t.RegisterBuiltin("VAL", 1, VAL)
-
-	// Primitives that operate upon strings
-	t.RegisterBuiltin("CHR$", 1, CHR)
-	t.RegisterBuiltin("CODE", 1, CODE)
-	t.RegisterBuiltin("LEFT$", 2, LEFT)
-	t.RegisterBuiltin("LEN", 1, LEN)
-	t.RegisterBuiltin("MID$", 3, MID)
-	t.RegisterBuiltin("RIGHT$", 2, RIGHT)
-	t.RegisterBuiltin("TL$", 1, TL)
-	t.RegisterBuiltin("STR$", 1, STR)
-
-	// Output
-	t.RegisterBuiltin("PRINT", -1, PRINT)
-	t.RegisterBuiltin("DUMP", 1, DUMP)
 
 	//
 	// Process the program looking for DATA statements
@@ -258,6 +219,49 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	}
 
 	t.dataOffset = 0
+
+	//
+	// Register our default primitives, which are implemented in the
+	// builtin-package.
+	//
+	// We have to do this after we've loaded our program, because
+	// the registration-process involves rewriting our program to
+	// change "IDENT" into "BUILTIN" for each known-primitive.
+	//
+	// NOTE: Ideally _this_ package wouldn't know about the
+	// functions which _that_ other package provides...
+	//
+	t.RegisterBuiltin("ABS", 1, builtin.ABS)
+	t.RegisterBuiltin("ACS", 1, builtin.ACS)
+	t.RegisterBuiltin("ASN", 1, builtin.ASN)
+	t.RegisterBuiltin("ATN", 1, builtin.ATN)
+	t.RegisterBuiltin("BIN", 1, builtin.BIN)
+	t.RegisterBuiltin("COS", 1, builtin.COS)
+	t.RegisterBuiltin("EXP", 1, builtin.EXP)
+	t.RegisterBuiltin("INT", 1, builtin.INT)
+	t.RegisterBuiltin("LN", 1, builtin.LN)
+	t.RegisterBuiltin("PI", 0, builtin.PI)
+	t.RegisterBuiltin("RND", 1, builtin.RND)
+	t.RegisterBuiltin("SGN", 1, builtin.SGN)
+	t.RegisterBuiltin("SIN", 1, builtin.SIN)
+	t.RegisterBuiltin("SQR", 1, builtin.SQR)
+	t.RegisterBuiltin("TAN", 1, builtin.TAN)
+	t.RegisterBuiltin("VAL", 1, builtin.VAL)
+	t.RegisterBuiltin("π", 0, builtin.PI)
+
+	// Primitives that operate upon strings
+	t.RegisterBuiltin("CHR$", 1, builtin.CHR)
+	t.RegisterBuiltin("CODE", 1, builtin.CODE)
+	t.RegisterBuiltin("LEFT$", 2, builtin.LEFT)
+	t.RegisterBuiltin("LEN", 1, builtin.LEN)
+	t.RegisterBuiltin("MID$", 3, builtin.MID)
+	t.RegisterBuiltin("RIGHT$", 2, builtin.RIGHT)
+	t.RegisterBuiltin("STR$", 1, builtin.STR)
+	t.RegisterBuiltin("TL$", 1, builtin.TL)
+
+	// Output
+	t.RegisterBuiltin("PRINT", -1, builtin.PRINT)
+	t.RegisterBuiltin("DUMP", 1, builtin.DUMP)
 
 	//
 	// Return our configured interpreter
@@ -930,7 +934,7 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 	// Actually call the function, now we have the correct number
 	// of arguments to do so.
 	//
-	out := fun(*e, args)
+	out := fun(e, args)
 
 	if e.trace {
 		fmt.Printf("\tReturn value %s\n", out.String())
@@ -1988,7 +1992,7 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 //
 // Useful for embedding.
 //
-func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft BuiltinSig) {
+func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft builtin.BuiltinSig) {
 
 	// Register the built-in - both lower-case and upper-case
 	e.functions.Register(strings.ToLower(name), nArgs, ft)

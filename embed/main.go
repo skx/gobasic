@@ -35,7 +35,7 @@ var img *image.RGBA
 // peekFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
 // We just log that we've been invoked here.
-func peekFunction(env eval.Interpreter, args []object.Object) object.Object {
+func peekFunction(env interface{}, args []object.Object) object.Object {
 	fmt.Printf("PEEK called with %v\n", args[0])
 	return &object.NumberObject{Value: 0.0}
 }
@@ -43,7 +43,7 @@ func peekFunction(env eval.Interpreter, args []object.Object) object.Object {
 // pokeFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
 // We just log that we've been invoked here, along with the (three) args.
-func pokeFunction(env eval.Interpreter, args []object.Object) object.Object {
+func pokeFunction(env interface{}, args []object.Object) object.Object {
 	fmt.Printf("POKE called.\n")
 	for i, e := range args {
 		fmt.Printf(" Arg %d -> %v\n", i, e)
@@ -52,7 +52,7 @@ func pokeFunction(env eval.Interpreter, args []object.Object) object.Object {
 }
 
 // circleFunction allows drawing a circle upon our image.
-func circleFunction(env eval.Interpreter, args []object.Object) object.Object {
+func circleFunction(env interface{}, args []object.Object) object.Object {
 
 	var xx, yy, rr float64
 
@@ -118,7 +118,7 @@ func circleFunction(env eval.Interpreter, args []object.Object) object.Object {
 }
 
 // plotFunction is the golang implementation of the PLOT primitive.
-func plotFunction(env eval.Interpreter, args []object.Object) object.Object {
+func plotFunction(env interface{}, args []object.Object) object.Object {
 
 	var x, y float64
 
@@ -149,7 +149,7 @@ func plotFunction(env eval.Interpreter, args []object.Object) object.Object {
 // saveFunction is the golang implementation of the SAVE primitive,
 // which is made available to BASIC.
 // We save the image-canvas to the file `out.png`.
-func saveFunction(env eval.Interpreter, args []object.Object) object.Object {
+func saveFunction(env interface{}, args []object.Object) object.Object {
 
 	// If we have no image, create it.
 	if img == nil {
