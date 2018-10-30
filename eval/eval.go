@@ -754,7 +754,9 @@ func (e *Interpreter) callUserFunction(name string, args []object.Object) object
 	//
 	// Helpful debugging.
 	//
-	fmt.Printf("Calling user-defined function %s\n", name)
+	if e.trace {
+		fmt.Printf("Calling user-defined function %s\n", name)
+	}
 
 	//
 	// Lookup the function; if it isn't defined then we can't invoke
@@ -792,7 +794,9 @@ func (e *Interpreter) callUserFunction(name string, args []object.Object) object
 	// Populate the variables in the environment of our (child) evaluater.
 	//
 	for i, _ := range args {
-		fmt.Printf("Setting %s -> %s\n", fun.args[i], args[i].String())
+		if e.trace {
+			fmt.Printf("Setting %s -> %s\n", fun.args[i], args[i].String())
+		}
 		eval.SetVariable(fun.args[i], args[i])
 	}
 
@@ -801,7 +805,9 @@ func (e *Interpreter) callUserFunction(name string, args []object.Object) object
 	// child-evaluator.
 	//
 	out := eval.expr(true)
-	fmt.Printf("\tCalled expr() - result is\n\t%s\n", out.String())
+	if e.trace {
+		fmt.Printf("\tCalled expr() - result is\n\t%s\n", out.String())
+	}
 
 	// Return the value.
 	return (out)
