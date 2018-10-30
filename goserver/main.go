@@ -45,7 +45,7 @@ func init() {
 //
 // It is invoked with two arguments (NUMBER NUMBER) and sets
 // the corresponding pixel in our canvas to be Red.
-func plotFunction(env eval.Interpreter, args []object.Object) object.Object {
+func plotFunction(env interface{}, args []object.Object) object.Object {
 
 	var x, y float64
 
@@ -81,7 +81,7 @@ func plotFunction(env eval.Interpreter, args []object.Object) object.Object {
 //
 // We save the image-canvas to a temporary file, and set that filename
 // within the BASIC environment.
-func saveFunction(env eval.Interpreter, args []object.Object) object.Object {
+func saveFunction(env interface{}, args []object.Object) object.Object {
 
 	// If we have no image, create it.
 	if img == nil {
@@ -99,7 +99,8 @@ func saveFunction(env eval.Interpreter, args []object.Object) object.Object {
 	png.Encode(f, img)
 
 	// And save the temporary filename in a variable
-	env.SetVariable("file.name", &object.StringObject{Value: tmpfile.Name()})
+
+	env.(*eval.Interpreter).SetVariable("file.name", &object.StringObject{Value: tmpfile.Name()})
 
 	// Finally we can nuke the image
 	img = nil
@@ -108,7 +109,7 @@ func saveFunction(env eval.Interpreter, args []object.Object) object.Object {
 }
 
 // colorFunction allows the user to change the current colour.
-func colorFunction(env eval.Interpreter, args []object.Object) object.Object {
+func colorFunction(env interface{}, args []object.Object) object.Object {
 
 	var r, g, b float64
 
@@ -140,7 +141,7 @@ func colorFunction(env eval.Interpreter, args []object.Object) object.Object {
 }
 
 // circleFunction allows drawing a circle upon our image.
-func circleFunction(env eval.Interpreter, args []object.Object) object.Object {
+func circleFunction(env interface{}, args []object.Object) object.Object {
 
 	var xx, yy, rr float64
 
@@ -210,7 +211,7 @@ func circleFunction(env eval.Interpreter, args []object.Object) object.Object {
 }
 
 // lineFunction draws a line.
-func lineFunction(env eval.Interpreter, args []object.Object) object.Object {
+func lineFunction(env interface{}, args []object.Object) object.Object {
 
 	var xx1, yy1, xx2, yy2 float64
 
