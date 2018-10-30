@@ -12,10 +12,8 @@ This repository contains a naive implementation of BASIC, written in Golang.
 The implementation is simple for three main reasons:
 
 * There is no UI, which means any and all graphics-primitives are ruled out.
-  * However the embedded sample, [described later](#embedding) in this file, demonstrates using BASIC to create a PNG image.
-  * There is also a HTTP-based BASIC server, also [described later](#visual-basic), which allows you to create images "interactively".
-* I deliberately set a low bar for myself initially, as this was originally going to be a [weekend project](https://blog.steve.fi/monkeying_around_with_intepreters.html).
-  * This is _still_ a weekend-project, but happened over the course of a couple  of hours of evening/morning time instead.
+  * However the embedded sample, described later in this file, demonstrates using BASIC to create a PNG image.
+  * There is also a HTTP-based BASIC server, also described later, which allows you to create images "interactively".
 * I didn't implement the full BASIC set of primitives.
   * Although most of the commands available to the ZX Spectrum are implemented. I only excluded things relating to tape, user-defined functions, etc.
 
@@ -65,16 +63,33 @@ primitives:
 
 
 
-## Limitations
+## 20 PRINT "Limitations"
 
-This is a quick hack, so there are some (important) limitations:
+This project was started as [a weekend-project](https://blog.steve.fi/so_i_wrote_a_basic_basic.html), although I have now developed it a fair bit more.
+
+There are some (obvious) limitations:
 
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
-  * I allow assignment, prints, loops, and control-flow primitives.
-  * There may be omissions depending upon the BASIC dialect you're familiar with.
-    * If there are primitives you miss [report a bug](https://github.com/skx/gobasic/issues/) and I'll add them :)
+  * If there are primitives you miss [report a bug](https://github.com/skx/gobasic/issues/) and I'll add them :)
 * Only floating-point and string values are permitted, there is no support for arrays.
+
+### Line Numbers
+
+Line numbers are actually mostly optional, so the following program is
+valid and correct:
+
+     10 READ a
+     20 IF a = 999 THEN GOTO 100
+     30 PRINT a, "\n"
+     40 GOTO 10
+    100 END
+        DATA 1, 2, 3, 4, 999
+
+The only reason you need line-numbers is for the `GOTO` and `GOSUB` functions,
+if you prefer to avoid them then you're welcome to do so.
+
+### `IF` Statement
 
 The handling of the IF statement is perhaps a little unusual, since I'm
 used to the BASIC provided by the ZX Spectrum which had no ELSE clause!
@@ -90,7 +105,29 @@ Only a single statement is permitted between "THEN" and "ELSE", and again betwee
 
 In that second example you see that "`:`" was used to terminate the `PRINT` statement, which otherwise would have tried to consume all input until it hit a newline.
 
-You'll also notice that the primitives which are present all suffer from the flaw (?) that they don't allow brackets around their arguments.  So this is valid:
+The set of comparison functions _probably_ includes everything you need:
+
+* `IF a < b THEN ..`
+* `IF a > b THEN ..`
+* `IF a <= b THEN ..`
+* `IF a >= b THEN ..`
+* `IF a = b THEN ..`
+* `IF a <> b THEN ..`
+* `IF a THEN ..`
+
+If you're missing something from that list please let me know by filing an issue.
+
+
+### `DATA` / `READ` Statements
+
+The `READ` statement allows you to read the next value from the data stored
+in the program, via `DATA`.  There is no support for the `RESTORE` function,
+so once your data is read it cannot be re-read.
+
+
+### Builtin Functions
+
+You'll also notice that the primitives which are present all suffer from the flaw that they don't allow brackets around their arguments.  So this is valid:
 
     10 PRINT RND 100
 
@@ -101,7 +138,41 @@ But this is not:
 This particular problem could be fixed, but I've not considered it significant.
 
 
-## Installation
+### User defined functions
+
+Functions can be defined, via name, with the `DEF FN` statement.  However you
+can only call a function which has _already_ been defined.  So this is fine:
+
+    10 PRINT FN square(3), "\n"
+    20 DEF FN square(x) = x * x
+
+However this is invalid:
+
+    10 DEF FN square(x) = x * x
+    20 PRINT FN square(3), "\n"
+
+
+### Types
+
+There are no type restrictions on variable names vs. their contents, so these statements are each valid:
+
+* `LET a = "steve"`
+* `LET a = 3.2`
+* `LET a$ = "steve"`
+* `LET a$ = 17 + 3`
+
+The __sole__ exception relates to the `INPUT` statement.  The `INPUT` statement prompts a user for input, and returns it as a value - it doesn't know whether to return a "string" or a "number".  So it returns a string if it sees a `$` in the variable name.
+
+This means this reads a string:
+
+    10 INPUT "Enter a string", a$
+
+But this prompts for a number:
+
+    10 INPUT "Enter a number", a
+
+
+## 30 PRINT "Installation"
 
 Providing you have a working [go-installation](https://golang.org/) you should be able to install this software by running:
 
@@ -115,7 +186,7 @@ If you don't have a golang environment setup you should be able to download vari
 
 
 
-## Usage
+## 40 PRINT "Usage"
 
 gobasic is very simple, and just requires the name of a BASIC-program to
 execute.  Write your input in a file and invoke `gobasic` with the path.
@@ -139,7 +210,7 @@ Execute it like this:
 
 
 
-## Implementation
+## 50 PRINT "Implementation"
 
 A traditional interpreter for a scripting/toy language would have a series of
 well-defined steps:
@@ -165,7 +236,7 @@ As there is no AST step errors cannot be detected prior to the execution of prog
 
 
 
-## Sample Code
+## 60 PRINT "Sample Code"
 
 There are a small number of sample-programs located beneath [examples/](examples/).   These were written in an adhoc fashion to test various parts of the implementation.
 
@@ -178,7 +249,7 @@ Perhaps the best demonstration of the code are the following two samples:
   * A class game where you guess the random number the computer has thought of.
 
 
-## Embedding
+## 70 PRINT "Embedding"
 
 The interpreter is designed to be easy to embed into your application(s)
 if you're crazy enough to want to do that!
@@ -207,7 +278,7 @@ in the standalone interpreter.)
 
 
 
-## Visual BASIC!
+## 80 PRINT "Visual BASIC!"
 
 Building upon the code in the embedded-example I've also implemented a simple
 HTTP-server which will accept BASIC code, and render images!
@@ -230,7 +301,7 @@ There are several included examples which you can load/launch by clicking upon t
 
 
 
-## Bugs?
+## 90 PRINT "Bugs?"
 
 It is probable that bugs exist in this interpreter, but I've tried to do
 as much testing as I can.  If you spot anything that
