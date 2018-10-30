@@ -23,6 +23,19 @@ import (
 	"github.com/skx/gobasic/tokenizer"
 )
 
+// user_fn is a structure that holds one entry for each user-defined function.
+type user_fn struct {
+
+	// name is the name of the user-defined function.
+	name string
+
+	// body is the expression to be evaluated.
+	body string
+
+	// args is the array of variable-names to set for the arguments.
+	args []string
+}
+
 // Interpreter holds our state.
 type Interpreter struct {
 
@@ -81,6 +94,9 @@ type Interpreter struct {
 	// data holds any value stored in DATA statements
 	// These are populated when the program is loaded
 	data []object.Object
+
+	// fns contains a map of user-defined functions.
+	fns map[string]user_fn
 }
 
 // New is our constructor.
@@ -109,6 +125,11 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	// Setup a map to hold our jump-targets
 	//
 	t.lines = make(map[string]int)
+
+	//
+	// Setup a map to hold user-defined functions.
+	//
+	t.fns = make(map[string]user_fn)
 
 	//
 	// Save the tokens that our program consists of, one by one,
@@ -258,66 +279,125 @@ func (e *Interpreter) SetTrace(val bool) {
 // factor
 func (e *Interpreter) factor() object.Object {
 
-	if e.offset >= len(e.program) {
-		return object.Error("Hit end of program processing factor()")
-	}
-
-	tok := e.program[e.offset]
-	switch tok.Type {
-	case token.LBRACKET:
-		// skip past the lbracket
-		e.offset++
+	for {
 
 		if e.offset >= len(e.program) {
 			return object.Error("Hit end of program processing factor()")
 		}
 
-		// handle the expr
-		ret := e.expr(true)
-		if ret.Type() == object.ERROR {
-			return ret
-		}
-
-		// skip past the rbracket
-		tok = e.program[e.offset]
-		if tok.Type != token.RBRACKET {
-			return object.Error("Unclosed bracket around expression!")
-		}
-		e.offset++
-
-		// Return the result of the sub-expression
-		return (ret)
-	case token.INT:
-		i, err := strconv.ParseFloat(tok.Literal, 64)
-		if err == nil {
+		tok := e.program[e.offset]
+		switch tok.Type {
+		case token.LBRACKET:
+			// skip past the lbracket
 			e.offset++
-			return &object.NumberObject{Value: i}
+
+			if e.offset >= len(e.program) {
+				return object.Error("Hit end of program processing factor()")
+			}
+
+			// handle the expr
+			ret := e.expr(true)
+			if ret.Type() == object.ERROR {
+				return ret
+			}
+
+			// skip past the rbracket
+			tok = e.program[e.offset]
+			if tok.Type != token.RBRACKET {
+				return object.Error("Unclosed bracket around expression!")
+			}
+			e.offset++
+
+			// Return the result of the sub-expression
+			return (ret)
+		case token.INT:
+			i, err := strconv.ParseFloat(tok.Literal, 64)
+			if err == nil {
+				e.offset++
+				return &object.NumberObject{Value: i}
+			}
+			return object.Error("Failed to convert %s -> float64 %s", tok.Literal, err.Error())
+
+		case token.STRING:
+			e.offset++
+			return &object.StringObject{Value: tok.Literal}
+
+		case token.FN:
+
+			//
+			// Call the user-defined function.
+			//
+			//  TODO: Proper bounds-checking and type-checking here.
+			//
+			e.offset++
+			name := e.program[e.offset]
+			e.offset++
+
+			//
+			// Collect the arguments.
+			//
+			var args []object.Object
+
+			//
+			// We walk forward collecting the values between
+			// "(" & ")".
+			//
+			for e.offset < len(e.program) {
+
+				tt := e.program[e.offset]
+				if tt.Type == token.RBRACKET {
+					e.offset++
+					break
+				}
+
+				if tt.Type == token.COMMA || tt.Type == token.LBRACKET {
+					e.offset++
+					continue
+				}
+
+				// Call the token as an expression
+				obj := e.expr(true)
+				args = append(args, obj)
+			}
+
+			//
+			// Now we call the function with those values.
+			//
+			val := e.callUserFunction(name.Literal, args)
+
+			return val
+
+		case token.BUILTIN:
+
+			//
+			// Call the built-in and return the value.
+			//
+			val := e.callBuiltin(tok.Literal)
+			return val
+
+		case token.IDENT:
+
+			//
+			// Get the contents of the variable.
+			//
+			val := e.GetVariable(tok.Literal)
+			e.offset++
+			return val
+		case token.NEWLINE:
+
+			//
+			// We skip newlines, specifically so that
+			// we can use this function to evaluate user-defined
+			// expressions - which have leading/trailing newlines
+			// via the tokenizer.
+			//
+			e.offset++
+
+		default:
+			return object.Error("factor() - unhandled token: %v\n", tok)
+
 		}
-		return object.Error("Failed to convert %s -> float64 %s", tok.Literal, err.Error())
-
-	case token.STRING:
-		e.offset++
-		return &object.StringObject{Value: tok.Literal}
-
-	case token.BUILTIN:
-
-		//
-		// Call the built-in and return the value.
-		//
-		val := e.callBuiltin(tok.Literal)
-		return val
-
-	case token.IDENT:
-
-		//
-		// Get the contents of the variable.
-		//
-		val := e.GetVariable(tok.Literal)
-		e.offset++
-		return val
 	}
-
-	return object.Error("factor() - unhandled token: %v\n", tok)
 }
 
 // terminal - handles parsing of the form
@@ -666,6 +746,65 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 	}
 
 	return object.Error("Unhandled comparison: %v[%s] %v %v[%s]\n", t1, t1.Type(), op, t2, t2.Type())
+}
+
+// callUserFunction calls the specified user-defined function.
+func (e *Interpreter) callUserFunction(name string, args []object.Object) object.Object {
+
+	//
+	// Helpful debugging.
+	//
+	fmt.Printf("Calling user-defined function %s\n", name)
+
+	//
+	// Lookup the function; if it isn't defined then we can't invoke
+	// it, obviously!
+	//
+	fun := e.fns[name]
+	if fun.name == "" {
+		return object.Error("User-defined function %s doesn't exist", name)
+	}
+
+	//
+	// Does the argument count supplied and parameter count match?
+	//
+	if len(fun.args) != len(args) {
+		return object.Error("Argument count mis-match!")
+	}
+
+	//
+	// OK we're essentially having to implement an `eval` function
+	// to process the body of the user-defined function.
+	//
+	// That means we need to create a temporary tokenizer to
+	// read the body, then evaluate on that second copy.
+	//
+	// Create the tokenizer, and the evaluator which use it.
+	//
+	tokenizer := tokenizer.New(fun.body)
+	eval := New(tokenizer)
+
+	//
+	// The new instance won't have any variables setup, but that's
+	// OK.  The expression will only refer to the arguments it was
+	// given by name.
+	//
+	// Populate the variables in the environment of our (child) evaluater.
+	//
+	for i, _ := range args {
+		fmt.Printf("Setting %s -> %s\n", fun.args[i], args[i].String())
+		eval.SetVariable(fun.args[i], args[i])
+	}
+
+	//
+	// Now we can evaluate the expression in the context of this
+	// child-evaluator.
+	//
+	out := eval.expr(true)
+	fmt.Printf("\tCalled expr() - result is\n\t%s\n", out.String())
+
+	// Return the value.
+	return (out)
 }
 
 // Call the built-in with the given name if we can.
@@ -1571,6 +1710,120 @@ func (e *Interpreter) runRETURN() error {
 	return nil
 }
 
+// runDEF handles a user-defined function definition
+func (e *Interpreter) runDEF_FN() error {
+
+	// The general form of a function-definition is
+	//    DEF FN NAME ( [ARG, COMMA] ) = "BLAH BLAH"
+	//
+
+	// skip past the DEF
+	e.offset++
+
+	// Next token should be "FN"
+	fn := e.program[e.offset]
+	e.offset++
+	if fn.Type != token.FN {
+		return (fmt.Errorf("Expected FN after DEF"))
+	}
+
+	// Now a name
+	name := e.program[e.offset]
+	e.offset++
+	if name.Type != token.IDENT {
+		return (fmt.Errorf("Expected function-name after 'DEF FN', got %s", name.String()))
+	}
+
+	// Now an opening parenthesis.
+	open := e.program[e.offset]
+	e.offset++
+	if open.Type != token.LBRACKET {
+		return (fmt.Errorf("Expected ( after 'DEF FN %s'", name))
+	}
+
+	//
+	// Collect the names of each variable which is an argument
+	//
+	// We loop "forever", skipping commas, and keeping going until
+	// we find the closing bracket.
+	//
+	var args []string
+
+	//
+	// Loop "forever".
+	//
+	for e.offset < len(e.program) {
+
+		// Get the next token
+		tt := e.program[e.offset]
+
+		// Is it a bracket?  If so skip it, and we're done.
+		if tt.Type == token.RBRACKET {
+			e.offset++
+			break
+		}
+
+		// Is it a comma?  Then skip it
+		if tt.Type == token.COMMA {
+			e.offset++
+			continue
+		}
+
+		// Otherwise we'll assume we have an ID.
+		// Anything else is an error.
+		if tt.Type != token.IDENT {
+			return (fmt.Errorf("Unexpected token %s in DEF FN %s", tt.String(), name))
+		}
+
+		//
+		// Save the ID in our array, and move on to the next
+		// token.
+		//
+		args = append(args, tt.Literal)
+		e.offset++
+	}
+
+	//
+	// At this point we should have a token which is "="
+	//
+	eq := e.program[e.offset]
+	e.offset++
+	if eq.Type != token.ASSIGN {
+		return (fmt.Errorf("Expected = after 'DEF FN %s(%s) - Got %s", name, strings.Join(args, ","), eq.String()))
+	}
+
+	//
+	// Build up the body of the function.
+	//
+	body := ""
+	for e.offset < len(e.program) {
+		tok := e.program[e.offset]
+		if tok.Type == token.NEWLINE {
+			break
+		}
+
+		body += " "
+
+		// Quote strings.  Sigh
+		if tok.Type == token.STRING {
+			body += "\""
+			body += tok.Literal
+			body += "\""
+		} else {
+			body += tok.Literal
+		}
+		e.offset++
+	}
+
+	//
+	// Store the definition in our map.
+	//
+	// This will let it be called, by name.
+	//
+	e.fns[name.Literal] = user_fn{name: name.Literal, body: body, args: args}
+	return nil
+}
+
 ////
 //
 // Our core public API
@@ -1631,6 +1884,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runDATA()
 	case token.READ:
 		err = e.runREAD()
+	case token.DEF:
+		err = e.runDEF_FN()
 	case token.BUILTIN:
 
 		obj := e.callBuiltin(tok.Literal)
@@ -1641,7 +1896,19 @@ func (e *Interpreter) RunOnce() error {
 
 		e.offset--
 	default:
-		err = fmt.Errorf("Token not handled: %v", tok)
+		//
+		// This is either a clever piece of code, or a terrible
+		// idea.
+		//
+		// Evaluate anything remaining, and throw away the result.
+		//
+		// Having this here allows side-effects via user-defined
+		// functions:
+		//
+		//    10 DEF FN steve() = PRINT "Hello, world\n"
+		//    20 FN steve()
+		//
+		e.expr(true)
 	}
 
 	//

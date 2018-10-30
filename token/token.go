@@ -59,6 +59,8 @@ const (
 
 	// Misc
 	DATA = "DATA"
+	DEF  = "DEF"
+	FN   = "FN"
 	READ = "READ"
 
 	// Woo-operators
@@ -87,8 +89,10 @@ const (
 var keywords = map[string]Type{
 	"and":    AND,
 	"data":   DATA,
+	"def":    DEF,
 	"else":   ELSE,
 	"end":    END,
+	"fn":     FN,
 	"for":    FOR,
 	"gosub":  GOSUB,
 	"goto":   GOTO,

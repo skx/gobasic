@@ -536,6 +536,9 @@ func TestIf(t *testing.T) {
 150 IF "steve" <= "steve" then let n=1
 160 IF "steve" = "fsteve" then PRINT "NOP"
 170 LET x=1
+180 LET y="steve"
+190 IF x THEN LET okA=1
+200 IF y THEN LET okB=1
 `
 
 	obj := Compile(input)
@@ -544,7 +547,7 @@ func TestIf(t *testing.T) {
 	//
 	// Get our variables - they should all be equal to one
 	//
-	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x", "k", "l", "m", "n"}
+	vars := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "x", "k", "l", "m", "n", "okA", "okB"}
 
 	for _, nm := range vars {
 		out := getFloat(t, obj, nm)
@@ -746,20 +749,6 @@ func TestBogusVariable(t *testing.T) {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 
-}
-
-// TestBogusBuiltIn tests that retrieving a bogus builtin fails
-func TestBogusBuiltIn(t *testing.T) {
-	input := `10 AARDVARK`
-	obj := Compile(input)
-	err := obj.Run()
-
-	if err == nil {
-		t.Errorf("Expected to see an error, but didn't.")
-	}
-	if !strings.Contains(err.Error(), "Token not handled") {
-		t.Errorf("Our error-message wasn't what we expected: %s", err.Error())
-	}
 }
 
 // TestMismatchedTypes tests that expr() errors on mismatched types.
@@ -1137,6 +1126,23 @@ func TestIssue43(t *testing.T) {
 	}
 }
 
+// TestZeroDiv is the test case X/0
+func TestZeroDiv(t *testing.T) {
+	input := `
+10 LET A = 3 / 0
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error and found none")
+	}
+
+	if !strings.Contains(err.Error(), "Division by zero") {
+		t.Errorf("Wrong error found for division by zero : %s\n", err.Error())
+	}
+}
+
 // TestIssue42 is the test case for https://github.com/skx/gobasic/issues/42
 func TestIssue42(t *testing.T) {
 	input := `
@@ -1284,6 +1290,23 @@ func TestRead(t *testing.T) {
 
 }
 
+// TestBogusIf tests that reading a short-IF fails
+func TestBogusIf(t *testing.T) {
+
+	input := `
+10 IF 3 <> 3
+`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error, but saw none")
+	}
+	if !strings.Contains(err.Error(), "Expected THEN after IF") {
+		t.Errorf("The error we found was not what we expected: %s", err.Error())
+	}
+}
+
 // TestBogusRead tests that reading to a non-ident fails
 func TestBogusRead(t *testing.T) {
 
@@ -1326,4 +1349,56 @@ func TestPow(t *testing.T) {
 		t.Errorf("Wrong value for POW: %f", getFloat(t, obj, "d"))
 	}
 
+}
+
+// TestUserFn applies some trivial user-function testing
+func TestUserFn(t *testing.T) {
+
+	input := `10 DEF FN square(x) = x * x
+20 LET a = FN square(3)
+20 LET b = FN square( -3)
+`
+
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err != nil {
+		t.Errorf("We didn't expect an error, but got one")
+	}
+
+	if getFloat(t, obj, "a") != 9 {
+		t.Errorf("Wrong value for square: %f", getFloat(t, obj, "a"))
+	}
+	if getFloat(t, obj, "b") != 9 {
+		t.Errorf("Wrong value for square: %f", getFloat(t, obj, "b"))
+	}
+}
+
+// TestBogusFn applies some trivial user-function testing
+func TestBogusFn(t *testing.T) {
+
+	one := `10 LET a = FN foo(x)`
+	two := `10 DEF FN square(x) = x * x
+20 LET a = FN square()
+`
+
+	obj := Compile(one)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error, but got none")
+	}
+	if !strings.Contains(err.Error(), "function foo doesn't exist") {
+		t.Errorf("Wrong error message: %s", err.Error())
+	}
+
+	obj = Compile(two)
+	err = obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error, but got none")
+	}
+	if !strings.Contains(err.Error(), "Argument count mis") {
+		t.Errorf("Wrong error message:%s", err.Error())
+	}
 }
