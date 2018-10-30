@@ -1373,3 +1373,32 @@ func TestUserFn(t *testing.T) {
 		t.Errorf("Wrong value for square: %f", getFloat(t, obj, "b"))
 	}
 }
+
+// TestBogusFn applies some trivial user-function testing
+func TestBogusFn(t *testing.T) {
+
+	one := `10 LET a = FN foo(x)`
+	two := `10 DEF FN square(x) = x * x
+20 LET a = FN square()
+`
+
+	obj := Compile(one)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error, but got none")
+	}
+	if !strings.Contains(err.Error(), "function foo doesn't exist") {
+		t.Errorf("Wrong error message: %s", err.Error())
+	}
+
+	obj = Compile(two)
+	err = obj.Run()
+
+	if err == nil {
+		t.Errorf("We expected an error, but got none")
+	}
+	if !strings.Contains(err.Error(), "Argument count mis") {
+		t.Errorf("Wrong error message:%s", err.Error())
+	}
+}
