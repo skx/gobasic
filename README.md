@@ -41,6 +41,10 @@ Currently the following obvious primitives work:
   * Multiple arguments may be separated by comma.
 * `REM`
   * A single-line comment (BASIC has no notion of multi-line comments).
+* `READ` & `DATA`
+  * Allow reading from stored data within the program [examples/35-read-data.bas](examples/35-read-data.bas)
+* `DEF FN` & `FN`
+  * Allow the use of user-defined functions [examples/25-def-fn.bas](examples/25-def-fn.bas).
 
 Most of the maths-related primitives I'm familiar with from my days
 coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS.
