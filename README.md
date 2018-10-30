@@ -143,13 +143,13 @@ This particular problem could be fixed, but I've not considered it significant.
 Functions can be defined, via name, with the `DEF FN` statement.  However you
 can only call a function which has _already_ been defined.  So this is fine:
 
-    10 PRINT FN square(3), "\n"
-    20 DEF FN square(x) = x * x
+    10 DEF FN square(x) = x * x
+    20 PRINT FN square(3), "\n"
 
 However this is invalid:
 
-    10 DEF FN square(x) = x * x
-    20 PRINT FN square(3), "\n"
+    10 PRINT FN square(3), "\n"
+    20 DEF FN square(x) = x * x
 
 
 ### Types
