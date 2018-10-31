@@ -46,8 +46,6 @@ func PRINT(env interface{}, args []object.Object) object.Object {
 			fmt.Printf("%s", ent.(*object.StringObject).Value)
 		case object.ERROR:
 			fmt.Printf("%s", ent.(*object.ErrorObject).Value)
-		default:
-			fmt.Printf("PRINT %v", ent.String())
 		}
 	}
 
