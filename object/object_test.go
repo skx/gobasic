@@ -62,3 +62,34 @@ func TestError(t *testing.T) {
 		t.Errorf("Wrong value for error-message")
 	}
 }
+
+func TestNumber(t *testing.T) {
+
+	a := Number(33)
+
+	// Test types
+	if a.Type() != NUMBER {
+		t.Errorf("Object has the wrong type!")
+	}
+
+	// Test values
+	if a.Value != 33 {
+		t.Errorf("Wrong value for number-object")
+	}
+
+}
+
+func TestString(t *testing.T) {
+
+	a := String("Test")
+
+	// Test types
+	if a.Type() != STRING {
+		t.Errorf("Object has the wrong type!")
+	}
+
+	// Test values
+	if a.Value != "Test" {
+		t.Errorf("Wrong value for string-object")
+	}
+}
