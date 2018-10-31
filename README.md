@@ -9,7 +9,7 @@ This repository contains a naive implementation of BASIC, written in Golang.
 
 > If you'd prefer to see a more "real" interpreted language, implemented in Go, you might prefer [monkey](https://github.com/skx/monkey/).
 
-The implementation is simple for three main reasons:
+The implementation is simple for two main reasons:
 
 * There is no UI, which means any and all graphics-primitives are ruled out.
   * However the embedded sample, described later in this file, demonstrates using BASIC to create a PNG image.
@@ -114,6 +114,8 @@ The set of comparison functions _probably_ includes everything you need:
 * `IF a = b THEN ..`
 * `IF a <> b THEN ..`
 * `IF a THEN ..`
+  * This passes if `a` is a number which is not zero.
+  * This passes if `a` is a string which is non-empty.
 
 If you're missing something from that list please let me know by filing an issue.
 

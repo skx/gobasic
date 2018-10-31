@@ -175,6 +175,9 @@ func TestLen(t *testing.T) {
 }
 
 func TestMid(t *testing.T) {
+
+	// Valid arguments are string, int, int
+
 }
 
 func TestRight(t *testing.T) {
