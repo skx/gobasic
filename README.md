@@ -144,8 +144,10 @@ There are no type restrictions on variable names vs. their contents, so these st
 
 * `LET a = "steve"`
 * `LET a = 3.2`
+* `LET a% = ""`
 * `LET a$ = "steve"`
 * `LET a$ = 17 + 3`
+* `LET a% = "string"`
 
 The __sole__ exception relates to the `INPUT` statement.  The `INPUT` statement prompts a user for input, and returns it as a value - it doesn't know whether to return a "string" or a "number".  So it returns a string if it sees a `$` in the variable name.
 
