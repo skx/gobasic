@@ -204,6 +204,10 @@ func SQR(env interface{}, args []object.Object) object.Object {
 	}
 	i := args[0].(*object.NumberObject).Value
 
+	// Ensure it is valid.
+	if i < 1 {
+		return object.Error("Argument to SQR must be >0")
+	}
 	return &object.NumberObject{Value: math.Sqrt(i)}
 }
 
