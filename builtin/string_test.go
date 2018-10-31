@@ -184,7 +184,7 @@ func TestRight(t *testing.T) {
 	//
 	var fail1 []object.Object
 	fail1 = append(fail1, object.Error("Bogus type"))
-	out1 := LEFT(nil, fail1)
+	out1 := RIGHT(nil, fail1)
 	if out1.Type() != object.ERROR {
 		t.Errorf("We expected a type-error, but didn't receive one")
 	}
@@ -196,7 +196,7 @@ func TestRight(t *testing.T) {
 	var fail2 []object.Object
 	fail2 = append(fail2, &object.StringObject{Value: "Valid type"})
 	fail2 = append(fail2, object.Error("Invalid"))
-	out2 := LEFT(nil, fail2)
+	out2 := RIGHT(nil, fail2)
 	if out2.Type() != object.ERROR {
 		t.Errorf("We expected a type-error, but didn't receive one")
 	}
