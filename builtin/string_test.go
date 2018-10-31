@@ -4,6 +4,7 @@ package builtin
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/skx/gobasic/object"
@@ -177,9 +178,109 @@ func TestMid(t *testing.T) {
 }
 
 func TestRight(t *testing.T) {
+
+	//
+	// Call with an initial argument which is a non-string.
+	//
+	var fail1 []object.Object
+	fail1 = append(fail1, object.Error("Bogus type"))
+	out1 := LEFT(nil, fail1)
+	if out1.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// Now call with a string for the first argument, but a non-number
+	// for the second.
+	//
+	var fail2 []object.Object
+	fail2 = append(fail2, &object.StringObject{Value: "Valid type"})
+	fail2 = append(fail2, object.Error("Invalid"))
+	out2 := LEFT(nil, fail2)
+	if out2.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// Setup a structure for testing.
+	//
+	type RightTest struct {
+		Input  string
+		Count  float64
+		Output string
+	}
+
+	// Define some tests
+	tests := []RightTest{{Input: "Steve", Count: 3, Output: "eve"},
+		{Input: "Steve", Count: 200, Output: "Steve"},
+		// TODO: Fix me		{Input: "ウェブの国際化", Count: 1, Output: "化"},
+	}
+
+	for _, test := range tests {
+
+		var args []object.Object
+		args = append(args, &object.StringObject{Value: test.Input})
+		args = append(args, &object.NumberObject{Value: test.Count})
+		output := RIGHT(nil, args)
+		if output.Type() != object.STRING {
+			t.Errorf("We expected a string-result, but got something else")
+		}
+		if output.(*object.StringObject).Value != test.Output {
+			t.Errorf("RIGHT %s,%f gave '%s' not '%s'",
+				test.Input, test.Count, output.(*object.StringObject).Value, test.Output)
+		}
+	}
+
 }
 
 func TestStr(t *testing.T) {
+
+	//
+	// Call with a non-number argument.
+	//
+	var failArgs []object.Object
+	failArgs = append(failArgs, object.Error("Bogus type"))
+	out := STR(nil, failArgs)
+	if out.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// Now a string
+	//
+	var nArgs []object.Object
+	nArgs = append(nArgs, &object.StringObject{Value: "steve"})
+	out = STR(nil, nArgs)
+	if out.Type() != object.STRING {
+		t.Errorf("We expected a string, but didn't receive one")
+	}
+
+	//
+	// Now do it properly - float
+	//
+	var fArgs []object.Object
+	fArgs = append(fArgs, &object.NumberObject{Value: 17.8})
+	fOut := STR(nil, fArgs)
+	if fOut.Type() != object.STRING {
+		t.Errorf("We expected a string return, but didn't get one: %s", fOut.String())
+	}
+	if !strings.HasPrefix(fOut.(*object.StringObject).Value, "17.8") {
+		t.Errorf("Function returned a surprising result for float: %s", fOut.String())
+	}
+
+	//
+	// Now do it properly - int
+	//
+	var iArgs []object.Object
+	iArgs = append(iArgs, &object.NumberObject{Value: 99})
+	iOut := STR(nil, iArgs)
+	if iOut.Type() != object.STRING {
+		t.Errorf("We expected a string return, but didn't get one: %s", iOut.String())
+	}
+	if !strings.HasPrefix(iOut.(*object.StringObject).Value, "99") {
+		t.Errorf("Function returned a surprising result for int: %s", iOut.String())
+	}
+
 }
 
 func TestTl(t *testing.T) {
