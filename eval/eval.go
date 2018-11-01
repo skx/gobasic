@@ -231,7 +231,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 			//
 			// Parse the function-definition.
 			//
-			err := t.parse_def_fn(offset)
+			err := t.parseDefFN(offset)
 			if err != nil {
 				fmt.Printf("Error in DEF FN: %s\n", err.Error())
 				os.Exit(33)
@@ -774,9 +774,9 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 	return object.Error("Unhandled comparison: %v[%s] %v %v[%s]\n", t1, t1.Type(), op, t2, t2.Type())
 }
 
-// parse_def_fun is an internal function invoked at the time
+// parseDefFN is an internal function invoked at the time
 // a program is loaded.
-func (e *Interpreter) parse_def_fn(offset int) error {
+func (e *Interpreter) parseDefFN(offset int) error {
 
 	// The general form of a function-definition is
 	//    DEF FN NAME ( [ARG, COMMA] ) = "BLAH BLAH"
