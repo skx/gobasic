@@ -24,8 +24,8 @@ import (
 	"github.com/skx/gobasic/tokenizer"
 )
 
-// user_fn is a structure that holds one entry for each user-defined function.
-type user_fn struct {
+// userFunction is a structure that holds one entry for each user-defined function.
+type userFunction struct {
 
 	// name is the name of the user-defined function.
 	name string
@@ -97,7 +97,7 @@ type Interpreter struct {
 	data []object.Object
 
 	// fns contains a map of user-defined functions.
-	fns map[string]user_fn
+	fns map[string]userFunction
 }
 
 // New is our constructor.
@@ -130,7 +130,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	//
 	// Setup a map to hold user-defined functions.
 	//
-	t.fns = make(map[string]user_fn)
+	t.fns = make(map[string]userFunction)
 
 	//
 	// Save the tokens that our program consists of, one by one,
@@ -885,7 +885,7 @@ func (e *Interpreter) parse_def_fn(offset int) error {
 	//
 	// This will let it be called, by name.
 	//
-	e.fns[name.Literal] = user_fn{name: name.Literal, body: body, args: args}
+	e.fns[name.Literal] = userFunction{name: name.Literal, body: body, args: args}
 	return nil
 }
 
