@@ -1001,7 +1001,7 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 			//
 			// Hack
 			//
-			if name == "PRINT" {
+			if name == "PRINT" || name == "print" {
 
 				args = append(args, &object.StringObject{Value: " "})
 			}
@@ -2002,9 +2002,20 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 //
 func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft builtin.BuiltinSig) {
 
+	//
+	// We want to make sure that we handle both of these:
+	//
+	//   10 print "OK\n"
+	//   10 PRINT "OK\n"
+	//
+	// Users who use mixed-case will find surprises though!
+	//
+	lName := strings.ToLower(name)
+	uName := strings.ToUpper(name)
+
 	// Register the built-in - both lower-case and upper-case
-	e.functions.Register(strings.ToLower(name), nArgs, ft)
-	e.functions.Register(strings.ToUpper(name), nArgs, ft)
+	e.functions.Register(lName, nArgs, ft)
+	e.functions.Register(uName, nArgs, ft)
 
 	// Now ensure that in the future if we hit this built-in
 	// we regard it as a function-call, not a variable
@@ -2013,9 +2024,10 @@ func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft builtin.Builtin
 		// Is this token a reference to the function
 		// as an ident?
 		if e.program[i].Type == token.IDENT &&
-			e.program[i].Literal == name {
+			(e.program[i].Literal == lName ||
+				e.program[i].Literal == uName) {
 
-			// Change the type.  (Hack!)
+			// Change the type of the token.
 			e.program[i].Type = token.BUILTIN
 		}
 	}
