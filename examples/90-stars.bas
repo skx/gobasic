@@ -21,5 +21,5 @@
 420 LET A$ = LEFT$ A$, 1
 430 IF A$ = "Y"  OR  A$ = "y"  THEN GOTO 200
 
-500 PRINT "Goodbye ", U$
+500 PRINT "Goodbye " + U$ + "\n"
 510 END
