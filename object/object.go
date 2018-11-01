@@ -49,6 +49,11 @@ func (s *StringObject) String() string {
 	return (fmt.Sprintf("Object{Type:string, Value:%s}", s.Value))
 }
 
+// String is a helper for creating a new string-object with the given value.
+func String(val string) *StringObject {
+	return &StringObject{Value: val}
+}
+
 // NumberObject holds a number.
 type NumberObject struct {
 
@@ -64,6 +69,11 @@ func (s *NumberObject) Type() Type {
 // String returns a string representation of this object.
 func (s *NumberObject) String() string {
 	return (fmt.Sprintf("Object{Type:number, Value:%f}", s.Value))
+}
+
+// Number is a helper for creating a new number-object with the given value.
+func Number(val float64) *NumberObject {
+	return &NumberObject{Value: val}
 }
 
 // ErrorObject holds a string, which describes an error

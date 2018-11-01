@@ -26,13 +26,27 @@ func TestChr(t *testing.T) {
 	// Now do it properly
 	//
 	var validArgs []object.Object
-	validArgs = append(validArgs, &object.NumberObject{Value: 42})
+	validArgs = append(validArgs, object.Number(42))
 	out2 := CHR(nil, validArgs)
 	if out2.Type() != object.STRING {
 		t.Errorf("We expected a string return, but didn't get one: %s", out2.String())
 	}
 	if out2.(*object.StringObject).Value != "*" {
 		t.Errorf("Function returned a surprising result")
+	}
+
+	//
+	// A large number should also return the appropriate UTF-character.
+	//
+	var utf []object.Object
+	utf = append(utf, object.Number(12454))
+	out3 := CHR(nil, utf)
+	if out3.Type() != object.STRING {
+		t.Errorf("We expected a string return, but didn't get one: %s", out3.String())
+	}
+	if out3.(*object.StringObject).Value != "ウ" {
+		t.Errorf("Function returned a surprising result: %s",
+			out3.(*object.StringObject).Value)
 	}
 
 }
@@ -53,7 +67,7 @@ func TestCode(t *testing.T) {
 	// Now do it properly, we expect * -> 42.
 	//
 	var validArgs []object.Object
-	validArgs = append(validArgs, &object.StringObject{Value: "*"})
+	validArgs = append(validArgs, object.String("*"))
 	out2 := CODE(nil, validArgs)
 	if out2.Type() != object.NUMBER {
 		t.Errorf("We expected a number return, but didn't get one: %s", out2.String())
@@ -66,7 +80,7 @@ func TestCode(t *testing.T) {
 	// With an empty string we receive zero as a result
 	//
 	var emptyArgs []object.Object
-	emptyArgs = append(emptyArgs, &object.StringObject{Value: ""})
+	emptyArgs = append(emptyArgs, object.String(""))
 	out3 := CODE(nil, emptyArgs)
 	if out3.Type() != object.NUMBER {
 		t.Errorf("We expected a number return, but didn't get one: %s", out3.String())
@@ -74,6 +88,21 @@ func TestCode(t *testing.T) {
 	if out3.(*object.NumberObject).Value != 0 {
 		t.Errorf("Function returned a surprising result")
 	}
+
+	//
+	// A UTF-character should also return a number
+	//
+	var utf []object.Object
+	utf = append(utf, object.String("ウ"))
+	out4 := CODE(nil, utf)
+	if out3.Type() != object.NUMBER {
+		t.Errorf("We expected a number return, but didn't get one: %s", out4.String())
+	}
+	if out4.(*object.NumberObject).Value != 12454 {
+		t.Errorf("Function returned a surprising result: %f",
+			out4.(*object.NumberObject).Value)
+	}
+
 }
 
 func TestLeft(t *testing.T) {
@@ -93,7 +122,7 @@ func TestLeft(t *testing.T) {
 	// for the second.
 	//
 	var fail2 []object.Object
-	fail2 = append(fail2, &object.StringObject{Value: "Valid type"})
+	fail2 = append(fail2, object.String("Valid type"))
 	fail2 = append(fail2, object.Error("Invalid"))
 	out2 := LEFT(nil, fail2)
 	if out2.Type() != object.ERROR {
@@ -110,16 +139,18 @@ func TestLeft(t *testing.T) {
 	}
 
 	// Define some tests
-	tests := []LeftTest{{Input: "Steve", Count: 2, Output: "St"},
+	tests := []LeftTest{
+		{Input: "Steve", Count: 2, Output: "St"},
 		{Input: "Steve", Count: 200, Output: "Steve"},
-		// TODO: Fix me		{Input: "ウェブの国際化", Count: 3, Output: "ウェブ"},
+		{Input: "Test", Count: 2, Output: "Te"},
+		{Input: "ウェブの国際化", Count: 3, Output: "ウェブ"},
 	}
 
 	for _, test := range tests {
 
 		var args []object.Object
-		args = append(args, &object.StringObject{Value: test.Input})
-		args = append(args, &object.NumberObject{Value: test.Count})
+		args = append(args, object.String(test.Input))
+		args = append(args, object.Number(test.Count))
 		output := LEFT(nil, args)
 		if output.Type() != object.STRING {
 			t.Errorf("We expected a string-result, but got something else")
@@ -162,7 +193,7 @@ func TestLen(t *testing.T) {
 	for _, test := range tests {
 
 		var validArgs []object.Object
-		validArgs = append(validArgs, &object.StringObject{Value: test.Input})
+		validArgs = append(validArgs, object.String(test.Input))
 		out2 := LEN(nil, validArgs)
 		if out2.Type() != object.NUMBER {
 			t.Errorf("We expected a number return, but didn't get one: %s", out2.String())
@@ -176,8 +207,93 @@ func TestLen(t *testing.T) {
 
 func TestMid(t *testing.T) {
 
+	//
 	// Valid arguments are string, int, int
+	//
 
+	//
+	// 1.  Call with error, error, error
+	//
+	var failArgs []object.Object
+	failArgs = append(failArgs, object.Error("Bogus type"))
+	failArgs = append(failArgs, object.Error("Bogus type"))
+	failArgs = append(failArgs, object.Error("Bogus type"))
+	out := MID(nil, failArgs)
+	if out.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// 2.  Call with number, string, string
+	//
+	var failArgs2 []object.Object
+	failArgs2 = append(failArgs2, object.Number(1))
+	failArgs2 = append(failArgs2, object.String("Blah"))
+	failArgs2 = append(failArgs2, object.String("Blah"))
+	out2 := MID(nil, failArgs2)
+	if out2.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// 3.  Call with string, string, string
+	//
+	var failArgs3 []object.Object
+	failArgs3 = append(failArgs3, object.String("ok"))
+	failArgs3 = append(failArgs3, object.String("Blah"))
+	failArgs3 = append(failArgs3, object.String("Blah"))
+	out3 := MID(nil, failArgs3)
+	if out3.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// 4.  Call with string, number, string
+	//
+	var failArgs4 []object.Object
+	failArgs4 = append(failArgs4, object.String("ok"))
+	failArgs4 = append(failArgs4, object.Number(3))
+	failArgs4 = append(failArgs4, object.String("Blah"))
+	out4 := MID(nil, failArgs4)
+	if out4.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// Now test things that work properly.
+	//
+	//
+	// Setup a structure for testing.
+	//
+	type MIDTest struct {
+		Input  string
+		Offset float64
+		Count  float64
+		Output string
+	}
+
+	// Define some tests
+	tests := []MIDTest{{Input: "Steve", Offset: 1, Count: 2, Output: "te"},
+		{Input: "Steve", Offset: 4, Count: 100, Output: "e"},
+		{Input: "Steve", Offset: 100, Count: 100, Output: ""},
+		{Input: "ウェブの国際化", Offset: 1, Count: 2, Output: "ェブ"},
+	}
+
+	for _, test := range tests {
+
+		var args []object.Object
+		args = append(args, object.String(test.Input))
+		args = append(args, object.Number(test.Offset))
+		args = append(args, object.Number(test.Count))
+		output := MID(nil, args)
+		if output.Type() != object.STRING {
+			t.Errorf("We expected a string-result, but got something else")
+		}
+		if output.(*object.StringObject).Value != test.Output {
+			t.Errorf("LEFT %s,%f,%f gave '%s' not '%s'",
+				test.Input, test.Offset, test.Count, output.(*object.StringObject).Value, test.Output)
+		}
+	}
 }
 
 func TestRight(t *testing.T) {
@@ -197,7 +313,7 @@ func TestRight(t *testing.T) {
 	// for the second.
 	//
 	var fail2 []object.Object
-	fail2 = append(fail2, &object.StringObject{Value: "Valid type"})
+	fail2 = append(fail2, object.String("Valid type"))
 	fail2 = append(fail2, object.Error("Invalid"))
 	out2 := RIGHT(nil, fail2)
 	if out2.Type() != object.ERROR {
@@ -216,14 +332,14 @@ func TestRight(t *testing.T) {
 	// Define some tests
 	tests := []RightTest{{Input: "Steve", Count: 3, Output: "eve"},
 		{Input: "Steve", Count: 200, Output: "Steve"},
-		// TODO: Fix me		{Input: "ウェブの国際化", Count: 1, Output: "化"},
+		{Input: "ウェブの国際化", Count: 1, Output: "化"},
 	}
 
 	for _, test := range tests {
 
 		var args []object.Object
-		args = append(args, &object.StringObject{Value: test.Input})
-		args = append(args, &object.NumberObject{Value: test.Count})
+		args = append(args, object.String(test.Input))
+		args = append(args, object.Number(test.Count))
 		output := RIGHT(nil, args)
 		if output.Type() != object.STRING {
 			t.Errorf("We expected a string-result, but got something else")
@@ -252,7 +368,7 @@ func TestStr(t *testing.T) {
 	// Now a string
 	//
 	var nArgs []object.Object
-	nArgs = append(nArgs, &object.StringObject{Value: "steve"})
+	nArgs = append(nArgs, object.String("steve"))
 	out = STR(nil, nArgs)
 	if out.Type() != object.STRING {
 		t.Errorf("We expected a string, but didn't receive one")
@@ -262,7 +378,7 @@ func TestStr(t *testing.T) {
 	// Now do it properly - float
 	//
 	var fArgs []object.Object
-	fArgs = append(fArgs, &object.NumberObject{Value: 17.8})
+	fArgs = append(fArgs, object.Number(17.8))
 	fOut := STR(nil, fArgs)
 	if fOut.Type() != object.STRING {
 		t.Errorf("We expected a string return, but didn't get one: %s", fOut.String())
@@ -275,7 +391,7 @@ func TestStr(t *testing.T) {
 	// Now do it properly - int
 	//
 	var iArgs []object.Object
-	iArgs = append(iArgs, &object.NumberObject{Value: 99})
+	iArgs = append(iArgs, object.Number(99))
 	iOut := STR(nil, iArgs)
 	if iOut.Type() != object.STRING {
 		t.Errorf("We expected a string return, but didn't get one: %s", iOut.String())
@@ -308,13 +424,13 @@ func TestTl(t *testing.T) {
 	// Define some tests
 	tests := []TLTest{{Input: "Steve", Output: "teve"},
 		{Input: "", Output: ""},
-		// TODO: Fix me		{Input: "ウェブの国際化", Output: "ェブの国際化"},
+		{Input: "ウェブの国際化", Output: "ェブの国際化"},
 	}
 
 	for _, test := range tests {
 
 		var args []object.Object
-		args = append(args, &object.StringObject{Value: test.Input})
+		args = append(args, object.String(test.Input))
 		output := TL(nil, args)
 		if output.Type() != object.STRING {
 			t.Errorf("We expected a string-result, but got something else")
@@ -329,9 +445,9 @@ func TestTl(t *testing.T) {
 func TestVal(t *testing.T) {
 
 	// Inputs
-	num := &object.NumberObject{Value: 3.2}
+	num := object.Number(3.2)
 	err := object.Error("Error")
-	str := &object.StringObject{Value: "3.11"}
+	str := object.String("3.11")
 
 	// err
 	var eArr []object.Object
@@ -358,7 +474,7 @@ func TestVal(t *testing.T) {
 
 	// invalid input - this should become an error
 	var fArr []object.Object
-	fArr = append(fArr, &object.StringObject{Value: "Not a number!"})
+	fArr = append(fArr, object.String("Not a number!"))
 	fOut := VAL(nil, fArr)
 	if fOut.Type() != object.ERROR {
 		fmt.Printf("Error-handling failed")

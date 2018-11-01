@@ -34,10 +34,13 @@ func CODE(env interface{}, args []object.Object) object.Object {
 	if args[0].Type() != object.STRING {
 		return object.Error("Wrong type")
 	}
-	i := args[0].(*object.StringObject).Value
+
+	// We convert this to an array of runes because we
+	// want to handle unicode strings.
+	i := []rune(args[0].(*object.StringObject).Value)
 
 	if len(i) > 0 {
-		s := i[0]
+		s := rune(i[0])
 		return &object.NumberObject{Value: float64(rune(s))}
 	}
 	return &object.NumberObject{Value: float64(0)}
@@ -51,7 +54,10 @@ func LEFT(env interface{}, args []object.Object) object.Object {
 	if args[0].Type() != object.STRING {
 		return object.Error("Wrong type")
 	}
-	in := args[0].(*object.StringObject).Value
+
+	// We convert this to an array of runes because we
+	// want to handle unicode strings.
+	in := []rune(args[0].(*object.StringObject).Value)
 
 	// Get the (float) argument.
 	if args[1].Type() != object.NUMBER {
@@ -65,7 +71,7 @@ func LEFT(env interface{}, args []object.Object) object.Object {
 
 	left := in[0:int(n)]
 
-	return &object.StringObject{Value: left}
+	return &object.StringObject{Value: string(left)}
 }
 
 // LEN returns the length of the given string
@@ -90,7 +96,10 @@ func MID(env interface{}, args []object.Object) object.Object {
 	if args[0].Type() != object.STRING {
 		return object.Error("Wrong type")
 	}
-	in := args[0].(*object.StringObject).Value
+
+	// We convert this to an array of runes because we
+	// want to handle unicode strings.
+	in := []rune(args[0].(*object.StringObject).Value)
 
 	// Get the (float) argument.
 	if args[1].Type() != object.NUMBER {
@@ -117,7 +126,7 @@ func MID(env interface{}, args []object.Object) object.Object {
 		count = float64(len(out))
 	}
 	out = out[:int(count)]
-	return &object.StringObject{Value: out}
+	return &object.StringObject{Value: string(out)}
 }
 
 // RIGHT returns the N right-most characters of the string.
@@ -127,7 +136,10 @@ func RIGHT(env interface{}, args []object.Object) object.Object {
 	if args[0].Type() != object.STRING {
 		return object.Error("Wrong type")
 	}
-	in := args[0].(*object.StringObject).Value
+
+	// We convert this to an array of runes because we
+	// want to handle unicode strings.
+	in := []rune(args[0].(*object.StringObject).Value)
 
 	// Get the (float) argument.
 	if args[1].Type() != object.NUMBER {
@@ -140,7 +152,7 @@ func RIGHT(env interface{}, args []object.Object) object.Object {
 	}
 	right := in[len(in)-int(n):]
 
-	return &object.StringObject{Value: right}
+	return &object.StringObject{Value: string(right)}
 }
 
 // STR converts a number to a string
@@ -176,12 +188,15 @@ func TL(env interface{}, args []object.Object) object.Object {
 	if args[0].Type() != object.STRING {
 		return object.Error("Wrong type")
 	}
-	in := args[0].(*object.StringObject).Value
+
+	// We convert this to an array of runes because we
+	// want to handle unicode strings.
+	in := []rune(args[0].(*object.StringObject).Value)
 
 	if len(in) > 1 {
 		rest := in[1:]
 
-		return &object.StringObject{Value: rest}
+		return &object.StringObject{Value: string(rest)}
 	}
 	return &object.StringObject{Value: ""}
 }
