@@ -294,3 +294,35 @@ func TestIdent(t *testing.T) {
 		}
 	}
 }
+
+// Test null terminates a string
+func TestNullString(t *testing.T) {
+	input := "10 LET a = \"steve\000\n20 PRINT a"
+
+	tests := []struct {
+		expectedType    token.Type
+		expectedLiteral string
+	}{
+		// implicit newline which is a pain.
+		{token.NEWLINE, "\\n"},
+		{token.LINENO, "10"},
+		{token.LET, "LET"},
+		{token.IDENT, "a"},
+		{token.ASSIGN, "="},
+		{token.STRING, "steve"},
+		{token.NEWLINE, "\\n"},
+		{token.LINENO, "20"},
+		{token.IDENT, "PRINT"},
+		{token.IDENT, "a"},
+	}
+	l := New(input)
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong, expected=%q, got=%v", i, tt.expectedType, tok)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - Literal wrong, expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
