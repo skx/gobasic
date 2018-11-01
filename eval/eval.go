@@ -1022,24 +1022,20 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		if tok.Type == token.NEWLINE {
 			if n > 0 {
 				return (object.Error("Hit newline while searching for argument %d to %s", len(args)+1, name))
-			} else {
-				break
 			}
+			break
 		}
 		if tok.Type == token.COLON {
 			if n > 0 {
 				return (object.Error("Hit ':' while searching for argument %d to %s", len(args)+1, name))
-			} else {
-				break
 			}
+			break
 		}
 		if tok.Type == token.EOF {
 			if n > 0 {
 				return (object.Error("Hit EOF while searching for argument %d to %s", len(args)+1, name))
-			} else {
-				break
-
 			}
+			break
 		}
 
 		//
