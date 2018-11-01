@@ -266,3 +266,31 @@ func TestPow(t *testing.T) {
 		}
 	}
 }
+
+// TestIdent ensures we parse a variable-name such as "A3" correctly.
+func TestIdent(t *testing.T) {
+	input := `10 LET a3 = 6`
+
+	tests := []struct {
+		expectedType    token.Type
+		expectedLiteral string
+	}{
+		// implicit newline which is a pain.
+		{token.NEWLINE, "\\n"},
+		{token.LINENO, "10"},
+		{token.LET, "LET"},
+		{token.IDENT, "a3"},
+		{token.ASSIGN, "="},
+		{token.INT, "6"},
+	}
+	l := New(input)
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong, expected=%q, got=%v", i, tt.expectedType, tok)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - Literal wrong, expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
