@@ -934,7 +934,7 @@ func (e *Interpreter) callUserFunction(name string, args []object.Object) object
 	//
 	// Populate the variables in the environment of our (child) evaluater.
 	//
-	for i, _ := range args {
+	for i := range args {
 		if e.trace {
 			fmt.Printf("Setting %s -> %s\n", fun.args[i], args[i].String())
 		}
