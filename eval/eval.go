@@ -667,7 +667,7 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 	}
 
 	//
-	// OK bump past the comparision function.
+	// OK bump past the comparison function.
 	//
 	e.offset++
 
