@@ -1957,9 +1957,7 @@ func (e *Interpreter) Run() error {
 		err := e.RunOnce()
 
 		if err != nil {
-
 			return fmt.Errorf("Line %s : %s", e.lineno, err.Error())
-			return err
 		}
 	}
 
