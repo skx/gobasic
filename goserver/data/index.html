@@ -4907,6 +4907,19 @@ DATA 268,203,268,203
 DATA 999
      `})
 
+          examples.push( { id: 9, title: "Random lines", code: ` 10 REM
+ 20 REM This script will be executed with an 800x600 image
+ 30 REM
+ 40 REM This example draws randomly positioned and coloured lines.
+ 50 REM
+ 60 LET N = ( RND 50 ) + 10
+ 70 FOR I = 1 TO N
+ 80   LINE RND 800, RND 600, RND 800, RND 600
+ 90   COLOR RND 255,RND 255,RND 255
+100 NEXT I
+110 SAVE
+`
+})
      $(function() {
        // Toggle the help-display
        $("#help").click(function(e) {
