@@ -1011,7 +1011,7 @@ func TestNextType(t *testing.T) {
 		t.Errorf("We didn't find an error, and should have done")
 	}
 
-	if !strings.Contains(err.Error(), "is not a number!") {
+	if !strings.Contains(err.Error(), "is not a number") {
 		t.Errorf("Wrong error-message was found")
 	}
 }

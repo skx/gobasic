@@ -330,7 +330,7 @@ func (e *Interpreter) factor() object.Object {
 			// skip past the rbracket
 			tok = e.program[e.offset]
 			if tok.Type != token.RBRACKET {
-				return object.Error("Unclosed bracket around expression!")
+				return object.Error("Unclosed bracket around expression")
 			}
 			e.offset++
 
@@ -490,7 +490,7 @@ func (e *Interpreter) term() object.Object {
 		}
 		if tok.Type == token.SLASH {
 			if v2 == 0 {
-				return object.Error("Division by zero!")
+				return object.Error("Division by zero")
 			}
 			f1 = &object.NumberObject{Value: v1 / v2}
 		}
@@ -500,7 +500,7 @@ func (e *Interpreter) term() object.Object {
 			d2 := int(v2)
 
 			if d2 == 0 {
-				return object.Error("MOD 0 is an error!")
+				return object.Error("MOD 0 is an error")
 			}
 			f1 = &object.NumberObject{Value: float64(d1 % d2)}
 		}
@@ -912,7 +912,7 @@ func (e *Interpreter) callUserFunction(name string, args []object.Object) object
 	// Does the argument count supplied and parameter count match?
 	//
 	if len(fun.args) != len(args) {
-		return object.Error("Argument count mis-match!")
+		return object.Error("Argument count mis-match")
 	}
 
 	//
@@ -1136,7 +1136,7 @@ func (e *Interpreter) runForLoop() error {
 
 		x := e.GetVariable(startI.Literal)
 		if x.Type() != object.NUMBER {
-			return fmt.Errorf("FOR: start-variable must be an integer!")
+			return fmt.Errorf("FOR: start-variable must be an integer")
 		}
 		start = x.(*object.NumberObject).Value
 	} else {
@@ -1176,7 +1176,7 @@ func (e *Interpreter) runForLoop() error {
 
 		x := e.GetVariable(endI.Literal)
 		if x.Type() != object.NUMBER {
-			return fmt.Errorf("FOR: end-variable must be an integer!")
+			return fmt.Errorf("FOR: end-variable must be an integer")
 		}
 		end = int(x.(*object.NumberObject).Value)
 	} else {
@@ -1677,7 +1677,7 @@ func (e *Interpreter) runNEXT() error {
 	//
 	cur := e.GetVariable(target.Literal)
 	if cur.Type() != object.NUMBER {
-		return fmt.Errorf("NEXT variable %s is not a number!", target.Literal)
+		return fmt.Errorf("NEXT variable %s is not a number", target.Literal)
 	}
 	iVal := cur.(*object.NumberObject).Value
 

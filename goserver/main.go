@@ -395,7 +395,7 @@ func runScript(code string) (string, error) {
 	// Get the name of the file the SAVE function wrote to
 	pathObj := e.GetVariable("file.name")
 	if pathObj == nil {
-		return "", fmt.Errorf("Your script did not include a 'SAVE' statement!")
+		return "", fmt.Errorf("Your script did not include a 'SAVE' statement")
 	}
 	if pathObj.Type() == object.ERROR {
 		return "", fmt.Errorf("Your script did not include a 'SAVE' statement: %s", pathObj.(*object.ErrorObject).Value)
