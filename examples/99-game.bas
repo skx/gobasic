@@ -9,7 +9,7 @@
 09 REM
 
  10 LET b=RND 100
- 20 LET count=0
+ 20 LET count=1
  30 PRINT "I have picked a random number, please guess it!!\n"
  40 INPUT "Enter your choice:", a
  50 PRINT "\n"
