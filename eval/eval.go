@@ -695,7 +695,7 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 				//true
 				return &object.NumberObject{Value: 1}
 			}
-		case token.NOT_EQUALS:
+		case token.NOTEQUALS:
 			if v1 != v2 {
 				//true
 				return &object.NumberObject{Value: 1}
@@ -705,7 +705,7 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 				//true
 				return &object.NumberObject{Value: 1}
 			}
-		case token.GT_EQUALS:
+		case token.GTEQUALS:
 			if v1 >= v2 {
 				//true
 				return &object.NumberObject{Value: 1}
@@ -715,7 +715,7 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 				//true
 				return &object.NumberObject{Value: 1}
 			}
-		case token.LT_EQUALS:
+		case token.LTEQUALS:
 			if v1 <= v2 {
 				//true
 				return &object.NumberObject{Value: 1}
@@ -745,7 +745,7 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 				//true
 				return &object.NumberObject{Value: 1}
 			}
-		case token.GT_EQUALS:
+		case token.GTEQUALS:
 			if v1 >= v2 {
 				//true
 				return &object.NumberObject{Value: 1}
@@ -756,12 +756,12 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 				return &object.NumberObject{Value: 1}
 			}
 
-		case token.LT_EQUALS:
+		case token.LTEQUALS:
 			if v1 <= v2 {
 				//true
 				return &object.NumberObject{Value: 1}
 			}
-		case token.NOT_EQUALS:
+		case token.NOTEQUALS:
 			if v1 != v2 {
 				//true
 				return &object.NumberObject{Value: 1}

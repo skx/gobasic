@@ -78,11 +78,11 @@ const (
 	RBRACKET = ")"
 
 	// Comparison functions.
-	GT         = ">"
-	GT_EQUALS  = ">="
-	LT         = "<"
-	LT_EQUALS  = "<="
-	NOT_EQUALS = "<>"
+	GT        = ">"
+	GTEQUALS  = ">="
+	LT        = "<"
+	LTEQUALS  = "<="
+	NOTEQUALS = "<>"
 )
 
 // reversed keywords

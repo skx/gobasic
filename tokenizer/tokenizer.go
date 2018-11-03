@@ -100,11 +100,11 @@ func (l *Tokenizer) NextToken() token.Token {
 		if l.peekChar() == rune('>') {
 			ch := l.ch
 			l.readChar()
-			tok = token.Token{Type: token.NOT_EQUALS, Literal: string(ch) + string(l.ch)}
+			tok = token.Token{Type: token.NOTEQUALS, Literal: string(ch) + string(l.ch)}
 		} else if l.peekChar() == rune('=') {
 			ch := l.ch
 			l.readChar()
-			tok = token.Token{Type: token.LT_EQUALS, Literal: string(ch) + string(l.ch)}
+			tok = token.Token{Type: token.LTEQUALS, Literal: string(ch) + string(l.ch)}
 		} else {
 			tok = newToken(token.LT, l.ch)
 		}
@@ -112,7 +112,7 @@ func (l *Tokenizer) NextToken() token.Token {
 		if l.peekChar() == rune('=') {
 			ch := l.ch
 			l.readChar()
-			tok = token.Token{Type: token.GT_EQUALS, Literal: string(ch) + string(l.ch)}
+			tok = token.Token{Type: token.GTEQUALS, Literal: string(ch) + string(l.ch)}
 		} else {
 			tok = newToken(token.GT, l.ch)
 		}
