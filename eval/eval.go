@@ -1994,7 +1994,7 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 //
 // Useful for embedding.
 //
-func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft builtin.BuiltinSig) {
+func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft builtin.Signature) {
 
 	//
 	// We want to make sure that we handle both of these:

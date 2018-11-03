@@ -8,13 +8,13 @@ import (
 	"github.com/skx/gobasic/object"
 )
 
-// BuiltinSig is the signature of a builtin-function.
+// Signature is the signature of a builtin-function.
 //
 // Each built-in will receive an array of objects, and will return a
 // single object back to the caller.
 //
 // In the case of an error then the object will be an error-object.
-type BuiltinSig func(env interface{}, args []object.Object) object.Object
+type Signature func(env interface{}, args []object.Object) object.Object
 
 // Builtins holds our state.
 type Builtins struct {
@@ -26,14 +26,14 @@ type Builtins struct {
 
 	// fnRegistry holds a reference to the golang function which
 	// implements the builtin.
-	fnRegistry map[string]BuiltinSig
+	fnRegistry map[string]Signature
 }
 
 // New returns a new helper/holder for builtin functions.
 func New() *Builtins {
 	t := &Builtins{}
 	t.argRegistry = make(map[string]int)
-	t.fnRegistry = make(map[string]BuiltinSig)
+	t.fnRegistry = make(map[string]Signature)
 
 	return t
 }
@@ -45,7 +45,7 @@ func New() *Builtins {
 //          NOTE: Arguments are comma-separated in the BASIC program,
 //          but commas are stripped out.
 //  FT    - The function which provides the implementation.
-func (b *Builtins) Register(name string, nArgs int, ft BuiltinSig) {
+func (b *Builtins) Register(name string, nArgs int, ft Signature) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
@@ -55,7 +55,7 @@ func (b *Builtins) Register(name string, nArgs int, ft BuiltinSig) {
 }
 
 // Get the values associated with the given built-in.
-func (b *Builtins) Get(name string) (int, BuiltinSig) {
+func (b *Builtins) Get(name string) (int, Signature) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
 
