@@ -1524,7 +1524,7 @@ func (e *Interpreter) runIF() error {
 		//
 		// Help me, I'm in Hell.
 		//
-		e.offset -= 1
+		e.offset--
 
 		//
 		// If the user made a jump then we'll
