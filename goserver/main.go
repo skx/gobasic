@@ -282,7 +282,8 @@ func lineFunction(env interface{}, args []object.Object) object.Object {
 	// Is line a vertical ?
 	case x1 == x2:
 		if y1 > y2 {
-			y1, y2 = y2, y1
+			y1 = y2
+			//, y2 = y2, y1
 		}
 		for ; dy != 0; dy-- {
 			img.Set(x1, y1, col)
