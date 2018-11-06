@@ -353,11 +353,17 @@ func (e *Interpreter) factor() object.Object {
 			//
 			// Call the user-defined function.
 			//
-			//  TODO: Proper bounds-checking and type-checking here.
-			//
 			e.offset++
+			if e.offset >= len(e.program) {
+				return object.Error("Hit end of program processing FN call")
+			}
+
 			name := e.program[e.offset]
+
 			e.offset++
+			if e.offset >= len(e.program) {
+				return object.Error("Hit end of program processing FN call")
+			}
 
 			//
 			// Collect the arguments.
@@ -371,6 +377,7 @@ func (e *Interpreter) factor() object.Object {
 			for e.offset < len(e.program) {
 
 				tt := e.program[e.offset]
+
 				if tt.Type == token.RBRACKET {
 					e.offset++
 					break
@@ -383,7 +390,13 @@ func (e *Interpreter) factor() object.Object {
 
 				// Call the token as an expression
 				obj := e.expr(true)
+				if obj.Type() == object.ERROR {
+					return obj
+				}
 				args = append(args, obj)
+			}
+			if e.offset >= len(e.program) {
+				return object.Error("Hit end of program processing FN call")
 			}
 
 			//

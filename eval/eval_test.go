@@ -1377,7 +1377,8 @@ func TestUserFn(t *testing.T) {
 // TestBogusFn applies some trivial user-function testing
 func TestBogusFn(t *testing.T) {
 
-	one := `10 LET a = FN foo(x)`
+	one := `10 LET x = 4
+20 LET a = FN foo(x)`
 	two := `10 DEF FN square(x) = x * x
 20 LET a = FN square()
 `
