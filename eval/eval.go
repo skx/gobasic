@@ -996,7 +996,7 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 		// Get the next token, if it is a comma then eat it.
 		//
 		tok := e.program[e.offset]
-		if tok.Type == token.COMMA {
+		if tok.Type == token.COMMA || tok.Type == token.SEMICOLON {
 
 			//
 			// Hack

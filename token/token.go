@@ -73,9 +73,10 @@ const (
 	SLASH    = "/" // integer division
 	POW      = "^" // power
 
-	COLON    = ":"
-	LBRACKET = "("
-	RBRACKET = ")"
+	COLON     = ":"
+	SEMICOLON = ";"
+	LBRACKET  = "("
+	RBRACKET  = ")"
 
 	// Comparison functions.
 	GT        = ">"
