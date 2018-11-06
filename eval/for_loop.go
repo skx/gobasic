@@ -22,13 +22,13 @@ type ForLoop struct {
 	offset int
 
 	// start is the initial value of the variable at the start of the loop
-	start int
+	start float64
 
 	// end is the terminating value of the variable
-	end int
+	end float64
 
 	// increment is how much to step by
-	step int
+	step float64
 
 	// is the loop finnished?
 	finished bool

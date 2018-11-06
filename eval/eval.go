@@ -1163,7 +1163,7 @@ func (e *Interpreter) runForLoop() error {
 	endI := e.program[e.offset]
 	e.offset++
 
-	var end int
+	var end float64
 
 	if endI.Type == token.INT {
 		v, err := strconv.ParseFloat(endI.Literal, 64)
@@ -1171,14 +1171,14 @@ func (e *Interpreter) runForLoop() error {
 			return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
 		}
 
-		end = int(v)
+		end = v
 	} else if endI.Type == token.IDENT {
 
 		x := e.GetVariable(endI.Literal)
 		if x.Type() != object.NUMBER {
 			return fmt.Errorf("FOR: end-variable must be an integer")
 		}
-		end = int(x.(*object.NumberObject).Value)
+		end = x.(*object.NumberObject).Value
 	} else {
 		return fmt.Errorf("Expected INT/VARIABLE after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
 	}
@@ -1229,9 +1229,9 @@ func (e *Interpreter) runForLoop() error {
 	//
 	f := ForLoop{id: target.Literal,
 		offset: e.offset,
-		start:  int(start),
-		end:    int(end),
-		step:   int(step)}
+		start:  start,
+		end:    end,
+		step:   step}
 
 	//
 	// Set the variable to the starting-value
@@ -1696,6 +1696,12 @@ func (e *Interpreter) runNEXT() error {
 	// Increment the number.
 	//
 	iVal += float64(data.step)
+
+	//
+	// Truncation here, to ensure that float-imprecision doesn't
+	// cause any surprises.
+	//
+	iVal = float64(int(iVal*100)) / 100
 
 	//
 	// Set it
