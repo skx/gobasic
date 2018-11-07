@@ -1207,7 +1207,16 @@ func (e *Interpreter) runForLoop() error {
 	if e.program[e.offset].Type == token.STEP {
 		e.offset++
 
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("Hit end of program processing FOR")
+		}
+
 		s := e.program[e.offset]
+
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("Hit end of program processing FOR")
+		}
+
 		e.offset++
 		if s.Type != token.INT {
 			return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v", target.Literal, startI, endI, s)

@@ -1403,3 +1403,17 @@ func TestBogusFn(t *testing.T) {
 		t.Errorf("Wrong error message:%s", err.Error())
 	}
 }
+
+// TestIssue65 is the test case for https://github.com/skx/gobasic/issues/65
+// a crash in a FOR loop with missing STEP
+func TestIssue65(t *testing.T) {
+	input := `LET term=0
+FOR I=0TO term STEP`
+	obj := Compile(input)
+	err := obj.Run()
+
+	if err == nil {
+		t.Errorf("Expected an error running program, we found none")
+	}
+
+}
