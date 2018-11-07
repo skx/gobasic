@@ -11,8 +11,8 @@ Now you can build the `eval` package with fuzzing enabled:
 
 Create a location to hold the work, and give it copies of some sample-programs:
 
-    $ mkdir -p work/corpus
-    $ cp examples/*.bas work/corpus
+    $ mkdir -p workdir/corpus
+    $ cp examples/*.bas workdir/corpus
 
 Now you can actually launch the fuzzer - here I use `-procs 1` so that
 my desktop system isn't complete overloaded:
