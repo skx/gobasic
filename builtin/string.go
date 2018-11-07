@@ -21,6 +21,11 @@ func CHR(env interface{}, args []object.Object) object.Object {
 	}
 	i := args[0].(*object.NumberObject).Value
 
+	// ensure it is positive
+	if i < 0 {
+		return object.Error("Positive argument only")
+	}
+
 	// Now
 	r := rune(i)
 
@@ -65,6 +70,11 @@ func LEFT(env interface{}, args []object.Object) object.Object {
 	}
 	n := args[1].(*object.NumberObject).Value
 
+	// ensure it is positive
+	if n < 0 {
+		return object.Error("Positive argument only")
+	}
+
 	if int(n) > len(in) {
 		n = float64(len(in))
 	}
@@ -106,12 +116,18 @@ func MID(env interface{}, args []object.Object) object.Object {
 		return object.Error("Wrong type")
 	}
 	offset := args[1].(*object.NumberObject).Value
+	if offset < 0 {
+		return object.Error("Positive argument only")
+	}
 
 	// Get the (float) argument.
 	if args[2].Type() != object.NUMBER {
 		return object.Error("Wrong type")
 	}
 	count := args[2].(*object.NumberObject).Value
+	if count < 0 {
+		return object.Error("Positive argument only")
+	}
 
 	// too far
 	if int(offset) > len(in) {
@@ -122,9 +138,10 @@ func MID(env interface{}, args []object.Object) object.Object {
 	out := in[int(offset):]
 
 	// now cut, by length
-	if int(count) > len(out) {
+	if int(count) >= len(out) {
 		count = float64(len(out))
 	}
+
 	out = out[:int(count)]
 	return &object.StringObject{Value: string(out)}
 }
@@ -146,6 +163,11 @@ func RIGHT(env interface{}, args []object.Object) object.Object {
 		return object.Error("Wrong type")
 	}
 	n := args[1].(*object.NumberObject).Value
+
+	// ensure it is positive
+	if n < 0 {
+		return object.Error("Positive argument only")
+	}
 
 	if int(n) > len(in) {
 		n = float64(len(in))

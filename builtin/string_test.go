@@ -23,15 +23,28 @@ func TestChr(t *testing.T) {
 	}
 
 	//
+	// Call with a negative argument.
+	//
+	var failArgs2 []object.Object
+	failArgs2 = append(failArgs2, object.Number(-33))
+	out2 := CHR(nil, failArgs2)
+	if out2.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+	if !strings.Contains(out2.String(), "Positive") {
+		t.Errorf("Our error message wasn't what we expected")
+	}
+
+	//
 	// Now do it properly
 	//
 	var validArgs []object.Object
 	validArgs = append(validArgs, object.Number(42))
-	out2 := CHR(nil, validArgs)
-	if out2.Type() != object.STRING {
+	out3 := CHR(nil, validArgs)
+	if out3.Type() != object.STRING {
 		t.Errorf("We expected a string return, but didn't get one: %s", out2.String())
 	}
-	if out2.(*object.StringObject).Value != "*" {
+	if out3.(*object.StringObject).Value != "*" {
 		t.Errorf("Function returned a surprising result")
 	}
 
@@ -40,13 +53,13 @@ func TestChr(t *testing.T) {
 	//
 	var utf []object.Object
 	utf = append(utf, object.Number(12454))
-	out3 := CHR(nil, utf)
-	if out3.Type() != object.STRING {
+	out4 := CHR(nil, utf)
+	if out4.Type() != object.STRING {
 		t.Errorf("We expected a string return, but didn't get one: %s", out3.String())
 	}
-	if out3.(*object.StringObject).Value != "ウ" {
+	if out4.(*object.StringObject).Value != "ウ" {
 		t.Errorf("Function returned a surprising result: %s",
-			out3.(*object.StringObject).Value)
+			out4.(*object.StringObject).Value)
 	}
 
 }
@@ -127,6 +140,20 @@ func TestLeft(t *testing.T) {
 	out2 := LEFT(nil, fail2)
 	if out2.Type() != object.ERROR {
 		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// The final bogus-test would be to give a negative number as an argument.
+	//
+	var fail3 []object.Object
+	fail3 = append(fail3, object.String("Valid type"))
+	fail3 = append(fail3, object.Number(-33))
+	out3 := LEFT(nil, fail3)
+	if out3.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+	if !strings.Contains(out3.String(), "Positive") {
+		t.Errorf("Our error message wasn't what we expected")
 	}
 
 	//
@@ -260,6 +287,36 @@ func TestMid(t *testing.T) {
 	}
 
 	//
+	// 5.  Call with string, number, -number
+	//
+	var failArgs5 []object.Object
+	failArgs5 = append(failArgs5, object.String("ok"))
+	failArgs5 = append(failArgs5, object.Number(3))
+	failArgs5 = append(failArgs5, object.Number(-54))
+	out5 := MID(nil, failArgs5)
+	if out5.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+	if !strings.Contains(out5.String(), "Positive") {
+		t.Errorf("Our error message wasn't what we expected")
+	}
+
+	//
+	// 6.  Call with string, -number, number
+	//
+	var failArgs6 []object.Object
+	failArgs6 = append(failArgs6, object.String("ok"))
+	failArgs6 = append(failArgs6, object.Number(-3))
+	failArgs6 = append(failArgs6, object.Number(54))
+	out6 := MID(nil, failArgs6)
+	if out6.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+	if !strings.Contains(out6.String(), "Positive") {
+		t.Errorf("Our error message wasn't what we expected")
+	}
+
+	//
 	// Now test things that work properly.
 	//
 	//
@@ -318,6 +375,20 @@ func TestRight(t *testing.T) {
 	out2 := RIGHT(nil, fail2)
 	if out2.Type() != object.ERROR {
 		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// The final bogus-test would be to give a negative number as an argument.
+	//
+	var fail3 []object.Object
+	fail3 = append(fail3, object.String("Valid type"))
+	fail3 = append(fail3, object.Number(-33))
+	out3 := RIGHT(nil, fail3)
+	if out3.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+	if !strings.Contains(out3.String(), "Positive") {
+		t.Errorf("Our error message wasn't what we expected")
 	}
 
 	//
