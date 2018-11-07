@@ -794,29 +794,44 @@ func (e *Interpreter) parseDefFN(offset int) error {
 	// The general form of a function-definition is
 	//    DEF FN NAME ( [ARG, COMMA] ) = "BLAH BLAH"
 	//
+	if offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DEF FN")
+	}
 
 	// skip past the DEF
 	offset++
+	if offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DEF FN")
+	}
 
 	// Next token should be "FN"
 	fn := e.program[offset]
-	offset++
 	if fn.Type != token.FN {
 		return (fmt.Errorf("Expected FN after DEF"))
+	}
+	offset++
+	if offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DEF FN")
 	}
 
 	// Now a name
 	name := e.program[offset]
-	offset++
 	if name.Type != token.IDENT {
 		return (fmt.Errorf("Expected function-name after 'DEF FN', got %s", name.String()))
+	}
+	offset++
+	if offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DEF FN")
 	}
 
 	// Now an opening parenthesis.
 	open := e.program[offset]
-	offset++
 	if open.Type != token.LBRACKET {
 		return (fmt.Errorf("Expected ( after 'DEF FN %s'", name))
+	}
+	offset++
+	if offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DEF FN")
 	}
 
 	//
