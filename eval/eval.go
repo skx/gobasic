@@ -661,7 +661,7 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 	// Get the comparison function
 	op := e.program[e.offset]
 
-	// If the next token is an IF then we're going
+	// If the next token is an THEN then we're going
 	// to regard the test as a pass if the first
 	// value was not 0 (number) and not "" (string)
 	if op.Type == token.THEN {
@@ -739,7 +739,7 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 	}
 
 	//
-	// String-tests here
+	// Number-tests here
 	//
 	if t1.Type() == object.NUMBER && t2.Type() == object.NUMBER {
 
@@ -1250,7 +1250,7 @@ func (e *Interpreter) runForLoop() error {
 	//
 	// The key observersions here are that all the magic
 	// really involved in the FOR-loop happens at the point
-	// you interpret the "NEXT X" section.
+	// you interpret the "NEXT X" statement.
 	//
 	// Handling the NEXT statement involves:
 	//
