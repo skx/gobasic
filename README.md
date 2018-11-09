@@ -219,7 +219,7 @@ As is common with early 8-bit home-computers this implementation is a little mor
     * [eval/stack.go](eval/stack.go) holds a call-stack to handle `GOSUB`/`RETURN`
     * [eval/vars.go](eval/vars.go) holds all our variable references.
     * We have a facility to allow golang code to be made available to BASIC programs, and we use that facility to implement a bunch of our functions as "builtins".
-      * Our builtin-functionss are implemented beneath [builtin/](builtin/).
+      * Our builtin-functions are implemented beneath [builtin/](builtin/).
 * Because we support both strings and ints/floats in our BASIC scripts we use a wrapper to hold them on the golang-side.  This can be found in [object/object.go](object/object.go).
 
 As there is no AST step errors cannot be detected prior to the execution of programs - because we only hit them after we've started running.
