@@ -1396,7 +1396,20 @@ func (e *Interpreter) runINPUT() error {
 	//
 	// Print the prompt
 	//
-	fmt.Printf(prompt.Literal)
+	switch prompt.Type {
+	case token.STRING:
+		fmt.Printf(prompt.Literal)
+	case token.IDENT:
+		// We'll print the contents of a variable
+		// if it is a string.
+		value := e.GetVariable(prompt.Literal)
+		if value.Type() != object.STRING {
+			return fmt.Errorf("INPUT only handles string-prompts")
+		}
+		fmt.Printf("%s", value.(*object.StringObject).Value)
+	default:
+		return fmt.Errorf("INPUT invalid prompt-type %s", prompt.String())
+	}
 
 	//
 	// Read the input from the user.
