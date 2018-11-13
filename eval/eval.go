@@ -291,11 +291,6 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	return t
 }
 
-// SetTrace allows the user to enable/disable tracing.
-func (e *Interpreter) SetTrace(val bool) {
-	e.trace = val
-}
-
 ////
 //
 // Helpers for stuff
@@ -2005,6 +2000,18 @@ func (e *Interpreter) Run() error {
 	}
 
 	return nil
+}
+
+// SetTrace allows the user to enable output of debugging-information
+// to STDOUT when the intepreter is running.
+func (e *Interpreter) SetTrace(val bool) {
+	e.trace = val
+}
+
+// GetTrace returns a boolean result indicating whether debugging information
+// is output to STDOUT during the course of execution.
+func (e *Interpreter) GetTrace() bool {
+	return (e.trace)
 }
 
 // SetVariable sets the contents of a variable in the interpreter environment.
