@@ -22,7 +22,6 @@ func TestMathOperators(t *testing.T) {
 		{token.ASTERISK, "*"},
 		{token.MOD, "%"},
 		{token.ASSIGN, "="},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -52,7 +51,6 @@ func TestMiscTokens(t *testing.T) {
 		{token.COMMA, ","},
 		{token.COLON, ":"},
 		{token.SEMICOLON, ";"},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -92,7 +90,6 @@ func TestLineNo(t *testing.T) {
 		{token.NEWLINE, "\\n"},
 		{token.LINENO, "20"},
 		{token.REM, "REM"},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -127,7 +124,6 @@ func TestStringParse(t *testing.T) {
 		{token.LINENO, "20"},
 		{token.REM, "REM"},
 		{token.IDENT, "OK"},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -191,7 +187,6 @@ func TestComparisons(t *testing.T) {
 		{token.IDENT, "A"},
 		{token.NOTEQUALS, "<>"},
 		{token.IDENT, "B"},
-		{token.NEWLINE, "\\n"},
 		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
