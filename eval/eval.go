@@ -104,7 +104,7 @@ type Interpreter struct {
 //
 // Given a lexer we store all the tokens it produced in our array, and
 // initialise some other state.
-func New(stream *tokenizer.Tokenizer) *Interpreter {
+func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	t := &Interpreter{offset: 0}
 
 	// setup a stack for holding line-numbers for GOSUB/RETURN
@@ -288,7 +288,7 @@ func New(stream *tokenizer.Tokenizer) *Interpreter {
 	//
 	// Return our configured interpreter
 	//
-	return t
+	return t, nil
 }
 
 ////
@@ -948,7 +948,10 @@ func (e *Interpreter) callUserFunction(name string, args []object.Object) object
 	// Create the tokenizer, and the evaluator which use it.
 	//
 	tokenizer := tokenizer.New(fun.body)
-	eval := New(tokenizer)
+	eval, err := New(tokenizer)
+	if err != nil {
+		return object.Error(err.Error())
+	}
 
 	//
 	// The new instance won't have any variables setup, but that's
