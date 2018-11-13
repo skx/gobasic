@@ -443,6 +443,26 @@ func TestForTerm(t *testing.T) {
 	}
 }
 
+// TestForCalculatedStep runs a single simple FOR loop
+func TestForCalculatedStep(t *testing.T) {
+	input := `
+10 LET SUM = 0
+20 LET A=5
+30 LET B=15
+40 LET N=100
+50 FOR I = 0 TO N STEP A + B
+60 LET SUM = SUM + I
+70 NEXT I
+`
+
+	obj := Compile(input)
+	obj.Run()
+
+	if getFloat(t, obj, "SUM") != 300 {
+		t.Errorf("Value not expected, found %f!", getFloat(t, obj, "SUM"))
+	}
+}
+
 // TestBogusFor ensures that bogus-FOR-loops are found
 func TestBogusFor(t *testing.T) {
 

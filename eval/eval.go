@@ -1111,36 +1111,32 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 
 // runForLoop handles a FOR loop
 func (e *Interpreter) runForLoop() error {
-	// we expect "ID = NUM to NUM [STEP NUM]"
+	// we expect "FOR VAR = START to END [STEP EXPR]"
 
 	// Bump past the FOR token
 	e.offset++
 
+	// Ensure we've not walked off the end of the program.
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing FOR")
 	}
 
 	// We now expect a variable name.
 	target := e.program[e.offset]
-	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing FOR")
-	}
-
-	e.offset++
 	if target.Type != token.IDENT {
 		return fmt.Errorf("Expected IDENT after FOR, got %v", target)
 	}
+	e.offset++
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing FOR")
 	}
 
 	// Now an EQUALS
 	eq := e.program[e.offset]
-	e.offset++
 	if eq.Type != token.ASSIGN {
 		return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
 	}
-
+	e.offset++
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing FOR")
 	}
@@ -1148,7 +1144,6 @@ func (e *Interpreter) runForLoop() error {
 	// Now an integer/variable
 	startI := e.program[e.offset]
 	e.offset++
-
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing FOR")
 	}
@@ -1171,25 +1166,19 @@ func (e *Interpreter) runForLoop() error {
 		return fmt.Errorf("Expected INT/VARIABLE after 'FOR %s=', got %v", target.Literal, startI)
 	}
 
-	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing FOR")
-	}
-
 	// Now TO
 	to := e.program[e.offset]
-	e.offset++
-
 	if to.Type != token.TO {
 		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
 	}
 
+	e.offset++
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing FOR")
 	}
 
 	// Now an integer/variable
 	endI := e.program[e.offset]
-	e.offset++
 
 	var end float64
 
@@ -1212,36 +1201,30 @@ func (e *Interpreter) runForLoop() error {
 	}
 
 	// Default step is 1.
-	stepI := "1"
+	step := 1.0
 
+	e.offset++
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing FOR")
 	}
 
 	// Is the next token a step?
 	if e.program[e.offset].Type == token.STEP {
+
+		// Skip past the step
 		e.offset++
 
 		if e.offset >= len(e.program) {
 			return fmt.Errorf("Hit end of program processing FOR")
 		}
 
-		s := e.program[e.offset]
+		// Parse the STEP-expression.
+		s := e.expr(true)
 
-		if e.offset >= len(e.program) {
-			return fmt.Errorf("Hit end of program processing FOR")
+		if s.Type() != object.NUMBER {
+			return fmt.Errorf("FOR loops expect an integer STEP, got %s", s.String())
 		}
-
-		e.offset++
-		if s.Type != token.INT {
-			return fmt.Errorf("Expected INT after 'FOR %s=%s TO %s STEP', got %v", target.Literal, startI, endI, s)
-		}
-		stepI = s.Literal
-	}
-
-	step, err := strconv.ParseFloat(stepI, 64)
-	if err != nil {
-		return fmt.Errorf("Failed to convert %s to an int %s", stepI, err.Error())
+		step = s.(*object.NumberObject).Value
 	}
 
 	//
