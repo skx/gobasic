@@ -347,7 +347,56 @@ func TestGoto(t *testing.T) {
 
 }
 
-// TODO: TestLet
+// TestLet performs sanity-checking on our LET implementation.
+func TestLet(t *testing.T) {
+
+	//
+	// Failure cases.
+	//
+	fails := []string{"10 LET 3\n",
+		"10 LET a _ 3\n"}
+
+	for _, fail := range fails {
+
+		e, err := FromString(fail)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", fail, err.Error())
+		}
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected to see an error, but didn't.")
+		}
+		if !strings.Contains(err.Error(), "LET") {
+			t.Errorf("Our error-message wasn't what we expected")
+		}
+
+	}
+
+	//
+	// Now a working example.
+	//
+	ok1 := "10 LET a = \"Steve\"\n"
+	e, err := FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("We found an unexpected error: %s", err.Error())
+	}
+
+	cur := e.GetVariable("a")
+	if cur.Type() == object.ERROR {
+		t.Errorf("Variable a does not exist!")
+	}
+	if cur.Type() != object.STRING {
+		t.Errorf("Variable a had wrong type: %s", cur.String())
+	}
+	out := cur.(*object.StringObject).Value
+	if out != "Steve" {
+		t.Errorf("Expected x to be %s, got %s", "Steve", out)
+	}
+}
 
 // TestMaths tests addition, subtraction, multiplication, division, etc.
 func TestMaths(t *testing.T) {
