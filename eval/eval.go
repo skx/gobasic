@@ -1783,10 +1783,12 @@ func (e *Interpreter) runNEXT() error {
 //
 func (e *Interpreter) swallowLine() error {
 
-	for e.offset < len(e.program) {
+	run := true
+
+	for e.offset < len(e.program) && run {
 		tok := e.program[e.offset]
 		if tok.Type == token.NEWLINE {
-			return nil
+			run = false
 		}
 		e.offset++
 	}
