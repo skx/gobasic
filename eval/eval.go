@@ -207,17 +207,13 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 					break
 				case token.COMMA:
 					// NOP
-				case token.EOF:
-					run = false
-					break
 				case token.STRING:
 					t.data = append(t.data, &object.StringObject{Value: tk.Literal})
 				case token.INT:
 					i, _ := strconv.ParseFloat(tk.Literal, 64)
 					t.data = append(t.data, &object.NumberObject{Value: i})
 				default:
-					fmt.Printf("Error reading DATA - Unhandled token: %s", tk.String())
-					os.Exit(3)
+					return nil, fmt.Errorf("Error reading DATA - Unhandled token: %s", tk.String())
 				}
 				start++
 			}
@@ -233,8 +229,8 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 			//
 			err := t.parseDefFN(offset)
 			if err != nil {
-				fmt.Printf("Error in DEF FN: %s\n", err.Error())
-				os.Exit(33)
+				return nil, fmt.Errorf("Error in DEF FN: %s\n", err.Error())
+
 			}
 		}
 

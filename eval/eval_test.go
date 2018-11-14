@@ -77,3 +77,37 @@ func TestVariables(t *testing.T) {
 		}
 	}
 }
+
+// TestData tests that invalid data items cause the program to fail.
+func TestData(t *testing.T) {
+	type Test struct {
+		Input string
+		Valid bool
+	}
+
+	vars := []Test{{Input: `10 DATA 2,1,2`, Valid: true},
+		{Input: `10 DATA "2","1","2"`, Valid: true},
+		{Input: `10 DATA "2","steve",2
+`, Valid: true},
+		{Input: `10 DATA LET, b, c`, Valid: false},
+	}
+
+	//
+	// Test reading each set of data.
+	//
+	for _, v := range vars {
+
+		tokener := tokenizer.New(v.Input)
+		_, err := New(tokener)
+
+		if v.Valid {
+			if err != nil {
+				t.Errorf("Expected error, received one: %s!", err.Error())
+			}
+		} else {
+			if err == nil {
+				t.Errorf("Expected error, received none for input %s", v.Input)
+			}
+		}
+	}
+}
