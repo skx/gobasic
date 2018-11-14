@@ -135,8 +135,18 @@ func TestCompare(t *testing.T) {
 		{Input: `120 IF "moi" = "moi" THEN let E=1 ELSE LET E=3`, Var: "E", Val: 1},
 		{Input: `130 IF "steve" <> "kemp" THEN let F=13 ELSE LET F=3`, Var: "F", Val: 13},
 		{Input: `140 IF "a" <> "a" THEN let G=3 ELSE LET G=33`, Var: "G", Val: 33},
-		// TODO: if 3 THEN
-		// TODO: if "steve" THEN
+		{Input: `10 LET a=1
+20 IF a THEN LET t=11 ELSE let t=10
+`, Var: "t", Val: 11},
+		{Input: `10 LET a=0
+20 IF a THEN LET t=11 ELSE let t=10
+`, Var: "t", Val: 10},
+		{Input: `10 LET a="steve"
+20 IF a THEN LET tt=11 ELSE let tt=10
+`, Var: "tt", Val: 11},
+		{Input: `10 LET a=""
+20 IF a THEN LET tt=11 ELSE let tt=10
+`, Var: "tt", Val: 10},
 	}
 
 	//
