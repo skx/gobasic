@@ -266,6 +266,10 @@ func TestExprTerm(t *testing.T) {
 	}
 }
 
+// Test that our bounds-checking of the input-program works.
+//
+// The bounds-checks are here largely as a result of the fuzz-testing,
+// as described in `FUZZING.md`.
 func TestEOF(t *testing.T) {
 
 	tests := []string{
@@ -274,6 +278,19 @@ func TestEOF(t *testing.T) {
 		"30 LET a = ( 3",
 		"40 LET a = (",
 		"50 LET a = 3 * 3 / 3 +",
+		"60 GOSUB",
+		"70 GOTO",
+		"80 INPUT",
+		"90 INPUT \"test\"",
+		"100 INPUT \"test\", ",
+		"100 LET",
+		"110 LET x",
+		"120 LET x=",
+		"130 NEXT",
+
+		// multi-line tests:
+		`140 DATA 3,4,5
+150 READ`,
 	}
 	for _, test := range tests {
 
