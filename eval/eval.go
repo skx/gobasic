@@ -1810,18 +1810,22 @@ func (e *Interpreter) runREAD() error {
 	// We assume we're invoked with an arbitrary number
 	// of tokens - each of which is a variable name.
 	//
-	for e.offset < len(e.program) {
-
-		if e.offset >= len(e.program) {
-			return fmt.Errorf("Hit end of program processing DATA")
-		}
+	run := true
+	for e.offset < len(e.program) && run {
 
 		// Get the token.
 		tok := e.program[e.offset]
 
-		// End of the line?
+		// Have we hit the end of the line?  If so we set `run`
+		// to be false, which means we hit the `return nil` at the
+		// end of the function.
+		//
+		// If we just returned here we'd miss testing-coverage
+		// of that final return.  Testing is hard!
+		//
 		if tok.Type == token.NEWLINE {
-			return nil
+			run = false
+			continue
 		}
 
 		// Comma?
