@@ -111,10 +111,11 @@ func TestData(t *testing.T) {
 	}
 }
 
-// Test that our bounds-checking of the input-program works.
+// TestEOF ensures that our bounds-checking of program works.
 //
-// The bounds-checks are here largely as a result of the fuzz-testing,
-// as described in `FUZZING.md`.
+// The bounds-checks we've added have largely been as a result of
+// fuzz-testing, as described in `FUZZING.md`.  Very useful additions but also
+// fiddly and annoying.
 func TestEOF(t *testing.T) {
 
 	tests := []string{
@@ -309,6 +310,109 @@ func TestMismatchedTypesTerm(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "handles integers") {
 		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestNext ensures that the NEXT statement is sane.
+func TestNext(t *testing.T) {
+
+	//
+	// This will fail because the "I" variable is a string.
+	//
+	fail1 := `
+10 FOR I = 1 TO 20
+20   LET I = "steve"
+30 NEXT I
+`
+
+	e, err := FromString(fail1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail1, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "NEXT variable I is not a number") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
+	// This will fail because NEXT requires a variable name.
+	//
+	fail2 := `
+05 LET SUM = 0
+10 FOR I = 1 TO 20
+20   LET SUM = SUM + 1
+30 NEXT 3
+`
+	e, err = FromString(fail2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail2, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Expected IDENT after NEXT in FOR loop") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
+	// This will fail because the NEXT variable is unknown.
+	//
+	fail3 := `
+05 LET SUM = 0
+10 FOR I = 1 TO 20
+20   LET SUM = SUM + 1
+30 NEXT J
+`
+	e, err = FromString(fail3)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail3, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "NEXT J found - without opening FOR") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
+	// Now a working example.
+	//
+	ok1 := `
+05 LET SUM = 0
+10 FOR I = 1 TO 20
+20   LET SUM = SUM + 1
+30 NEXT I
+`
+	e, err = FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Expected no error, but found one: %s", err.Error())
+	}
+
+	//
+	// And another, with only a single iteration.
+	//
+	ok2 := `
+05 LET SUM = 0
+10 FOR I = 1 TO 1
+20   LET SUM = SUM + 1
+30 NEXT I
+`
+	e, err = FromString(ok2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok2, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Expected no error, but found one: %s", err.Error())
 	}
 }
 
