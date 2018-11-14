@@ -287,6 +287,13 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	return t, nil
 }
 
+// FromString is a constructor which takes a string, and constructs
+// an Interpreter from it - rather than requiring the use of the tokenizer.
+func FromString(input string) (*Interpreter, error) {
+	tok := tokenizer.New(input)
+	return New(tok)
+}
+
 ////
 //
 // Helpers for stuff
