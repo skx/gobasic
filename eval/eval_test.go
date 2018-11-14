@@ -757,3 +757,52 @@ func TestVariables(t *testing.T) {
 		}
 	}
 }
+
+// TestZero ensures that division/modulo by zero errors.
+func TestZero(t *testing.T) {
+
+	divTests := []string{
+		`10 LET a = 3 / 0
+`,
+		`10 LET a = 3
+20 LET b = 0
+30 LET c = a / b
+`}
+
+	for _, div := range divTests {
+		e, err := FromString(div)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", div, err.Error())
+		}
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected to see an error, but didn't.")
+		}
+		if !strings.Contains(err.Error(), "Division by zero") {
+			t.Errorf("Our error-message wasn't what we expected:%s", err.Error())
+		}
+	}
+
+	modTests := []string{
+		`10 LET a = 3 % 0
+`,
+		`10 LET a = 3
+20 LET b = 0
+30 LET c = a % b
+`}
+
+	for _, mod := range modTests {
+		e, err := FromString(mod)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", mod, err.Error())
+		}
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected to see an error, but didn't.")
+		}
+		if !strings.Contains(err.Error(), "MOD 0 is an error") {
+			t.Errorf("Our error-message wasn't what we expected:%s", err.Error())
+		}
+	}
+
+}
