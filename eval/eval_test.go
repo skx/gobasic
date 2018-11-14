@@ -504,6 +504,44 @@ func TestRead(t *testing.T) {
 
 }
 
+// TestReturn tests that RETURN works as expected
+func TestReturn(t *testing.T) {
+
+	//
+	// This will fail because there has been no GOSUB.
+	//
+	fail1 := `10 RETURN`
+
+	e, err := FromString(fail1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail1, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "RETURN without GOSUB") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
+	// Now a valid subroutine call
+	//
+	ok1 := `
+10 GOSUB 30
+20 END
+30 RETURN
+`
+	e, err = FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Expected no error, but found one: %s", err.Error())
+	}
+}
+
 // TestStringFail tests that expr() errors on bogus string operations.
 func TestStringFail(t *testing.T) {
 	input := `10 LET a="steve"

@@ -1878,10 +1878,7 @@ func (e *Interpreter) runRETURN() error {
 	}
 
 	// Get the return address
-	ret, err := e.gstack.Pop()
-	if err != nil {
-		return fmt.Errorf("Error handling RETURN: %s", err.Error())
-	}
+	ret, _ := e.gstack.Pop()
 
 	// Return execution where we left off.
 	e.offset = ret
