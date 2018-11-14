@@ -10,109 +10,6 @@ import (
 	"github.com/skx/gobasic/tokenizer"
 )
 
-// TestTrace tests that getting/setting the tracing-flag works as expected.
-func TestTrace(t *testing.T) {
-	input := `10 PRINT "OK\n"`
-	tokener := tokenizer.New(input)
-	e, _ := New(tokener)
-
-	// Tracing is off by default
-	if e.GetTrace() != false {
-		t.Errorf("tracing should not be enabled by default")
-	}
-
-	// Enable tracing
-	e.SetTrace(true)
-
-	// Tracing is now on
-	if e.GetTrace() != true {
-		t.Errorf("tracing should have been enabled, but was not")
-	}
-}
-
-// TestVariables gets/sets some variables and ensures they work
-func TestVariables(t *testing.T) {
-
-	type Test struct {
-		Name   string
-		Object object.Object
-	}
-
-	var vars []Test
-
-	//
-	// Setup some test variables.
-	//
-	vars = append(vars, Test{Name: "number", Object: object.Number(33)})
-	vars = append(vars, Test{Name: "string", Object: object.String("Steve")})
-	vars = append(vars, Test{Name: "error", Object: object.Error("Blah")})
-
-	//
-	// Test getting/setting each variable.
-	//
-	for _, v := range vars {
-
-		input := `10 PRINT "OK\n"`
-		tokener := tokenizer.New(input)
-		e, _ := New(tokener)
-
-		//
-		// By default the variable won't exist.
-		//
-		cur := e.GetVariable(v.Name)
-		if cur.Type() != object.ERROR {
-			t.Errorf("Unexpectedly managed to retrieve a missing variable")
-		}
-
-		//
-		// Set it
-		//
-		e.SetVariable(v.Name, v.Object)
-
-		//
-		// Ensure it was set
-		//
-		cur = e.GetVariable(v.Name)
-		if cur.Type() != v.Object.Type() {
-			t.Errorf("Retrieved variable '%s' had the wrong type %s != %s", v.Name, cur.Type(), v.Object.Type())
-		}
-	}
-}
-
-// TestData tests that invalid data items cause the program to fail.
-func TestData(t *testing.T) {
-	type Test struct {
-		Input string
-		Valid bool
-	}
-
-	vars := []Test{{Input: `10 DATA 2,1,2`, Valid: true},
-		{Input: `10 DATA "2","1","2"`, Valid: true},
-		{Input: `10 DATA "2","steve",2
-`, Valid: true},
-		{Input: `10 DATA LET, b, c`, Valid: false},
-	}
-
-	//
-	// Test reading each set of data.
-	//
-	for _, v := range vars {
-
-		tokener := tokenizer.New(v.Input)
-		_, err := New(tokener)
-
-		if v.Valid {
-			if err != nil {
-				t.Errorf("Expected error, received one: %s!", err.Error())
-			}
-		} else {
-			if err == nil {
-				t.Errorf("Expected error, received none for input %s", v.Input)
-			}
-		}
-	}
-}
-
 // TestCompare tests our comparison operation, via IF
 func TestCompare(t *testing.T) {
 	type Test struct {
@@ -180,89 +77,37 @@ func TestCompare(t *testing.T) {
 	}
 }
 
-// TestMismatchedTypes tests that expr() errors on mismatched types.
-func TestMismatchedTypes(t *testing.T) {
-	input := `10 LET a=3
-20 LET b="steve"
-30 LET c = a + b
-`
-	tokener := tokenizer.New(input)
-	e, err := New(tokener)
-	if err != nil {
-		t.Errorf("Error parsing %s - %s", input, err.Error())
+// TestData tests that invalid data items cause the program to fail.
+func TestData(t *testing.T) {
+	type Test struct {
+		Input string
+		Valid bool
 	}
 
-	err = e.Run()
-
-	if err == nil {
-		t.Errorf("Expected to see an error, but didn't.")
-	}
-	if !strings.Contains(err.Error(), "type mismatch") {
-		t.Errorf("Our error-message wasn't what we expected")
-	}
-}
-
-// TestMismatchedTypesTerm tests that term() errors on mismatched types.
-func TestMismatchedTypesTerm(t *testing.T) {
-	input := `10 LET a="steve"
-20 LET b = ( a * 2 ) + ( a * 33 )
-`
-	tokener := tokenizer.New(input)
-	e, err := New(tokener)
-	if err != nil {
-		t.Errorf("Error parsing %s - %s", input, err.Error())
+	vars := []Test{{Input: `10 DATA 2,1,2`, Valid: true},
+		{Input: `10 DATA "2","1","2"`, Valid: true},
+		{Input: `10 DATA "2","steve",2
+`, Valid: true},
+		{Input: `10 DATA LET, b, c`, Valid: false},
 	}
 
-	err = e.Run()
+	//
+	// Test reading each set of data.
+	//
+	for _, v := range vars {
 
-	if err == nil {
-		t.Errorf("Expected to see an error, but didn't.")
-	}
-	if !strings.Contains(err.Error(), "handles integers") {
-		t.Errorf("Our error-message wasn't what we expected")
-	}
-}
+		tokener := tokenizer.New(v.Input)
+		_, err := New(tokener)
 
-// TestStringFail tests that expr() errors on bogus string operations.
-func TestStringFail(t *testing.T) {
-	input := `10 LET a="steve"
-20 LET b="steve"
-30 LET c = a - b
-`
-	tokener := tokenizer.New(input)
-	e, err := New(tokener)
-	if err != nil {
-		t.Errorf("Error parsing %s - %s", input, err.Error())
-	}
-
-	err = e.Run()
-
-	if err == nil {
-		t.Errorf("Expected to see an error, but didn't.")
-	}
-	if !strings.Contains(err.Error(), "not supported for strings") {
-		t.Errorf("Our error-message wasn't what we expected")
-	}
-}
-
-// TestExprTerm tests that expr() errors on unclosed brackets.
-func TestExprTerm(t *testing.T) {
-	input := `10 LET a = ( 3 + 3 * 33
-20 PRINT a "\n"
-`
-	tokener := tokenizer.New(input)
-	e, err := New(tokener)
-	if err != nil {
-		t.Errorf("Error parsing %s - %s", input, err.Error())
-	}
-
-	err = e.Run()
-
-	if err == nil {
-		t.Errorf("Expected to see an error, but didn't.")
-	}
-	if !strings.Contains(err.Error(), "Unclosed bracket") {
-		t.Errorf("Our error-message wasn't what we expected")
+		if v.Valid {
+			if err != nil {
+				t.Errorf("Expected error, received one: %s!", err.Error())
+			}
+		} else {
+			if err == nil {
+				t.Errorf("Expected error, received none for input %s", v.Input)
+			}
+		}
 	}
 }
 
@@ -287,7 +132,11 @@ func TestEOF(t *testing.T) {
 		"110 LET x",
 		"120 LET x=",
 		"130 NEXT",
-
+		"140 LET x=3 +",
+		"140 LET x=3 + 3 - 1 + 22",
+		"150 LET x=3 * 3 * 93 / 3",
+		"160 IF 3 < ",
+		"170 READ ",
 		"10 PRINT 3 +",
 		"10 PRINT 3 /",
 		"10 PRINT 3 *",
@@ -297,26 +146,86 @@ func TestEOF(t *testing.T) {
 		"10 FOR I = 1 TO 3 STEP",
 		"10 FOR I = 1 TO ",
 		"10 FOR I = 1 ",
+		"10 DEF FN x() = ",
+		"10 DEF FN x()  ",
+		"10 DEF FN x( ",
+		"10 DEF FN x",
+		"10 DEF FN",
+		"10 DEF ",
+		"10 LET a =RND",
+		"10 LEFT$ \"steve\"",
+		"10 FOR I=1 TO 10 STEP",
+		"10 FOR I=1 TO 10",
+		"10 FOR I=1 TO",
+		"10 FOR I=1",
+		"10 FOR I=",
+		"10 FOR I",
+		"10 FOR ",
 
 		// multi-line tests:
-		`140 DATA 3,4,5
-150 READ`,
+		`10 DATA 3,4,5
+20 READ`,
+		`10 DEF FN double(x) = x * x
+20 LET a = 3 + FN double`,
+		`10 DEF FN double(x) = x * x
+20 LET a = 3 + FN `,
+		`10 DEF FN double(x) = x * x
+20 LET a = 3 + FN( 3 `,
 	}
 	for _, test := range tests {
 
 		tokener := tokenizer.New(test)
 		e, err := New(tokener)
-		if err != nil {
-			t.Errorf("Error parsing %s - %s", test, err.Error())
-		}
 
-		err = e.Run()
-		if err == nil {
-			t.Errorf("Expected error running '%s', got none", test)
+		//
+		// We handle two cases
+		//
+		//  1.  Error parsing.
+		//
+		//  2.  Error running.
+		//
+		// In both cases we're looking for a bounds-check, the reason
+		// we need to care about parse-failures is because DEF FN
+		// is parsed at load-time, not run-time.
+		//
+		if err != nil {
+
+			//
+			if !strings.Contains(err.Error(), "end of program") {
+				t.Errorf("Error '%s' wasn't an end-of-program error!", err.Error())
+			}
+		} else {
+
+			err = e.Run()
+			if err == nil {
+				t.Errorf("Expected error running '%s', got none", test)
+			} else {
+				if !strings.Contains(err.Error(), "end of program") {
+					t.Errorf("Error '%s' wasn't an end-of-program error!", err.Error())
+				}
+			}
 		}
-		if !strings.Contains(err.Error(), "end of program") {
-			t.Errorf("Error '%s' wasn't an end-of-program error!", err.Error())
-		}
+	}
+}
+
+// TestExprTerm tests that expr() errors on unclosed brackets.
+func TestExprTerm(t *testing.T) {
+	input := `10 LET a = ( 3 + 3 * 33
+20 PRINT a "\n"
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Unclosed bracket") {
+		t.Errorf("Our error-message wasn't what we expected")
 	}
 }
 
@@ -357,6 +266,49 @@ func TestMaths(t *testing.T) {
 		if out != test.Result {
 			t.Errorf("Expected x to be %f, got %f", test.Result, out)
 		}
+	}
+}
+
+// TestMismatchedTypes tests that expr() errors on mismatched types.
+func TestMismatchedTypes(t *testing.T) {
+	input := `10 LET a=3
+20 LET b="steve"
+30 LET c = a + b
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "type mismatch") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestMismatchedTypesTerm tests that term() errors on mismatched types.
+func TestMismatchedTypesTerm(t *testing.T) {
+	input := `10 LET a="steve"
+20 LET b = ( a * 2 ) + ( a * 33 )
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "handles integers") {
+		t.Errorf("Our error-message wasn't what we expected")
 	}
 }
 
@@ -446,4 +398,95 @@ func TestRead(t *testing.T) {
 		t.Errorf("Expected no error, but found one: %s", err.Error())
 	}
 
+}
+
+// TestStringFail tests that expr() errors on bogus string operations.
+func TestStringFail(t *testing.T) {
+	input := `10 LET a="steve"
+20 LET b="steve"
+30 LET c = a - b
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "not supported for strings") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestTrace tests that getting/setting the tracing-flag works as expected.
+func TestTrace(t *testing.T) {
+	input := `10 PRINT "OK\n"`
+	tokener := tokenizer.New(input)
+	e, _ := New(tokener)
+
+	// Tracing is off by default
+	if e.GetTrace() != false {
+		t.Errorf("tracing should not be enabled by default")
+	}
+
+	// Enable tracing
+	e.SetTrace(true)
+
+	// Tracing is now on
+	if e.GetTrace() != true {
+		t.Errorf("tracing should have been enabled, but was not")
+	}
+}
+
+// TestVariables gets/sets some variables and ensures they work
+func TestVariables(t *testing.T) {
+
+	type Test struct {
+		Name   string
+		Object object.Object
+	}
+
+	var vars []Test
+
+	//
+	// Setup some test variables.
+	//
+	vars = append(vars, Test{Name: "number", Object: object.Number(33)})
+	vars = append(vars, Test{Name: "string", Object: object.String("Steve")})
+	vars = append(vars, Test{Name: "error", Object: object.Error("Blah")})
+
+	//
+	// Test getting/setting each variable.
+	//
+	for _, v := range vars {
+
+		input := `10 PRINT "OK\n"`
+		tokener := tokenizer.New(input)
+		e, _ := New(tokener)
+
+		//
+		// By default the variable won't exist.
+		//
+		cur := e.GetVariable(v.Name)
+		if cur.Type() != object.ERROR {
+			t.Errorf("Unexpectedly managed to retrieve a missing variable")
+		}
+
+		//
+		// Set it
+		//
+		e.SetVariable(v.Name, v.Object)
+
+		//
+		// Ensure it was set
+		//
+		cur = e.GetVariable(v.Name)
+		if cur.Type() != v.Object.Type() {
+			t.Errorf("Retrieved variable '%s' had the wrong type %s != %s", v.Name, cur.Type(), v.Object.Type())
+		}
+	}
 }
