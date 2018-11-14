@@ -13,7 +13,7 @@ import (
 func TestTrace(t *testing.T) {
 	input := `10 PRINT "OK\n"`
 	tokener := tokenizer.New(input)
-	e := New(tokener)
+	e, _ := New(tokener)
 
 	// Tracing is off by default
 	if e.GetTrace() != false {
@@ -53,7 +53,7 @@ func TestVariables(t *testing.T) {
 
 		input := `10 PRINT "OK\n"`
 		tokener := tokenizer.New(input)
-		e := New(tokener)
+		e, _ := New(tokener)
 
 		//
 		// By default the variable won't exist.

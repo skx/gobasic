@@ -204,7 +204,11 @@ func main() {
 	//
 	// Create an interpreter
 	//
-	e := eval.New(t)
+	e, err := eval.New(t)
+	if err != nil {
+		fmt.Printf("Error launching program: %s\n", err.Error())
+		return
+	}
 
 	//
 	// Register some  functions.
@@ -224,7 +228,7 @@ func main() {
 	//
 	// Run the code.
 	//
-	err := e.Run()
+	err = e.Run()
 	if err != nil {
 		fmt.Printf("Error running program: %s\n", err.Error())
 	}
