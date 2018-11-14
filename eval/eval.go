@@ -229,7 +229,7 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 			//
 			err := t.parseDefFN(offset)
 			if err != nil {
-				return nil, fmt.Errorf("Error in DEF FN: %s\n", err.Error())
+				return nil, fmt.Errorf("Error in DEF FN: %s", err.Error())
 
 			}
 		}
@@ -392,9 +392,6 @@ func (e *Interpreter) factor() object.Object {
 					return obj
 				}
 				args = append(args, obj)
-			}
-			if e.offset >= len(e.program) {
-				return object.Error("Hit end of program processing FN call")
 			}
 
 			//
@@ -792,9 +789,6 @@ func (e *Interpreter) parseDefFN(offset int) error {
 	// The general form of a function-definition is
 	//    DEF FN NAME ( [ARG, COMMA] ) = "BLAH BLAH"
 	//
-	if offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DEF FN")
-	}
 
 	// skip past the DEF
 	offset++
@@ -875,6 +869,13 @@ func (e *Interpreter) parseDefFN(offset int) error {
 	}
 
 	//
+	// Ensure we've still got tokens.
+	//
+	if offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DEF FN")
+	}
+
+	//
 	// At this point we should have a token which is "="
 	//
 	eq := e.program[offset]
@@ -904,6 +905,13 @@ func (e *Interpreter) parseDefFN(offset int) error {
 			body += tok.Literal
 		}
 		offset++
+	}
+
+	//
+	// Empty body?
+	//
+	if body == "" {
+		return fmt.Errorf("Hit end of program processing DEF FN")
 	}
 
 	//
@@ -1356,10 +1364,6 @@ func (e *Interpreter) runGOTO() error {
 //   INPUT "Foo", a   -> Reads an integer
 //   INPUT "Foo", a$  -> Reads a string
 func (e *Interpreter) runINPUT() error {
-
-	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing INPUT")
-	}
 
 	// Skip the INPUT-instruction
 	e.offset++
