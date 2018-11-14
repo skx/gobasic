@@ -771,11 +771,11 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 				return &object.NumberObject{Value: 1}
 			}
 		}
-		// false
-		return &object.NumberObject{Value: 0}
 	}
 
-	return object.Error("Unhandled comparison: %v[%s] %v %v[%s]\n", t1, t1.Type(), op, t2, t2.Type())
+	// false
+	return &object.NumberObject{Value: 0}
+
 }
 
 // parseDefFN is an internal function invoked at the time
