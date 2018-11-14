@@ -360,6 +360,9 @@ func TestMaths(t *testing.T) {
 		{Input: "6 * 5", Result: 30},
 		{Input: "2 ^ 3", Result: 8},
 		{Input: "4 % 2", Result: 0},
+		{Input: " ( BIN 00001111 ) OR ( BIN 01110000 )", Result: 255 - 128},
+		{Input: "129 AND 128", Result: 128},
+		{Input: "128 XOR 1", Result: 129},
 	}
 
 	for _, test := range tests {
