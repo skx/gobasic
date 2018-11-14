@@ -3,6 +3,7 @@
 package eval
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/skx/gobasic/object"
@@ -175,6 +176,119 @@ func TestCompare(t *testing.T) {
 		out := cur.(*object.NumberObject).Value
 		if out != v.Val {
 			t.Errorf("Expected %s to be %f, got %f", v.Var, v.Val, out)
+		}
+	}
+}
+
+// TestMismatchedTypes tests that expr() errors on mismatched types.
+func TestMismatchedTypes(t *testing.T) {
+	input := `10 LET a=3
+20 LET b="steve"
+30 LET c = a + b
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "type mismatch") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestMismatchedTypesTerm tests that term() errors on mismatched types.
+func TestMismatchedTypesTerm(t *testing.T) {
+	input := `10 LET a="steve"
+20 LET b = ( a * 2 ) + ( a * 33 )
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "handles integers") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestStringFail tests that expr() errors on bogus string operations.
+func TestStringFail(t *testing.T) {
+	input := `10 LET a="steve"
+20 LET b="steve"
+30 LET c = a - b
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "not supported for strings") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+// TestExprTerm tests that expr() errors on unclosed brackets.
+func TestExprTerm(t *testing.T) {
+	input := `10 LET a = ( 3 + 3 * 33
+20 PRINT a "\n"
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Unclosed bracket") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
+
+func TestEOF(t *testing.T) {
+
+	tests := []string{
+		"10 LET a = 3 *",
+		"20 LET a = ( 3 * 3 ) + ",
+		"30 LET a = ( 3",
+		"40 LET a = (",
+		"50 LET a = 3 * 3 / 3 +",
+	}
+	for _, test := range tests {
+
+		tokener := tokenizer.New(test)
+		e, err := New(tokener)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test, err.Error())
+		}
+
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected error running '%s', got none", test)
+		}
+		if !strings.Contains(err.Error(), "end of program") {
+			t.Errorf("Error '%s' wasn't an end-of-program error!", err.Error())
 		}
 	}
 }
