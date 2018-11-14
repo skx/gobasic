@@ -359,3 +359,91 @@ func TestMaths(t *testing.T) {
 		}
 	}
 }
+
+// TestRead ensures that the READ statement is sane.
+func TestRead(t *testing.T) {
+
+	//
+	// This will fail because READ requires an ident.
+	//
+	fail1 := `
+10 DATA "foo", "bar", "baz"
+20 READ 3
+`
+
+	e, err := FromString(fail1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail1, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Expected identifier") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
+	// This will fail because we READ too far.
+	//
+	fail2 := `
+10 DATA "a", "b", "c"
+20 READ a, b, c, d
+`
+	e, err = FromString(fail2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail2, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Read past the end of our DATA storage") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
+	// Now a working example.
+	//
+	ok1 := `
+10 DATA "Cat", "Kissa"
+20 READ a
+`
+	e, err = FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Expected no error, but found one: %s", err.Error())
+	}
+
+	//
+	// Now we should be able to validate our read succeeded.
+	//
+	out := e.GetVariable("a")
+	if out.Type() != object.STRING {
+		t.Errorf("Variable %s had wrong type: %s", "a", out.String())
+	}
+	val := out.(*object.StringObject).Value
+	if val != "Cat" {
+		t.Errorf("Expected %s to be %s, got %s", "a", "Cat", val)
+	}
+
+	//
+	// Now a "working" example.
+	//
+	ok2 := `
+10 DATA "Cat", "Kissa"
+20 READ ,,,,,,,,,,,,,,,,,,,,,,
+`
+	e, err = FromString(ok2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok2, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Expected no error, but found one: %s", err.Error())
+	}
+
+}
