@@ -230,6 +230,65 @@ func TestExprTerm(t *testing.T) {
 	}
 }
 
+// TODO: TestGoto..
+func TestGoto(t *testing.T) {
+
+	//
+	// This will fail because the target should be a literal.
+	//
+	fail1 := `
+ 10 LET t = 200
+ 20 GOTO t
+200 END
+`
+
+	e, err := FromString(fail1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail1, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "GOTO should be followed by an integer") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
+	// This will work.
+	//
+	ok1 := `
+ 10 GOTO 40
+ 20 LET a="Steve"
+ 30 END
+ 40 GOTO 20
+`
+
+	e, err = FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("We found an unexpected error: %s", err.Error())
+	}
+
+	cur := e.GetVariable("a")
+	if cur.Type() == object.ERROR {
+		t.Errorf("Variable a does not exist!")
+	}
+	if cur.Type() != object.STRING {
+		t.Errorf("Variable a had wrong type: %s", cur.String())
+	}
+	out := cur.(*object.StringObject).Value
+	if out != "Steve" {
+		t.Errorf("Expected x to be %s, got %s", "Steve", out)
+	}
+
+}
+
+// TODO: TestLet
+
 // TestMaths tests addition, subtraction, multiplication, division, etc.
 func TestMaths(t *testing.T) {
 	type Test struct {
@@ -541,6 +600,9 @@ func TestReturn(t *testing.T) {
 		t.Errorf("Expected no error, but found one: %s", err.Error())
 	}
 }
+
+// TODO: TestRun
+//  Just to look for an unclosed FOR loop
 
 // TestStringFail tests that expr() errors on bogus string operations.
 func TestStringFail(t *testing.T) {

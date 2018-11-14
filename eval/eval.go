@@ -1316,12 +1316,16 @@ func (e *Interpreter) runGOSUB() error {
 	//
 	// If we found it then use it.
 	//
-	if offset > 0 {
+	// If we didn't find the line then we'll continue
+	// execution at the last line.
+	//
+	// This is strictly speaking a bug, but there is
+	// the chance this is OK.
+	//
+	//
+	if offset >= 0 {
 		e.offset = offset
-		return nil
 	}
-
-	return fmt.Errorf("Failed to GOSUB %s", target.Literal)
 }
 
 // runGOTO handles a control-flow change
@@ -1350,12 +1354,17 @@ func (e *Interpreter) runGOTO() error {
 	//
 	// If we found it then use it.
 	//
-	if offset > 0 {
+	// If we didn't find the line then we'll continue
+	// execution at the last line.
+	//
+	// This is strictly speaking a bug, but there is
+	// the chance this is OK.
+	//
+	if offset >= 0 {
 		e.offset = offset
-		return nil
 	}
 
-	return fmt.Errorf("Failed to GOTO %s", target.Literal)
+	return nil
 }
 
 // runINPUT handles input of numbers from the user.
