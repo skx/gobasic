@@ -160,6 +160,9 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 				fmt.Printf("WARN: Line %s is duplicated - GOTO/GOSUB behaviour is undefined\n", line)
 			}
 			t.lines[line] = offset
+
+			// TODO: Warn about line-numbers not being
+			// sequential.  Or at least going-backwards.
 		}
 
 		// Regardless append the token to our array
