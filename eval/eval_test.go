@@ -319,3 +319,43 @@ func TestEOF(t *testing.T) {
 		}
 	}
 }
+
+// TestMaths tests addition, subtraction, multiplication, division, etc.
+func TestMaths(t *testing.T) {
+	type Test struct {
+		Input  string
+		Result float64
+	}
+
+	tests := []Test{
+		{Input: "3 + 3", Result: 6},
+		{Input: "3 - 1", Result: 2},
+		{Input: "6 / 2", Result: 3},
+		{Input: "6 * 5", Result: 30},
+		{Input: "2 ^ 3", Result: 8},
+		{Input: "4 % 2", Result: 0},
+	}
+
+	for _, test := range tests {
+
+		tokener := tokenizer.New("LET x =" + test.Input + "\n")
+		e, err := New(tokener)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test.Input, err.Error())
+		}
+
+		e.Run()
+
+		cur := e.GetVariable("x")
+		if cur.Type() == object.ERROR {
+			t.Errorf("Variable x does not exist!")
+		}
+		if cur.Type() != object.NUMBER {
+			t.Errorf("Variable x had wrong type: %s", cur.String())
+		}
+		out := cur.(*object.NumberObject).Value
+		if out != test.Result {
+			t.Errorf("Expected x to be %f, got %f", test.Result, out)
+		}
+	}
+}
