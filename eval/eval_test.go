@@ -1,5 +1,14 @@
 // eval_test.go - Simple test-cases for our evaluator.
 
+//
+// TODO:
+//  DEF FN
+//  CALL FN
+//  Builtin
+//  IF
+//  FOR
+//
+
 package eval
 
 import (
@@ -233,6 +242,8 @@ func TestExprTerm(t *testing.T) {
 	}
 }
 
+// TODO: TestFor
+
 // TestGosub checks that GOSUB behaviour is reasonable.
 func TestGoSub(t *testing.T) {
 
@@ -346,6 +357,8 @@ func TestGoto(t *testing.T) {
 	}
 
 }
+
+// TODO TestIF
 
 // TestLet performs sanity-checking on our LET implementation.
 func TestLet(t *testing.T) {
@@ -713,8 +726,28 @@ func TestReturn(t *testing.T) {
 	}
 }
 
-// TODO: TestRun
-//  Just to look for an unclosed FOR loop
+// TestRun tests the Run method of our interpreter - just looking for
+// any unopen for-loops.
+func TestRun(t *testing.T) {
+	input := `10 LET SUM = 0
+20 FOR I = 1 TO 20
+30 LET SUM = SUM + I
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Unclosed FOR loop") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+}
 
 // TestStringFail tests that expr() errors on bogus string operations.
 func TestStringFail(t *testing.T) {
