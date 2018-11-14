@@ -288,6 +288,16 @@ func TestEOF(t *testing.T) {
 		"120 LET x=",
 		"130 NEXT",
 
+		"10 PRINT 3 +",
+		"10 PRINT 3 /",
+		"10 PRINT 3 *",
+		"10 IF 3 ",
+		"10 IF \"steve\" ",
+		"10 IF  ",
+		"10 FOR I = 1 TO 3 STEP",
+		"10 FOR I = 1 TO ",
+		"10 FOR I = 1 ",
+
 		// multi-line tests:
 		`140 DATA 3,4,5
 150 READ`,
