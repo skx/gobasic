@@ -1326,6 +1326,7 @@ func (e *Interpreter) runGOSUB() error {
 	if offset >= 0 {
 		e.offset = offset
 	}
+	return nil
 }
 
 // runGOTO handles a control-flow change
