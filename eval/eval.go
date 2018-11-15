@@ -332,17 +332,12 @@ func (e *Interpreter) factor() object.Object {
 			// Return the result of the sub-expression
 			return (ret)
 		case token.INT:
-			i, err := strconv.ParseFloat(tok.Literal, 64)
-			if err == nil {
-				e.offset++
-				return &object.NumberObject{Value: i}
-			}
-			return object.Error("Failed to convert %s -> float64 %s", tok.Literal, err.Error())
-
+			i, _ := strconv.ParseFloat(tok.Literal, 64)
+			e.offset++
+			return &object.NumberObject{Value: i}
 		case token.STRING:
 			e.offset++
 			return &object.StringObject{Value: tok.Literal}
-
 		case token.FN:
 
 			//
@@ -1161,10 +1156,7 @@ func (e *Interpreter) runForLoop() error {
 
 	var start float64
 	if startI.Type == token.INT {
-		v, err := strconv.ParseFloat(startI.Literal, 64)
-		if err != nil {
-			return fmt.Errorf("Failed to convert %s to an int %s", startI.Literal, err.Error())
-		}
+		v, _ := strconv.ParseFloat(startI.Literal, 64)
 		start = v
 	} else if startI.Type == token.IDENT {
 
@@ -1194,11 +1186,7 @@ func (e *Interpreter) runForLoop() error {
 	var end float64
 
 	if endI.Type == token.INT {
-		v, err := strconv.ParseFloat(endI.Literal, 64)
-		if err != nil {
-			return fmt.Errorf("Failed to convert %s to an int %s", endI.Literal, err.Error())
-		}
-
+		v, _ := strconv.ParseFloat(endI.Literal, 64)
 		end = v
 	} else if endI.Type == token.IDENT {
 
