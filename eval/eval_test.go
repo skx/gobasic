@@ -242,7 +242,77 @@ func TestExprTerm(t *testing.T) {
 	}
 }
 
-// TODO: TestFor
+// TestFor performs testing of our looping primitive
+func TestFor(t *testing.T) {
+
+	//
+	// These will each fail.
+	//
+	fails := []string{`10 FOR I=1 TO`,
+		`10 FOR I=1 3`,
+		`10 FOR I 3`,
+		`10 FOR I`,
+		`10 FOR 3`,
+
+		// multi-line tests
+		`10 LET start="steve"
+20 FOR I = start TO 20`,
+		`10 LET end="steve"
+20 FOR I = 1 TO end`,
+		`10 LET start = 1
+20 LET en = 10
+30 FOR I = start TO en STEP "steve" + "steve"
+40 NEXT I
+`,
+	}
+
+	for _, test := range fails {
+
+		e, err := FromString(test)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test, err.Error())
+		}
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected to see an error, but didn't.")
+		}
+	}
+
+	//
+	// Now a valid loop
+	//
+
+	//
+	// This will work.
+	//
+	ok1 := `
+ 10 LET s = 0
+ 20 FOR I = 1 TO 10 STEP 1
+ 20  LET s = s + I
+ 30 NEXT I
+`
+	e, err := FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("We found an unexpected error: %s", err.Error())
+	}
+
+	cur := e.GetVariable("s")
+	if cur.Type() == object.ERROR {
+		t.Errorf("Variable s does not exist!")
+	}
+	if cur.Type() != object.NUMBER {
+		t.Errorf("Variable s had wrong type: %s", cur.String())
+	}
+	out := cur.(*object.NumberObject).Value
+	if out != 55 {
+		t.Errorf("Expected s to be %d, got %f", 55, out)
+	}
+
+}
 
 // TestGosub checks that GOSUB behaviour is reasonable.
 func TestGoSub(t *testing.T) {
