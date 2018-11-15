@@ -360,6 +360,93 @@ func TestGoto(t *testing.T) {
 
 // TODO TestIF
 
+// TestINPUT performs testing of our INPUT implementation.
+func TestINPUT(t *testing.T) {
+
+	//
+	// These will each fail.
+	//
+	fails := []string{`10 INPUT "" :`,
+		`10 INPUT "", `,
+		`10 INPUT "", ""`,
+		`10 INPUT 33, b`,
+		`10 LET a = 33
+20 INPUT a, b`,
+	}
+
+	for _, test := range fails {
+
+		e, err := FromString(test)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test, err.Error())
+		}
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected to see an error, but didn't.")
+		}
+		if !strings.Contains(err.Error(), "INPUT") {
+			t.Errorf("Our error-message wasn't what we expected")
+		}
+	}
+
+	//
+	// Read a string
+	//
+	// NOTE: This requires (hacked) support in eval.go
+	//
+	ok1 := `
+10 INPUT "give me a string", a$
+`
+	e, err := FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Unexpected error, reading input %s", err.Error())
+	}
+	//
+	// Now a$ should be a string
+	//
+	cur := e.GetVariable("a$")
+	if cur.Type() != object.STRING {
+		t.Errorf("Variable a$ had wrong type: %s", cur.String())
+	}
+	out := cur.(*object.StringObject).Value
+	if out != "steve" {
+		t.Errorf("Reading INPUT returned the wrong string: %s", out)
+	}
+
+	//
+	// Read a number
+	//
+	// NOTE: This requires (hacked) support in eval.go
+	//
+	ok2 := `
+10 LET p="Give me a number"
+20 INPUT p,b
+`
+	e, err = FromString(ok2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok2, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Unexpected error, reading input %s", err.Error())
+	}
+	//
+	// Now b should be a number
+	//
+	cur = e.GetVariable("b")
+	if cur.Type() != object.NUMBER {
+		t.Errorf("Variable b had wrong type: %s", cur.String())
+	}
+	out2 := cur.(*object.NumberObject).Value
+	if out2 != 3.21 {
+		t.Errorf("Reading INPUT returned the wrong number: %f", out2)
+	}
+}
+
 // TestLet performs sanity-checking on our LET implementation.
 func TestLet(t *testing.T) {
 
