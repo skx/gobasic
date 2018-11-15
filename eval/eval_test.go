@@ -30,6 +30,43 @@ import (
 	"github.com/skx/gobasic/tokenizer"
 )
 
+// TestBuiltin covers some of our builtins, however it doesn't test
+// the implementation of them - they are covered in their own package - just
+// that we can call them.
+func TestBuiltin(t *testing.T) {
+
+	//
+	// Three different ways argument-counting can fail:
+	//
+	//  EOF :  TODO: BUG
+	//  :
+	//  Newline
+	//
+	tests := []string{
+		// TODO: BUG: "10 LET a = RND ",
+		"20 PRINT RND :",
+		"30 PRINT RND\n"}
+
+	for _, test := range tests {
+
+		tokener := tokenizer.New(test)
+		e, err := New(tokener)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test, err.Error())
+		}
+
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected an error - found none")
+		}
+		if !strings.Contains(err.Error(), "while searching for argument") {
+			t.Errorf("Got an error, but it was the wrong one: %s", err.Error())
+		}
+
+	}
+
+}
+
 // TestCompare tests our comparison operation, via IF
 func TestCompare(t *testing.T) {
 	type Test struct {
@@ -194,6 +231,7 @@ func TestEOF(t *testing.T) {
 		"10 PRINT 3 +",
 		"10 PRINT 3 /",
 		"10 PRINT 3 *",
+		"10 PRINT ,",
 		"10 IF 3 ",
 		"10 IF \"steve\" ",
 		"10 IF  ",
