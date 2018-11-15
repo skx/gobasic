@@ -10,7 +10,6 @@
 //    factor()
 //    term()
 //    expr()
-//    compare()
 //    callUserFunction()
 //    callBuiltin()
 //
@@ -590,6 +589,7 @@ func TestIF(t *testing.T) {
 		{Input: "30 IF 1 THEN LET res=21 ELSE PRINT \"OK\n\":", Result: 21},
 		{Input: "30 IF 1 > 3 THEN LET res=21\n", Result: -1},
 		{Input: "30 IF 1 < 3 THEN LET res=21\n", Result: -1},
+		{Input: "30 IF 1 <> \"steve\" + 3 THEN LET res=21\n", Result: -1},
 	}
 
 	for _, test := range tests {
