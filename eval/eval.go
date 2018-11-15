@@ -409,15 +409,6 @@ func (e *Interpreter) factor() object.Object {
 			val := e.GetVariable(tok.Literal)
 			e.offset++
 			return val
-		case token.NEWLINE:
-
-			//
-			// We skip newlines, specifically so that
-			// we can use this function to evaluate user-defined
-			// expressions - which have leading/trailing newlines
-			// via the tokenizer.
-			//
-			e.offset++
 
 		default:
 			return object.Error("factor() - unhandled token: %v\n", tok)

@@ -15,7 +15,6 @@
 //    callBuiltin()
 //
 //
-//    FOR
 //    IF
 //    INPUT
 //    DEF FN
