@@ -219,7 +219,7 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 		//
 		// We found a user-defined function definition.
 		//
-		if tok.Type == token.DEF && t.program[offset-1].Type == token.LINENO {
+		if tok.Type == token.DEF && offset >= 1 && t.program[offset-1].Type == token.LINENO {
 
 			//
 			// Parse the function-definition.
