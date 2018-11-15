@@ -358,7 +358,68 @@ func TestGoto(t *testing.T) {
 
 }
 
-// TODO TestIF
+// TestIF performs testing of our IF implementation.
+func TestIF(t *testing.T) {
+	type Test struct {
+		Input  string
+		Result float64
+	}
+
+	tests := []Test{
+		{Input: "10 IF 1 < 3 THEN LET res=3", Result: 3},
+		{Input: "20 IF 1 > 3 THEN LET res=1 ELSE let res=33", Result: 33},
+		{Input: "30 IF 1 THEN LET res=21 ELSE PRINT \"OK\n\":", Result: 21},
+		{Input: "30 IF 1 > 3 THEN LET res=21\n", Result: -1},
+		{Input: "30 IF 1 < 3 THEN LET res=21\n", Result: -1},
+	}
+
+	for _, test := range tests {
+
+		// TODO: Tests fail without the trailing newline - BUG
+		tokener := tokenizer.New(test.Input + "\n")
+		e, err := New(tokener)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test.Input, err.Error())
+		}
+
+		e.Run()
+
+		if test.Result > 0 {
+			cur := e.GetVariable("res")
+			if cur.Type() == object.ERROR {
+				t.Errorf("Variable 'res' does not exist for %s", test.Input)
+			}
+			if cur.Type() != object.NUMBER {
+				t.Errorf("Variable 'res' had wrong type: %s", cur.String())
+			}
+			out := cur.(*object.NumberObject).Value
+			if out != test.Result {
+				t.Errorf("Expected 'res' to be %f, got %f", test.Result, out)
+			}
+		}
+	}
+
+	//
+	// Failure to parse
+	//
+	fail1 := `
+10 IF 3 <> 3 3
+`
+
+	e, err := FromString(fail1)
+	if err != nil {
+		t.Errorf("Failed to parse program")
+	}
+
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected runtime-error, received none")
+	}
+	if !strings.Contains(err.Error(), "Expected THEN after IF") {
+		t.Errorf("The error we found was not what we expected: %s", err.Error())
+	}
+
+}
 
 // TestINPUT performs testing of our INPUT implementation.
 func TestINPUT(t *testing.T) {

@@ -1608,47 +1608,40 @@ func (e *Interpreter) runIF() error {
 		}
 
 		//
-		// We get the next token, it should either be ELSE + expr
-		// or newline.
+		// At this point we've had code like this:
 		//
-		// Skip until we hit the end of line.
+		//   IF [true] THEN [action]
 		//
-		if e.offset >= len(e.program) {
-			return fmt.Errorf("Hit end of program processing IF")
-		}
-
-		tmp := e.program[e.offset]
-		e.offset++
-		for tmp.Type != token.NEWLINE {
-
-			if e.offset >= len(e.program) {
-				return fmt.Errorf("Hit end of program processing IF")
-			}
-			tmp = e.program[e.offset]
-			e.offset++
-		}
+		// Our current offset points to action-1.
+		//
+		// We want to skip rest of the line, because we might have:
+		//
+		//   IF [ true ]; then [action] ELSE [run me..]
+		//
+		return (e.swallowLine())
 	} else {
 
 		//
-		// Here the test failed.
+		// When we hit this block we've hit a condition
+		// that failed.
 		//
-		// Skip over the truthy-condition until we either
-		// hit ELSE, or the newline that will terminate our
-		// IF-statement.
+		// So we want to jump to the ELSE part of the line:
+		//
+		//   IF [false] THEN [action] ELSE [run me..]
 		//
 		//
-		for {
+		//
+		run := true
 
-			if e.offset >= len(e.program) {
-				return fmt.Errorf("Hit end of program processing IF")
-			}
+		for e.offset < len(e.program) && run {
 
 			tmp := e.program[e.offset]
 			e.offset++
 
 			// If we hit the newline then we're done
 			if tmp.Type == token.NEWLINE {
-				return nil
+				run = false
+				continue
 			}
 
 			// Otherwise did we hit the else?
@@ -1657,8 +1650,8 @@ func (e *Interpreter) runIF() error {
 				// Execute the single statement
 				e.RunOnce()
 
-				// Then return.
-				return nil
+				// Then terminate.
+				run = false
 			}
 		}
 	}
