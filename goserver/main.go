@@ -380,7 +380,10 @@ func lineFunction(env interface{}, args []object.Object) object.Object {
 func runScript(code string) (string, error) {
 	t := tokenizer.New(code)
 
-	e := eval.New(t)
+	e, err := eval.New(t)
+	if err != nil {
+		return "", err
+	}
 	e.RegisterBuiltin("CIRCLE", 3, circleFunction)
 	e.RegisterBuiltin("COLOR", 3, colorFunction)
 	e.RegisterBuiltin("COLOUR", 3, colorFunction)
@@ -388,7 +391,7 @@ func runScript(code string) (string, error) {
 	e.RegisterBuiltin("PLOT", 2, plotFunction)
 	e.RegisterBuiltin("SAVE", 0, saveFunction)
 
-	err := e.Run()
+	err = e.Run()
 	if err != nil {
 		return "", err
 	}

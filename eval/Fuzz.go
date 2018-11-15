@@ -7,8 +7,10 @@ import "github.com/skx/gobasic/tokenizer"
 func Fuzz(data []byte) int {
 
 	tokener := tokenizer.New(string(data))
-	e := New(tokener)
-	e.Run()
+	e, err := New(tokener)
+	if err == nil {
+		e.Run()
+	}
 	return 1
 
 }

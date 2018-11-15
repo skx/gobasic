@@ -14,15 +14,12 @@ func TestMathOperators(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
 		{token.PLUS, "+"},
 		{token.MINUS, "-"},
 		{token.SLASH, "/"},
 		{token.ASTERISK, "*"},
 		{token.MOD, "%"},
 		{token.ASSIGN, "="},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -45,14 +42,11 @@ func TestMiscTokens(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
 		{token.LBRACKET, "("},
 		{token.RBRACKET, ")"},
 		{token.COMMA, ","},
 		{token.COLON, ":"},
 		{token.SEMICOLON, ";"},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -85,14 +79,11 @@ func TestLineNo(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.REM, "REM"},
 		{token.NEWLINE, "\\n"},
 		{token.LINENO, "20"},
 		{token.REM, "REM"},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -116,8 +107,6 @@ func TestStringParse(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.LET, "LET"},
 		{token.IDENT, "a"},
@@ -127,7 +116,6 @@ func TestStringParse(t *testing.T) {
 		{token.LINENO, "20"},
 		{token.REM, "REM"},
 		{token.IDENT, "OK"},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -155,9 +143,6 @@ func TestComparisons(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
-
 		{token.LINENO, "10"},
 		{token.IF, "IF"},
 		{token.IDENT, "A"},
@@ -192,7 +177,6 @@ func TestComparisons(t *testing.T) {
 		{token.NOTEQUALS, "<>"},
 		{token.IDENT, "B"},
 		{token.NEWLINE, "\\n"},
-		{token.NEWLINE, "\\n"},
 		{token.EOF, ""},
 	}
 	l := New(input)
@@ -216,8 +200,6 @@ func TestNumber(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.REM, "REM"},
 		{token.INT, "-4.3"},
@@ -248,8 +230,6 @@ func TestPow(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.IDENT, "PRINT"},
 		{token.INT, "2"},
@@ -276,8 +256,6 @@ func TestIdent(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.LET, "LET"},
 		{token.IDENT, "a3"},
@@ -304,8 +282,6 @@ func TestNullString(t *testing.T) {
 		expectedType    token.Type
 		expectedLiteral string
 	}{
-		// implicit newline which is a pain.
-		{token.NEWLINE, "\\n"},
 		{token.LINENO, "10"},
 		{token.LET, "LET"},
 		{token.IDENT, "a"},

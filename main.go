@@ -75,7 +75,11 @@ func main() {
 	//
 	// Create a new evaluator, to run the BASIC program.
 	//
-	e := eval.New(t)
+	e, err := eval.New(t)
+	if err != nil {
+		fmt.Printf("Error constructing interpreter:\n\t%s\n", err.Error())
+		os.Exit(0)
+	}
 
 	//
 	// Enable debugging if we should.
