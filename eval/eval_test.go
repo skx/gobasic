@@ -401,12 +401,14 @@ func TestFor(t *testing.T) {
 		`10 FOR I 3`,
 		`10 FOR I`,
 		`10 FOR 3`,
+		`10 FOR I="steve" TO 10`,
+		`10 FOR I=1 TO "kemp"`,
 
 		// multi-line tests
 		`10 LET start="steve"
 20 FOR I = start TO 20`,
-		`10 LET end="steve"
-20 FOR I = 1 TO end`,
+		`10 LET e="steve"
+20 FOR I = 1 TO e`,
 		`10 LET start = 1
 20 LET en = 10
 30 FOR I = start TO en STEP "steve" + "steve"
