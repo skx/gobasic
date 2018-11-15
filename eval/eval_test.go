@@ -242,6 +242,75 @@ func TestExprTerm(t *testing.T) {
 	}
 }
 
+// TestFN tests calling user-defined functions
+func TestFN(t *testing.T) {
+
+	//
+	// call a function that doesn't exist.
+	//
+	fail1 := `
+ 10 LET t = FN foo("steve")
+`
+
+	e, err := FromString(fail1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail1, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "User-defined function foo doesn't exist") {
+		t.Errorf("Our error-message wasn't what we expected:%s", err.Error())
+	}
+
+	//
+	// call a function with the wrong number of arguments.
+	//
+	fail2 := `
+ 10 DEF FN square(x) = x * x
+ 20 LET t = FN square(1,2)
+`
+
+	e, err = FromString(fail2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail2, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Argument count mis-match") {
+		t.Errorf("Our error-message wasn't what we expected:%s", err.Error())
+	}
+
+	//
+	// call a working function.
+	//
+	ok1 := `
+ 10 DEF FN square(x) = x * x
+ 20 DEF FN hello(x) = PRINT "Hello" + x
+ 30 LET t = FN square( 3 )
+ 40 FN hello( "Steve" )
+`
+	e, err = FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Expected to see no error, but got one: %s", err.Error())
+	}
+	cur := e.GetVariable("t")
+	if cur.Type() != object.NUMBER {
+		t.Errorf("Variable 't' had wrong type: %s", cur.String())
+	}
+	out := cur.(*object.NumberObject).Value
+	if out != 9 {
+		t.Errorf("Expected user-defined function to give 9, got %f", out)
+	}
+}
+
 // TestFor performs testing of our looping primitive
 func TestFor(t *testing.T) {
 

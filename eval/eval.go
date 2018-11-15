@@ -180,13 +180,6 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	for offset, tok := range t.program {
 
 		//
-		// Skip the first line.
-		//
-		if offset == 1 {
-			continue
-		}
-
-		//
 		// We found a data-token.
 		//
 		// We expect this will be "string" OR "comma" OR number.
@@ -962,7 +955,12 @@ func (e *Interpreter) callUserFunction(name string, args []object.Object) object
 	//
 	// Create the tokenizer, and the evaluator which use it.
 	//
-	tokenizer := tokenizer.New(fun.body)
+	// Note without this trailing newline we hit an error:
+	//   	Hit end of program processing term()
+	//
+	// TODO: Fix this, it is obviously a BUG.
+	//
+	tokenizer := tokenizer.New(fun.body + "\n")
 	eval, err := New(tokenizer)
 	if err != nil {
 		return object.Error(err.Error())
