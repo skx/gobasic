@@ -2,13 +2,24 @@
 
 //
 // TODO:
-//  DEF FN
-//  CALL FN
 //  Builtin
-//  IF
-//  FOR
 //
 
+//
+//  Incomplete coverage:
+//    factor()
+//    term()
+//    expr()
+//    compare()
+//    callUserFunction()
+//    callBuiltin()
+//
+//
+//    FOR
+//    IF
+//    INPUT
+//    DEF FN
+//
 package eval
 
 import (
@@ -64,6 +75,7 @@ func TestCompare(t *testing.T) {
 	//
 	for _, v := range tests {
 
+		// TODO: Tests fail without the trailing newline - BUG
 		tokener := tokenizer.New(v.Input + "\n")
 		e, err := New(tokener)
 		if err != nil {
@@ -100,7 +112,7 @@ func TestData(t *testing.T) {
 		{Input: `10 DATA "2","1","2"`, Valid: true},
 		{Input: `10 DATA "2","steve",2
 `, Valid: true},
-		{Input: `10 DATA LET, b, c`, Valid: false},
+		{Input: `10 DATA LET, b, c, + , -`, Valid: false},
 	}
 
 	//
@@ -121,6 +133,35 @@ func TestData(t *testing.T) {
 			}
 		}
 	}
+}
+
+// TestDefFN tests that parsing user-defined functions works, somewhat.
+func TestDefFn(t *testing.T) {
+	tests := []string{
+		"10 DEF FN square(x,y) = ",
+		"10 DEF FN square(x) 33 ",
+		"10 DEF FN square(x) ",
+		"10 DEF FN square(x ",
+		"10 DEF FN square(x 32",
+		"10 DEF FN square",
+		"10 DEF FN square 3 \"steve\"",
+		"10 DEF FN 3",
+		"10 DEF FN ",
+		"10 DEF 3 ",
+	}
+
+	for _, test := range tests {
+
+		_, err := FromString(test)
+		if err == nil {
+			t.Errorf("Expected error parsing '%s' - saw none", test)
+		} else {
+			if !strings.Contains(err.Error(), "DEF") {
+				t.Errorf("The error didn't seem to match a DEF FN failure: %s", err.Error())
+			}
+		}
+	}
+
 }
 
 // TestEOF ensures that our bounds-checking of program works.
