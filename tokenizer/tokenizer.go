@@ -1,5 +1,4 @@
-// Package tokenizer contains the tokenizer we use for parsing
-// BASIC programs.
+// Package tokenizer contains the tokenizer we use for parsing BASIC programs.
 package tokenizer
 
 import (
@@ -8,16 +7,16 @@ import (
 
 // Tokenizer holds our state.
 type Tokenizer struct {
-	// current character position
+	// current character position.
 	position int
 
-	// next character position
+	// next character position.
 	readPosition int
 
-	// current character
+	// current character.
 	ch rune
 
-	// rune slice of input string
+	// rune slice of input string.
 	characters []rune
 
 	// The previous token.
@@ -34,11 +33,11 @@ func New(input string) *Tokenizer {
 	//  2. INT
 	//
 	// To ensure that we can find the line-number of the first line
-	// of the input-program we prefix that input with a newline.
+    // we also setup a fake "previous" character of a newline.  This
+    // means we don't actually need to prefix our input with such a thing.
 	//
-	// Hacks are us!
-	//
-	l := &Tokenizer{characters: []rune("\n" + input)}
+	l := &Tokenizer{characters: []rune(input)}
+	l.prevToken.Type = token.NEWLINE
 	l.readChar()
 	return l
 }
