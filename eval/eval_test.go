@@ -36,12 +36,11 @@ func TestBuiltin(t *testing.T) {
 	//
 	// Three different ways argument-counting can fail:
 	//
-	//  EOF :  TODO: BUG
+	//  EOF :  TODO - this get caught by expr()
 	//  :
 	//  Newline
 	//
 	tests := []string{
-		// TODO: BUG: "10 LET a = RND ",
 		"20 PRINT RND :",
 		"30 PRINT RND\n"}
 
@@ -110,8 +109,7 @@ func TestCompare(t *testing.T) {
 	//
 	for _, v := range tests {
 
-		// TODO: Tests fail without the trailing newline - BUG
-		tokener := tokenizer.New(v.Input + "\n")
+		tokener := tokenizer.New(v.Input)
 		e, err := New(tokener)
 		if err != nil {
 			t.Errorf("Error parsing %s - %s", v.Input, err.Error())
@@ -260,7 +258,7 @@ func TestEOF(t *testing.T) {
 		`10 DEF FN double(x) = x * x
 20 LET a = 3 + FN `,
 		`10 DEF FN double(x) = x * x
-20 LET a = 3 + FN( 3 `,
+20 LET a = 3 + FN double( 3 `,
 	}
 	for _, test := range tests {
 
@@ -594,8 +592,7 @@ func TestIF(t *testing.T) {
 
 	for _, test := range tests {
 
-		// TODO: Tests fail without the trailing newline - BUG
-		tokener := tokenizer.New(test.Input + "\n")
+		tokener := tokenizer.New(test.Input)
 		e, err := New(tokener)
 		if err != nil {
 			t.Errorf("Error parsing %s - %s", test.Input, err.Error())

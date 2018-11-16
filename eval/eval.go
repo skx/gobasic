@@ -322,6 +322,10 @@ func (e *Interpreter) factor() object.Object {
 				return ret
 			}
 
+			if e.offset >= len(e.program) {
+				return object.Error("Hit end of program processing factor()")
+			}
+
 			// skip past the rbracket
 			tok = e.program[e.offset]
 			if tok.Type != token.RBRACKET {
@@ -427,7 +431,7 @@ func (e *Interpreter) term() object.Object {
 	f1 := e.factor()
 
 	if e.offset >= len(e.program) {
-		return object.Error("Hit end of program processing term()")
+		return f1
 	}
 
 	// Get the operator
@@ -521,7 +525,7 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 	}
 
 	if e.offset >= len(e.program) {
-		return object.Error("Hit end of program processing expr()")
+		return t1
 	}
 
 	// Get the operator
@@ -550,6 +554,10 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 
 		// skip the operator
 		e.offset++
+
+		if e.offset >= len(e.program) {
+			return object.Error("end of program processing expr()")
+		}
 
 		// Get the second argument.
 		t2 := e.term()
@@ -618,6 +626,10 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 			}
 		}
 
+		if e.offset >= len(e.program) {
+			return object.Error("end of program processing expr()")
+		}
+
 		// repeat?
 		tok = e.program[e.offset]
 	}
@@ -633,6 +645,10 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 	// Get the first statement
 	t1 := e.expr(allowBinOp)
 	if t1.Type() == object.ERROR {
+		return t1
+	}
+
+	if e.offset >= len(e.program) {
 		return t1
 	}
 
@@ -1499,6 +1515,9 @@ func (e *Interpreter) runIF() error {
 	//
 	// So we'll special case things here.
 	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("end of program processing IF")
+	}
 
 	// We now expect THEN most of the time
 	target := e.program[e.offset]
@@ -1616,7 +1635,7 @@ func (e *Interpreter) runIF() error {
 			e.offset++
 
 			// If we hit the newline then we're done
-			if tmp.Type == token.NEWLINE {
+			if tmp.Type == token.NEWLINE || tmp.Type == token.EOF {
 				run = false
 				continue
 			}
@@ -1789,6 +1808,9 @@ func (e *Interpreter) swallowLine() error {
 	for e.offset < len(e.program) && run {
 		tok := e.program[e.offset]
 		if tok.Type == token.NEWLINE {
+			run = false
+		}
+		if tok.Type == token.EOF {
 			run = false
 		}
 		e.offset++
