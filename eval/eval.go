@@ -1807,10 +1807,7 @@ func (e *Interpreter) swallowLine() error {
 
 	for e.offset < len(e.program) && run {
 		tok := e.program[e.offset]
-		if tok.Type == token.NEWLINE {
-			run = false
-		}
-		if tok.Type == token.EOF {
+		if tok.Type == token.NEWLINE || tok.Type == token.EOF {
 			run = false
 		}
 		e.offset++
