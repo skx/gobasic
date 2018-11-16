@@ -1,12 +1,15 @@
-// Package eval contains our evaluator
+// Package eval contains the evaluator which executes the BASIC programs.
 //
-// This is pretty simple:
+// The interpreter is intentionally simple:
 //
-//  * The program is an array of tokens.
+// 1. The input program is parsed into a series of tokens.
 //
-//  * We have one statement per line.
+// 2. Each token is executed sequentially.
 //
-//  * We handle the different types of statements in their own functions.
+// There are distinct handlers for each kind of built-in primitive such
+// as REM, DATA, READ, etc.  Things that could be pushed outside the core,
+// such as the maths-primitives (SIN, COS, TAN, etc) have been moved into
+// their own package to keep this as simple and readable as possible.
 //
 package eval
 
