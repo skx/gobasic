@@ -360,6 +360,26 @@ func TestFN(t *testing.T) {
 	}
 
 	//
+	// call a function with an argument that is an error.
+	//
+	fail3 := `
+ 10 DEF FN square(x) = x * x
+ 20 LET t = FN square( "steve" + 3 )
+`
+
+	e, err = FromString(fail3)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail3, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "type mismatch") {
+		t.Errorf("Our error-message wasn't what we expected:%s", err.Error())
+	}
+
+	//
 	// call a working function.
 	//
 	ok1 := `
