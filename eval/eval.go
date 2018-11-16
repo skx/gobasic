@@ -1615,43 +1615,41 @@ func (e *Interpreter) runIF() error {
 		//   IF [ true ]; then [action] ELSE [run me..]
 		//
 		return (e.swallowLine())
-	} else {
-
-		//
-		// When we hit this block we've hit a condition
-		// that failed.
-		//
-		// So we want to jump to the ELSE part of the line:
-		//
-		//   IF [false] THEN [action] ELSE [run me..]
-		//
-		//
-		//
-		run := true
-
-		for e.offset < len(e.program) && run {
-
-			tmp := e.program[e.offset]
-			e.offset++
-
-			// If we hit the newline then we're done
-			if tmp.Type == token.NEWLINE || tmp.Type == token.EOF {
-				run = false
-				continue
-			}
-
-			// Otherwise did we hit the else?
-			if tmp.Type == token.ELSE {
-
-				// Execute the single statement
-				e.RunOnce()
-
-				// Then terminate.
-				run = false
-			}
-		}
 	}
 
+	//
+	// When we hit this block we've hit a condition
+	// that failed.
+	//
+	// So we want to jump to the ELSE part of the line:
+	//
+	//   IF [false] THEN [action] ELSE [run me..]
+	//
+	//
+	//
+	run := true
+
+	for e.offset < len(e.program) && run {
+
+		tmp := e.program[e.offset]
+		e.offset++
+
+		// If we hit the newline then we're done
+		if tmp.Type == token.NEWLINE || tmp.Type == token.EOF {
+			run = false
+			continue
+		}
+
+		// Otherwise did we hit the else?
+		if tmp.Type == token.ELSE {
+
+			// Execute the single statement
+			e.RunOnce()
+
+			// Then terminate.
+			run = false
+		}
+	}
 	return nil
 }
 
