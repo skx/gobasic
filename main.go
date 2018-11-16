@@ -64,10 +64,10 @@ func main() {
 	if *lex {
 		for {
 			tok := t.NextToken()
+			fmt.Printf("%v\n", tok)
 			if tok.Type == token.EOF {
 				break
 			}
-			fmt.Printf("%v\n", tok)
 		}
 		os.Exit(0)
 	}
