@@ -33,8 +33,8 @@ func New(input string) *Tokenizer {
 	//  2. INT
 	//
 	// To ensure that we can find the line-number of the first line
-    // we also setup a fake "previous" character of a newline.  This
-    // means we don't actually need to prefix our input with such a thing.
+	// we also setup a fake "previous" character of a newline.  This
+	// means we don't actually need to prefix our input with such a thing.
 	//
 	l := &Tokenizer{characters: []rune(input)}
 	l.prevToken.Type = token.NEWLINE
