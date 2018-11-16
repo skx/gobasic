@@ -1072,6 +1072,26 @@ func TestRead(t *testing.T) {
 
 }
 
+// TestRem ensures we get some coverage of swallowLine
+func TestRem(t *testing.T) {
+
+	tests := []string{
+		"10 REM ",
+		"20 REM\n",
+		"30 REM REM REM",
+	}
+	for _, test := range tests {
+
+		tokener := tokenizer.New(test)
+		e, err := New(tokener)
+
+		err = e.Run()
+		if err != nil {
+			t.Errorf("Unexpected error running '%s' - %s", test, err.Error())
+		}
+	}
+}
+
 // TestReturn tests that RETURN works as expected
 func TestReturn(t *testing.T) {
 
