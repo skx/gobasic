@@ -1,5 +1,13 @@
-// builtins.go - Helpers for registering "built-in" functions
-
+// The builtin package contains the implementation for the core functions
+// implemented for BASIC, such as SIN, COS, RND, PRINT, etc.
+//
+// The builtin package also provides an interface which with you can
+// extent the interpreter to supply new primitives, for example you
+// might implement RANDOM, PEEK, POKE, or something entirely different.
+//
+// Examples of extending the interpreter exist within the `goserver/`
+// and `embed/` packages within the distribution.
+//
 package builtin
 
 import (

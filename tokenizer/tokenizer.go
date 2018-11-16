@@ -1,4 +1,11 @@
 // Package tokenizer contains the tokenizer we use for parsing BASIC programs.
+//
+// Given a string containing a complete BASIC program this package allows
+// that to be iterated over as a series of tokens.
+//
+// Our interpeter is intentionally naive, and executes tokens directly, without
+// any intermediary representation.
+//
 package tokenizer
 
 import (

@@ -1,12 +1,11 @@
 // Package object contains code to store values passed to/from BASIC.
 //
-// Go allows a rich number of types, but when interpreting BASIC only
-// two types are supported: Numbers and Strings.
+// Go allows a rich number of types, but when interpreting BASIC programs
+// only two types are supported: Numbers and Strings.
 //
 // Numbers are stored as `float64`, to allow holding both integers and
-// floating-point numbers.  When it comes to output our interpreter will
-// round values that are int-like to avoid showing "3.0000" when "3"
-// would be sufficient.
+// floating-point numbers.
+//
 package object
 
 import "fmt"

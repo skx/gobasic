@@ -1,7 +1,7 @@
 // The goserver utility is a simple HTTP server which allows you to
 // interactively run BASIC scripts via your browser.
 //
-// The goservers purpose is to allow users to experiment with graphics,
+// The purpose of this utility is to allow users to experiment with graphics,
 // which it allows by the addition of several custom functions to the
 // BASIC environment.
 //
