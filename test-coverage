@@ -1,0 +1,38 @@
+#!/bin/sh
+
+
+#
+# Run a coverage-report against each directory.
+#
+for i in builtin/ eval/ object/ token/ tokenizer/ ; do
+    go test -short -covermode=count -coverprofile=$i/cove.out ./$i >/dev/null
+done
+
+#
+# Create a temporary file.
+#
+tmp=$(mktemp)
+
+#
+# Join the individual reports into one file `profile.csv`
+#
+echo "mode: count" > "${tmp}"
+for i in */cove.out; do
+    # Skip the first line.
+    tail -n +2 $i >> "${tmp}"
+done
+
+#
+# Now output the global percentage.
+#
+go tool cover -func "${tmp}" | tail -n1 | awk '{print $NF}'
+
+#
+# Now cleanup the individual files
+#
+find . -name 'cove.out' -delete
+
+#
+# Finally remove the temporary-file
+#
+rm -f "${tmp}"

@@ -305,12 +305,19 @@ The project contain a number of test-cases, which you can execute like so:
 
     $ go test ./...
 
-Finally if our test-coverage drops beneath 90% that is _also_ a bug.  You can view coverage like so:
+Finally if our test-coverage drops beneath 95% that is _also_ a bug.  The
+test coverage of most of our packages is 100%, unfortunately the main `eval/`
+package is not yet completely covered.
 
-    $ go test -coverprofile=c.out ./...
-    $ go tool cover -html=c.out
+You can see the __global__ coverage via:
 
-The interpreter has been fuzz-tested pretty extensively, which has resulted in some significant improvements.  See [FUZZING.md](FUZZING.md) for details.
+    $ ./test-coverage
+    97.9%
+
+In addition to the test-cases which have been manually written the interpreter
+has also been fuzz-tested, which has resulted in some significant improvements.
+
+See [FUZZING.md](FUZZING.md) for details of how to run the fuzz-tests.
 
 
 
