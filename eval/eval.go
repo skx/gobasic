@@ -1557,11 +1557,11 @@ func (e *Interpreter) runIF() error {
 			result = result || extraResult
 		}
 		if target.Type == token.XOR {
-			if result != extraResult {
-				result = false
-			} else {
-				result = true
-			}
+			// true + false -> true
+			// false + true -> true
+			// false + false -> false
+			// true + true -> false
+			result = (result != extraResult)
 		}
 
 		// Repeat?

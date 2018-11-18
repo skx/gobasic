@@ -89,7 +89,7 @@ func TestCompare(t *testing.T) {
 		{Input: `140 IF "a" <> "a" THEN let G=3 ELSE LET G=33`, Var: "G", Val: 33},
 		{Input: `150 IF 1=1 AND 2=2 THEN let H=11 ELSE LET H=12`, Var: "H", Val: 11},
 		{Input: `160 IF 1=1 OR 33=2 THEN let I=211 ELSE LET I=20`, Var: "I", Val: 211},
-		{Input: `170 IF 1=1 XOR 33=2 THEN let J=358 ELSE LET J=131`, Var: "J", Val: 131},
+		{Input: `170 IF 1=1 XOR 33=2 THEN let J=358 ELSE LET J=131`, Var: "J", Val: 358},
 		{Input: `10 LET a=1
 20 IF a THEN LET t=11 ELSE let t=10
 `, Var: "t", Val: 11},
