@@ -42,6 +42,7 @@ func TestBuiltin(t *testing.T) {
 	//
 	tests := []string{
 		"20 PRINT RND :",
+		"20 PRINT RND:",
 		"30 PRINT RND\n"}
 
 	for _, test := range tests {

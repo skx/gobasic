@@ -624,8 +624,6 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 				t1 = &object.NumberObject{Value: float64(int(n1) | int(n2))}
 			} else if tok.Type == token.XOR {
 				t1 = &object.NumberObject{Value: float64(int(n1) ^ int(n2))}
-			} else {
-				return object.Error("Token not handled for two numbers: %s\n", tok.Literal)
 			}
 		}
 
