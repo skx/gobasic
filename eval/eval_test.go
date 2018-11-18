@@ -608,6 +608,7 @@ func TestIF(t *testing.T) {
 		{Input: "30 IF 1 > 3 THEN LET res=21\n", Result: -1},
 		{Input: "30 IF 1 < 3 THEN LET res=21\n", Result: -1},
 		{Input: "30 IF 1 <> \"steve\" + 3 THEN LET res=21\n", Result: -1},
+		{Input: "30 IF 1=0 XOR  3 <> \"steve\" + 3 THEN LET foo=3 ELSE LET res=21\n", Result: -1},
 	}
 
 	for _, test := range tests {
