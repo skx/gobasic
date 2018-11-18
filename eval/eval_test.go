@@ -1194,6 +1194,27 @@ func TestTrace(t *testing.T) {
 	if e.GetTrace() != true {
 		t.Errorf("tracing should have been enabled, but was not")
 	}
+
+	//
+	// Run a script which calls multiple functions which
+	// output trace-text.  This is a bit ad-hoc.
+	//
+	ok1 := `
+ 10 DEF FN square(x) = x * x
+ 20 LET t = FN square( 3 )
+ 30 LET r = RND 3
+`
+	e, err := FromString(ok1)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok1, err.Error())
+	}
+	e.SetTrace(true)
+	err = e.Run()
+
+	if err != nil {
+		t.Errorf("Expected to see no error, but got one: %s", err.Error())
+	}
+
 }
 
 // TestVariables gets/sets some variables and ensures they work
