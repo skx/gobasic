@@ -1774,15 +1774,38 @@ func (e *Interpreter) runNEXT() error {
 	}
 
 	//
-	// If we've reached our limit we mark this as complete,
-	// but note that we dont' terminate to allow the actual
-	// end-number to be inclusive.
+	// Now we need to look to see if we've finished.  Ordinarily
+	// we'd do a literal comparison, which would allow this to
+	// work naturally:
 	//
-	if iVal == float64(data.end) {
-		data.finished = true
+	//   FOR I = 1 TO 10
+	//    20  PRINT I
+	//    30 NEXT I
+	//
+	// However that wouldn't catch the case of a "crazy" loop:
+	//
+	//   10 FOR I = 1 TO 10 STEP 3
+	//   20   PRINT I
+	//   30 NEXT I
+	//
+	// We need to work out if we're a "positive" loop (counting
+	// upwards) or a "negative" loop (counting downwards) and
+	// test for >= or <= as appropriate.
+	//
+	if data.step > 0 {
+		if iVal+data.step > float64(data.end) {
+			data.finished = true
 
-		// updates-in-place.  bad name
-		e.loops.Add(data)
+			// updates-in-place.  bad name
+			e.loops.Add(data)
+		}
+	} else {
+		if iVal+data.step < float64(data.end) {
+			data.finished = true
+
+			// updates-in-place.  bad name
+			e.loops.Add(data)
+		}
 	}
 
 	//
