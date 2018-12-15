@@ -411,6 +411,20 @@ func (e *Interpreter) factor() object.Object {
 		case token.IDENT:
 
 			//
+			// TODO:
+			//
+			//   Handle array subscript(s)
+			//
+			//   We need to handle:
+			//
+			//     A
+			//     A[1]
+			//     A[1][2]
+			//
+			//  TODO:
+			//
+
+			//
 			// Get the contents of the variable.
 			//
 			val := e.GetVariable(tok.Literal)
@@ -1798,6 +1812,24 @@ func (e *Interpreter) runLET() error {
 	if target.Type != token.IDENT {
 		return fmt.Errorf("Expected IDENT after LET, got %v", target)
 	}
+
+	//
+	// TODO
+	//
+	// At this point we've handled
+	//   LET foo
+	//
+	// That would usually be all we needed, because we'd expect
+	//   LET foo=...
+	//
+	// However we also have to consider the case of arrays, which
+	// means we need to look for:
+	//
+	//   LET foo[1] = ..
+	//   LET bar[1][2] = ..
+	//
+	// TODO
+	//
 
 	// Now "="
 	assign := e.program[e.offset]
