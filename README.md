@@ -73,6 +73,27 @@ There are some (obvious) limitations:
 * When it comes to types only floating-point and string values are permitted.
   * There is support for arrays but only one or two dimensional ones.
 
+### Arrays
+
+Arrays are used just like normal variables. They are declared using the DIM statement. Individual elements are accessed using the offsets in brackets after the variable name:
+
+    10 DIM a(10,10)
+    20 LET a(1,1)=10
+    30 PRINT a(1,1)
+
+Arrays are indexed from 0-N, so with an array size of 10 you can access eleven
+elements:
+
+     10 DIM a(10)
+     20 a(0) = 0
+     30 a(1) = 1
+     40 ..
+     90 a(9) = 9
+    100 a(10) = 10
+
+ZX Spectrum BASIC indexed from 1, denying the ability to use the zeroth element, which I've long considered a mistake.
+
+
 ### Line Numbers
 
 Line numbers are _mostly_ optional, for examplethe following program is valid and correct:
