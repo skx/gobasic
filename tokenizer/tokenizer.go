@@ -104,6 +104,10 @@ func (l *Tokenizer) NextToken() token.Token {
 		tok = newToken(token.LBRACKET, l.ch)
 	case rune(')'):
 		tok = newToken(token.RBRACKET, l.ch)
+	case rune('['):
+		tok = newToken(token.LINDEX, l.ch)
+	case rune(']'):
+		tok = newToken(token.RINDEX, l.ch)
 	case rune('<'):
 		if l.peekChar() == rune('>') {
 			ch := l.ch

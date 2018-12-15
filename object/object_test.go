@@ -1,6 +1,7 @@
 package object
 
 import (
+	"fmt"
 	"math"
 	"strings"
 	"testing"
@@ -91,5 +92,60 @@ func TestString(t *testing.T) {
 	// Test values
 	if a.Value != "Test" {
 		t.Errorf("Wrong value for string-object")
+	}
+}
+
+func TestArray(t *testing.T) {
+
+	// Create an array
+	fmt.Printf("Creating array\n")
+	a := Array(5, 5)
+
+	if a.Type() != ARRAY {
+		t.Errorf("Object has the wrong type!")
+	}
+
+	// Ensure each dimension is gettable
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 5; j++ {
+			a.Set(i, j, Number(float64(i*j)))
+		}
+	}
+
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 5; j++ {
+			expected := float64(i * j)
+
+			actual := a.Get(i, j)
+
+			if actual.Type() != NUMBER {
+				t.Errorf("Failed to get the correct type")
+			}
+			if expected != actual.(*NumberObject).Value {
+				t.Errorf("Failed to get the right value for %d,%d!", i, j)
+			}
+		}
+	}
+
+	// Convert the object to a string
+	out := a.String()
+	if !strings.Contains(out, "Value:16.00") {
+		t.Errorf("Failed to find a decent value in our string-representation")
+	}
+
+	// Get an out of bounds entry
+	err := a.Get(6, 4)
+	if err.Type() != ERROR {
+		t.Errorf("Expected error - got none!")
+	}
+
+	// Set an out of bounds entry
+	e := a.Set(6, 4, Number(3))
+	if e == nil {
+		t.Errorf("Expected error - got none!")
+	}
+	e = a.Set(3, 2, Number(3))
+	if e != nil {
+		t.Errorf("We didn't expect an error, but we found one")
 	}
 }

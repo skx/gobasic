@@ -1,14 +1,17 @@
 // Package object contains code to store values passed to/from BASIC.
 //
 // Go allows a rich number of types, but when interpreting BASIC programs
-// only two types are supported: Numbers and Strings.
+// we only support numbers & strings, as well as two-dimensional arrays
+// containing those values.
 //
-// Numbers are stored as `float64`, to allow holding both integers and
-// floating-point numbers.
+// Note that numbers are stored as `float64`, to allow holding both
+// integers and floating-point numbers.
 //
 package object
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Type describes the type of an object.
 type Type string
@@ -18,6 +21,7 @@ const (
 	ERROR  = "ERROR"
 	NUMBER = "NUMBER"
 	STRING = "STRING"
+	ARRAY  = "ARRAY"
 )
 
 // Object is the interface that our types must implement.
@@ -26,9 +30,76 @@ type Object interface {
 	// Type returns the type of the object.
 	Type() Type
 
-	// String converts the object to a printable version for
-	// debugging.
+	// String converts the object to a printable version for debugging.
 	String() string
+}
+
+// ArrayObject holds an array.
+//
+// We allow only two-dimensional arrays, and the size is set at the time
+// the array is constructed.
+type ArrayObject struct {
+
+	// We store objects in our array
+	Contents []Object
+
+	// X is the X-size of the array, fixed at creation-time
+	X int
+
+	// Y is the Y-size of the array, fixed at creation-time.
+	Y int
+}
+
+// Type returns the type of this object.
+func (a *ArrayObject) Type() Type {
+	return ARRAY
+}
+
+// Array creates a new array of the given dimensions
+func Array(x int, y int) *ArrayObject {
+
+	// setup the sizes
+	a := &ArrayObject{X: x, Y: y}
+
+	// for each entry ensure we store a value.
+	c := x * y
+
+	// we default to "0"
+	for c > 0 {
+		a.Contents = append(a.Contents, Number(0))
+		c--
+	}
+
+	return a
+}
+
+// Get the value at the given X,Y coordinate
+func (a *ArrayObject) Get(x int, y int) Object {
+	offset := x*a.X + y
+	if offset > a.X*a.Y {
+		return &ErrorObject{Value: "Array access out of bounds!"}
+	}
+
+	return (a.Contents[offset])
+}
+
+// Set the value at the given X,Y coordinate
+func (a *ArrayObject) Set(x int, y int, obj Object) error {
+	offset := x*a.X + y
+
+	if offset > a.X*a.Y {
+		return fmt.Errorf("Array access out of bounds")
+	}
+	a.Contents[offset] = obj
+	return nil
+}
+
+// String returns the string-contents of the string
+func (a *ArrayObject) String() string {
+
+	out := fmt.Sprintf("Array{X:%d, Y:%d, <%v>}",
+		a.X, a.Y, a.Contents)
+	return (out)
 }
 
 // StringObject holds a string.
