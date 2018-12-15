@@ -1956,13 +1956,32 @@ func (e *Interpreter) RunOnce() error {
 	// Handle this token
 	//
 	switch tok.Type {
+	//
+	// Logical
+	//
 	case token.NEWLINE:
 		// NOP
 	case token.LINENO:
 		e.lineno = tok.Literal
+
+	//
+	// Actual
+	//
+	case token.BUILTIN:
+		obj := e.callBuiltin(tok.Literal)
+
+		if obj.Type() == object.ERROR {
+			return fmt.Errorf("%s", obj.(*object.ErrorObject).Value)
+		}
+
+		e.offset--
+	case token.DEF:
+		err = e.swallowLine()
 	case token.END:
 		e.finished = true
 		return nil
+	case token.DATA:
+		err = e.swallowLine()
 	case token.FOR:
 		err = e.runForLoop()
 	case token.GOSUB:
@@ -1983,21 +2002,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.swallowLine()
 	case token.RETURN:
 		err = e.runRETURN()
-	case token.DATA:
-		err = e.swallowLine()
 	case token.READ:
 		err = e.runREAD()
-	case token.DEF:
-		err = e.swallowLine()
-	case token.BUILTIN:
-
-		obj := e.callBuiltin(tok.Literal)
-
-		if obj.Type() == object.ERROR {
-			return fmt.Errorf("%s", obj.(*object.ErrorObject).Value)
-		}
-
-		e.offset--
 	default:
 		//
 		// This is either a clever piece of code, or a terrible
