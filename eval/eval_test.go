@@ -198,6 +198,60 @@ func TestDefFn(t *testing.T) {
 
 }
 
+// TestDim tests basic DIM functionality for single and 2dimensional
+// arrays
+func TestDim(t *testing.T) {
+
+	//
+	// Valid input
+	//
+	input := `10 DIM a(3)
+20 DIM b(3,3)
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err != nil {
+		t.Errorf("Found an unexpected error parsing valid DIM statements:%s", err.Error())
+	}
+
+	//
+	// Now we have a series of invalid DIM statements
+	// which have the wrong types
+	//
+	invalid := []string{"10 DIM 3",
+		"10 DIM 3,",
+		"10 DIM a(\"steve\"",
+		"10 DIM a(3,,,,",
+		"10 DIM a(3 (",
+		"10 DIM a(3,4,",
+		"10 DIM a(3, \"steve\")",
+		"10 DIM a(3, 4 ]",
+		"10 DIM a [",
+	}
+
+	for _, test := range invalid {
+
+		tokener := tokenizer.New(test)
+		e, err := New(tokener)
+		err = e.Run()
+
+		if err == nil {
+			t.Errorf("Expected an error parsing '%s' - Got none", test)
+		} else {
+
+			if !strings.Contains(err.Error(), "DIM") {
+				t.Errorf("Error '%s' didn't contain DIM", err.Error())
+			}
+		}
+	}
+}
+
 // TestEOF ensures that our bounds-checking of program works.
 //
 // The bounds-checks we've added have largely been as a result of
@@ -235,6 +289,12 @@ func TestEOF(t *testing.T) {
 		"10 FOR I = 1 TO 3 STEP",
 		"10 FOR I = 1 TO ",
 		"10 FOR I = 1 ",
+		"10 DIM",
+		"10 DIM x",
+		"10 DIM x(",
+		"10 DIM x(3",
+		"10 DIM x(3,",
+		"10 DIM x(3,3",
 		"10 DEF FN x() = ",
 		"10 DEF FN x()  ",
 		"10 DEF FN x( ",

@@ -1123,6 +1123,130 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 //
 ////
 
+// runDIM handles a DIM statement
+func (e *Interpreter) runDIM() error {
+
+	//
+	// We handle two forms of the DIM statement
+	//
+	//   DIM var(1)
+	//   DIM var(1,2)
+	//
+	// i.e. We allow one or two dimensions.  We do not allow three,
+	// or more.
+	//
+
+	// Bump past the DIM token itself.
+	e.offset++
+
+	//
+	// 1. We now expect a variable name.
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DIM")
+	}
+	target := e.program[e.offset]
+	if target.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after DIM, got %v", target)
+	}
+	e.offset++
+
+	//
+	// 2. Now we expect "("
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DIM")
+	}
+	open := e.program[e.offset]
+	if open.Type != token.LBRACKET {
+		return fmt.Errorf("Expected '(' after 'DIM' , got %v", open)
+	}
+	e.offset++
+
+	//
+	// 3. Now we expect a dimension.
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DIM")
+	}
+	first := e.program[e.offset]
+	if first.Type != token.INT {
+		return fmt.Errorf("Expected 'INT' after 'DIM(' , got %v", first)
+	}
+	e.offset++
+
+	//
+	// Optional second factor
+	//
+	var sec token.Token
+
+	//
+	// 4.  Now we either expect a "," or a ")"
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DIM")
+	}
+	tok := e.program[e.offset]
+	e.offset++
+
+	if tok.Type == token.COMMA {
+
+		//
+		// Get the next factor
+		//
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("Hit end of program processing DIM")
+		}
+
+		//
+		// The next value should be an int
+		//
+		sec = e.program[e.offset]
+		e.offset++
+		if sec.Type != token.INT {
+			return fmt.Errorf("DIM error - only integers are used for dimensions")
+		}
+
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("Hit end of program processing DIM")
+		}
+		close := e.program[e.offset]
+		if close.Type != token.RBRACKET {
+			return fmt.Errorf("Expected ')' after 'DIM %s(%s' , got %v", target.Literal, first, tok)
+
+		}
+		e.offset++
+	} else if tok.Type != token.RBRACKET {
+		//
+		// Get the next factor
+		//
+		return fmt.Errorf("Expected ')' after 'DIM %s(%s' , got %v", target.Literal, first, tok)
+	}
+
+	//
+	// Now we have either two dimensions, or one
+	//
+	var x object.Object
+
+	if sec.Type == token.INT {
+
+		// 2D array
+		a, _ := strconv.ParseFloat(first.Literal, 64)
+		b, _ := strconv.ParseFloat(first.Literal, 64)
+
+		x = object.Array(int(a), int(b))
+	} else {
+
+		// 1D array
+		a, _ := strconv.ParseFloat(first.Literal, 64)
+		x = object.Array(0, int(a))
+	}
+
+	// Store the array in the environment
+	e.SetVariable(target.Literal, x)
+	return nil
+}
+
 // runForLoop handles a FOR loop
 func (e *Interpreter) runForLoop() error {
 	// we expect "FOR VAR = START to END [STEP EXPR]"
@@ -1977,6 +2101,8 @@ func (e *Interpreter) RunOnce() error {
 		e.offset--
 	case token.DEF:
 		err = e.swallowLine()
+	case token.DIM:
+		err = e.runDIM()
 	case token.END:
 		e.finished = true
 		return nil
