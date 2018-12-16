@@ -58,6 +58,14 @@ func (a *ArrayObject) Type() Type {
 // Array creates a new array of the given dimensions
 func Array(x int, y int) *ArrayObject {
 
+	// Our semantics ensure that we allow "0-N".
+	if x != 0 {
+		x += 1
+	}
+	if y != 0 {
+		y += 1
+	}
+
 	// setup the sizes
 	a := &ArrayObject{X: x, Y: y}
 
