@@ -189,6 +189,9 @@ func TestDim(t *testing.T) {
 	//
 	input := `10 DIM a(3)
 20 DIM b(3,3)
+24 LET i=2
+30 LET a[i]="Steve"
+40 LET b=a[2]
 `
 	tokener := tokenizer.New(input)
 	e, err := New(tokener)
@@ -200,6 +203,18 @@ func TestDim(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("Found an unexpected error parsing valid DIM statements:%s", err.Error())
+	}
+
+	//
+	// Ensure we got the value we expected
+	//
+	out := e.GetVariable("b")
+	if out.Type() != object.STRING {
+		t.Errorf("Variable 'b' had wrong type: %s", out.String())
+	}
+	res := out.(*object.StringObject).Value
+	if res != "Steve" {
+		t.Errorf("Expected to get 'Steve' from array, got %v", res)
 	}
 
 	//
@@ -257,13 +272,13 @@ func TestDim(t *testing.T) {
 	}
 
 	// Ensure our result is expected
-	out := e.GetVariable("c")
+	out = e.GetVariable("c")
 	if out.Type() != object.NUMBER {
 		t.Errorf("Variable 'c' had wrong type: %s", out.String())
 	}
-	res := out.(*object.NumberObject).Value
-	if res != 33.5 {
-		t.Errorf("Expected sum to be 33.5, got %f", res)
+	result := out.(*object.NumberObject).Value
+	if result != 33.5 {
+		t.Errorf("Expected sum to be 33.5, got %f", result)
 	}
 
 }
@@ -553,6 +568,36 @@ func TestFor(t *testing.T) {
 	out := cur.(*object.NumberObject).Value
 	if out != 55 {
 		t.Errorf("Expected s to be %d, got %f", 55, out)
+	}
+
+	//
+	// This will also work, backwards.
+	//
+	ok2 := `
+ 10 LET s = 0
+ 20 FOR I = 10 TO 1 STEP -1
+ 20  LET s = s - I
+ 30 NEXT I
+`
+	e, err = FromString(ok2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok2, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("We found an unexpected error: %s", err.Error())
+	}
+
+	cur = e.GetVariable("s")
+	if cur.Type() == object.ERROR {
+		t.Errorf("Variable s does not exist!")
+	}
+	if cur.Type() != object.NUMBER {
+		t.Errorf("Variable s had wrong type: %s", cur.String())
+	}
+	out = cur.(*object.NumberObject).Value
+	if out != -55 {
+		t.Errorf("Expected s to be %d, got %f", -55, out)
 	}
 
 }
