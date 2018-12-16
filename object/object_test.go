@@ -94,7 +94,48 @@ func TestString(t *testing.T) {
 	}
 }
 
-func TestArray(t *testing.T) {
+func Test1DArray(t *testing.T) {
+
+	// Create an array of one dimension
+	a := Array(0, 5)
+
+	if a.Type() != ARRAY {
+		t.Errorf("Object has the wrong type!")
+	}
+
+	// Ensure each dimension is settable
+	for i := 0; i < 5; i++ {
+		a.Set(0, i, Number(float64(i)))
+	}
+
+	// Ensure each dimension is gettable
+	sum := 0
+	for i := 0; i < 5; i++ {
+		out := a.Get(0, i)
+
+		if out.Type() == NUMBER {
+			sum += int(out.(*NumberObject).Value)
+		}
+	}
+
+	if sum != 10 {
+		t.Errorf("Sum was %d not %d", sum, 10)
+	}
+
+	// Test that we have bound-checking on Get
+	err1 := a.Get(0, 6)
+	if err1.Type() != ERROR {
+		t.Errorf("Expected a bounds-error, got none")
+	}
+
+	// Test that we have bound-checking on Set
+	err2 := a.Set(0, 6, err1)
+	if err2.Type() != ERROR {
+		t.Errorf("Expected a bounds-error, got none")
+	}
+}
+
+func Test2DArray(t *testing.T) {
 
 	// Create an array
 	a := Array(5, 5)

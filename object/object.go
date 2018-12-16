@@ -89,10 +89,11 @@ func Array(x int, y int) *ArrayObject {
 // Get the value at the given X,Y coordinate
 func (a *ArrayObject) Get(x int, y int) Object {
 	offset := x*a.X + y
-	if a.X == 0 && offset > a.Y {
+
+	if a.X == 0 && offset >= a.Y {
 		return &ErrorObject{Value: "Array access out of bounds!"}
 	}
-	if (a.X != 0) && (offset > a.X*a.Y) {
+	if (a.X != 0) && (offset >= a.X*a.Y) {
 		return &ErrorObject{Value: "Array access out of bounds!"}
 	}
 
@@ -103,10 +104,10 @@ func (a *ArrayObject) Get(x int, y int) Object {
 func (a *ArrayObject) Set(x int, y int, obj Object) Object {
 	offset := x*a.X + y
 
-	if a.X == 0 && offset > a.Y {
+	if a.X == 0 && offset >= a.Y {
 		return &ErrorObject{Value: "Array access out of bounds!"}
 	}
-	if (a.X != 0) && (offset > a.X*a.Y) {
+	if (a.X != 0) && (offset >= a.X*a.Y) {
 		return &ErrorObject{Value: "Array access out of bounds!"}
 	}
 	a.Contents[offset] = obj
