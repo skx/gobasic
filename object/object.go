@@ -78,7 +78,7 @@ func Array(x int, y int) *ArrayObject {
 	}
 
 	// we default to "0"
-	for c > 0 {
+	for c >= 0 {
 		a.Contents = append(a.Contents, Number(0))
 		c--
 	}
@@ -91,12 +91,14 @@ func (a *ArrayObject) Get(x int, y int) Object {
 	offset := x*a.X + y
 
 	if a.X == 0 && offset >= a.Y {
-		return &ErrorObject{Value: "Array access out of bounds!"}
+		return &ErrorObject{Value: "Get-Array access out of bounds (Y)"}
 	}
-	if (a.X != 0) && (offset >= a.X*a.Y) {
-		return &ErrorObject{Value: "Array access out of bounds!"}
+	if (a.X != 0) && (offset > a.X*a.Y) {
+		return &ErrorObject{Value: "Get-Array access out of bounds (X,Y)"}
 	}
-
+	if offset > len(a.Contents) {
+		return &ErrorObject{Value: "Get-Array access out of bounds (LEN)"}
+	}
 	return (a.Contents[offset])
 }
 
@@ -105,11 +107,15 @@ func (a *ArrayObject) Set(x int, y int, obj Object) Object {
 	offset := x*a.X + y
 
 	if a.X == 0 && offset >= a.Y {
-		return &ErrorObject{Value: "Array access out of bounds!"}
+		return &ErrorObject{Value: "Set-Array access out of bounds (Y)"}
 	}
-	if (a.X != 0) && (offset >= a.X*a.Y) {
-		return &ErrorObject{Value: "Array access out of bounds!"}
+	if (a.X != 0) && (offset > a.X*a.Y) {
+		return &ErrorObject{Value: "Set-Array access out of bounds (X,Y)"}
 	}
+	if offset > len(a.Contents) {
+		return &ErrorObject{Value: "Set-Array access out of bounds (LEN)"}
+	}
+
 	a.Contents[offset] = obj
 	return obj
 }

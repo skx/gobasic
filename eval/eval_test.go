@@ -1,23 +1,5 @@
 // eval_test.go - Simple test-cases for our evaluator.
 
-//
-// TODO:
-//  Builtin
-//
-
-//
-//  Incomplete coverage:
-//    factor()
-//    term()
-//    expr()
-//    callUserFunction()
-//    callBuiltin()
-//
-//
-//    IF
-//    INPUT
-//    DEF FN
-//
 package eval
 
 import (
@@ -250,6 +232,40 @@ func TestDim(t *testing.T) {
 			}
 		}
 	}
+
+	//
+	// Now we'll test get/set of an array value
+	//
+	getSet := `
+10 DIM a(2,3)
+20 LET a[2,0]=33
+30 LET a[2,1]=2
+40 LET a[2,2]=-2
+50 LET a[2,3]=0.5
+60 LET c = a[2,0] + a[2,1] + a[2,2] + a[2,3]
+`
+
+	// Run the script
+	tokener = tokenizer.New(getSet)
+	e, err = New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Found an unexpected error: %s", err.Error())
+	}
+
+	// Ensure our result is expected
+	out := e.GetVariable("c")
+	if out.Type() != object.NUMBER {
+		t.Errorf("Variable 'c' had wrong type: %s", out.String())
+	}
+	res := out.(*object.NumberObject).Value
+	if res != 33.5 {
+		t.Errorf("Expected sum to be 33.5, got %f", res)
+	}
+
 }
 
 // TestEOF ensures that our bounds-checking of program works.
