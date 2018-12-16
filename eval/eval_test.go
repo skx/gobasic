@@ -1,23 +1,5 @@
 // eval_test.go - Simple test-cases for our evaluator.
 
-//
-// TODO:
-//  Builtin
-//
-
-//
-//  Incomplete coverage:
-//    factor()
-//    term()
-//    expr()
-//    callUserFunction()
-//    callBuiltin()
-//
-//
-//    IF
-//    INPUT
-//    DEF FN
-//
 package eval
 
 import (
@@ -198,6 +180,94 @@ func TestDefFn(t *testing.T) {
 
 }
 
+// TestDim tests basic DIM functionality for single and 2dimensional
+// arrays
+func TestDim(t *testing.T) {
+
+	//
+	// Valid input
+	//
+	input := `10 DIM a(3)
+20 DIM b(3,3)
+`
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	err = e.Run()
+
+	if err != nil {
+		t.Errorf("Found an unexpected error parsing valid DIM statements:%s", err.Error())
+	}
+
+	//
+	// Now we have a series of invalid DIM statements
+	// which have the wrong types
+	//
+	invalid := []string{"10 DIM 3",
+		"10 DIM 3,",
+		"10 DIM a(\"steve\"",
+		"10 DIM a(3,,,,",
+		"10 DIM a(3 (",
+		"10 DIM a(3,4,",
+		"10 DIM a(3, \"steve\")",
+		"10 DIM a(3, 4 ]",
+		"10 DIM a [",
+	}
+
+	for _, test := range invalid {
+
+		tokener := tokenizer.New(test)
+		e, err := New(tokener)
+		err = e.Run()
+
+		if err == nil {
+			t.Errorf("Expected an error parsing '%s' - Got none", test)
+		} else {
+
+			if !strings.Contains(err.Error(), "DIM") {
+				t.Errorf("Error '%s' didn't contain DIM", err.Error())
+			}
+		}
+	}
+
+	//
+	// Now we'll test get/set of an array value
+	//
+	getSet := `
+10 DIM a(2,3)
+20 LET a[2,0]=33
+30 LET a[2,1]=2
+40 LET a[2,2]=-2
+50 LET a[2,3]=0.5
+60 LET c = a[2,0] + a[2,1] + a[2,2] + a[2,3]
+`
+
+	// Run the script
+	tokener = tokenizer.New(getSet)
+	e, err = New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Found an unexpected error: %s", err.Error())
+	}
+
+	// Ensure our result is expected
+	out := e.GetVariable("c")
+	if out.Type() != object.NUMBER {
+		t.Errorf("Variable 'c' had wrong type: %s", out.String())
+	}
+	res := out.(*object.NumberObject).Value
+	if res != 33.5 {
+		t.Errorf("Expected sum to be 33.5, got %f", res)
+	}
+
+}
+
 // TestEOF ensures that our bounds-checking of program works.
 //
 // The bounds-checks we've added have largely been as a result of
@@ -235,6 +305,12 @@ func TestEOF(t *testing.T) {
 		"10 FOR I = 1 TO 3 STEP",
 		"10 FOR I = 1 TO ",
 		"10 FOR I = 1 ",
+		"10 DIM",
+		"10 DIM x",
+		"10 DIM x(",
+		"10 DIM x(3",
+		"10 DIM x(3,",
+		"10 DIM x(3,3",
 		"10 DEF FN x() = ",
 		"10 DEF FN x()  ",
 		"10 DEF FN x( ",

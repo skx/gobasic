@@ -59,6 +59,7 @@ const (
 
 	// Misc
 	DATA = "DATA"
+	DIM  = "DIM"
 	DEF  = "DEF"
 	FN   = "FN"
 	READ = "READ"
@@ -77,6 +78,8 @@ const (
 	SEMICOLON = ";"
 	LBRACKET  = "("
 	RBRACKET  = ")"
+	LINDEX    = "["
+	RINDEX    = "]"
 
 	// Comparison functions.
 	GT        = ">"
@@ -90,6 +93,7 @@ const (
 var keywords = map[string]Type{
 	"and":    AND,
 	"data":   DATA,
+	"dim":    DIM,
 	"def":    DEF,
 	"else":   ELSE,
 	"end":    END,

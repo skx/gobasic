@@ -411,10 +411,29 @@ func (e *Interpreter) factor() object.Object {
 		case token.IDENT:
 
 			//
+			// Look for indexed variables
+			//
+			e.offset++
+			index := e.findIndex()
+			if len(index) > 0 {
+
+				x := e.GetVariable(tok.Literal)
+				a := x.(*object.ArrayObject)
+
+				var ob object.Object
+				if len(index) == 1 {
+					ob = a.Get(0, index[0])
+				}
+				if len(index) == 2 {
+					ob = a.Get(index[0], index[1])
+				}
+				return ob
+			}
+
+			//
 			// Get the contents of the variable.
 			//
 			val := e.GetVariable(tok.Literal)
-			e.offset++
 			return val
 
 		default:
@@ -1123,6 +1142,130 @@ func (e *Interpreter) callBuiltin(name string) object.Object {
 //
 ////
 
+// runDIM handles a DIM statement
+func (e *Interpreter) runDIM() error {
+
+	//
+	// We handle two forms of the DIM statement
+	//
+	//   DIM var(1)
+	//   DIM var(1,2)
+	//
+	// i.e. We allow one or two dimensions.  We do not allow three,
+	// or more.
+	//
+
+	// Bump past the DIM token itself.
+	e.offset++
+
+	//
+	// 1. We now expect a variable name.
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DIM")
+	}
+	target := e.program[e.offset]
+	if target.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after DIM, got %v", target)
+	}
+	e.offset++
+
+	//
+	// 2. Now we expect "("
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DIM")
+	}
+	open := e.program[e.offset]
+	if open.Type != token.LBRACKET {
+		return fmt.Errorf("Expected '(' after 'DIM' , got %v", open)
+	}
+	e.offset++
+
+	//
+	// 3. Now we expect a dimension.
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DIM")
+	}
+	first := e.program[e.offset]
+	if first.Type != token.INT {
+		return fmt.Errorf("Expected 'INT' after 'DIM(' , got %v", first)
+	}
+	e.offset++
+
+	//
+	// Optional second factor
+	//
+	var sec token.Token
+
+	//
+	// 4.  Now we either expect a "," or a ")"
+	//
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing DIM")
+	}
+	tok := e.program[e.offset]
+	e.offset++
+
+	if tok.Type == token.COMMA {
+
+		//
+		// Get the next factor
+		//
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("Hit end of program processing DIM")
+		}
+
+		//
+		// The next value should be an int
+		//
+		sec = e.program[e.offset]
+		e.offset++
+		if sec.Type != token.INT {
+			return fmt.Errorf("DIM error - only integers are used for dimensions")
+		}
+
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("Hit end of program processing DIM")
+		}
+		close := e.program[e.offset]
+		if close.Type != token.RBRACKET {
+			return fmt.Errorf("Expected ')' after 'DIM %s(%s' , got %v", target.Literal, first, tok)
+
+		}
+		e.offset++
+	} else if tok.Type != token.RBRACKET {
+		//
+		// Get the next factor
+		//
+		return fmt.Errorf("Expected ')' after 'DIM %s(%s' , got %v", target.Literal, first, tok)
+	}
+
+	//
+	// Now we have either two dimensions, or one
+	//
+	var x object.Object
+
+	if sec.Type == token.INT {
+
+		// 2D array
+		a, _ := strconv.ParseFloat(first.Literal, 64)
+		b, _ := strconv.ParseFloat(first.Literal, 64)
+
+		x = object.Array(int(a), int(b))
+	} else {
+
+		// 1D array
+		a, _ := strconv.ParseFloat(first.Literal, 64)
+		x = object.Array(0, int(a))
+	}
+
+	// Store the array in the environment
+	e.SetVariable(target.Literal, x)
+	return nil
+}
+
 // runForLoop handles a FOR loop
 func (e *Interpreter) runForLoop() error {
 	// we expect "FOR VAR = START to END [STEP EXPR]"
@@ -1675,6 +1818,23 @@ func (e *Interpreter) runLET() error {
 		return fmt.Errorf("Expected IDENT after LET, got %v", target)
 	}
 
+	//
+	// TODO
+	//
+	// At this point we've handled
+	//   LET foo
+	//
+	// That would usually be all we needed, because we'd expect
+	//   LET foo=...
+	//
+	// However we also have to consider the case of arrays, which
+	// means we need to look for:
+	//
+	//   LET foo[1] = ..
+	//   LET bar[1][2] = ..
+	//
+	index := e.findIndex()
+
 	// Now "="
 	assign := e.program[e.offset]
 	if assign.Type != token.ASSIGN {
@@ -1691,6 +1851,30 @@ func (e *Interpreter) runLET() error {
 	// Did we get an error in the expression?
 	if res.Type() == object.ERROR {
 		return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+	}
+
+	// Are we handling an array-index?
+	if len(index) > 0 {
+
+		// get the current variable
+		x := e.GetVariable(target.Literal)
+		a := x.(*object.ArrayObject)
+
+		// update the value
+		if len(index) == 1 {
+			res := a.Set(0, index[0], res)
+			if res.Type() == object.ERROR {
+				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+			}
+		}
+		if len(index) == 2 {
+			res := a.Set(index[0], index[1], res)
+			if res.Type() == object.ERROR {
+				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+			}
+		}
+
+		return nil
 	}
 
 	// Store the result
@@ -1956,13 +2140,34 @@ func (e *Interpreter) RunOnce() error {
 	// Handle this token
 	//
 	switch tok.Type {
+	//
+	// Logical
+	//
 	case token.NEWLINE:
 		// NOP
 	case token.LINENO:
 		e.lineno = tok.Literal
+
+	//
+	// Actual
+	//
+	case token.BUILTIN:
+		obj := e.callBuiltin(tok.Literal)
+
+		if obj.Type() == object.ERROR {
+			return fmt.Errorf("%s", obj.(*object.ErrorObject).Value)
+		}
+
+		e.offset--
+	case token.DEF:
+		err = e.swallowLine()
+	case token.DIM:
+		err = e.runDIM()
 	case token.END:
 		e.finished = true
 		return nil
+	case token.DATA:
+		err = e.swallowLine()
 	case token.FOR:
 		err = e.runForLoop()
 	case token.GOSUB:
@@ -1983,21 +2188,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.swallowLine()
 	case token.RETURN:
 		err = e.runRETURN()
-	case token.DATA:
-		err = e.swallowLine()
 	case token.READ:
 		err = e.runREAD()
-	case token.DEF:
-		err = e.swallowLine()
-	case token.BUILTIN:
-
-		obj := e.callBuiltin(tok.Literal)
-
-		if obj.Type() == object.ERROR {
-			return fmt.Errorf("%s", obj.(*object.ErrorObject).Value)
-		}
-
-		e.offset--
 	default:
 		//
 		// This is either a clever piece of code, or a terrible
@@ -2055,6 +2247,61 @@ func (e *Interpreter) Run() error {
 	}
 
 	return nil
+}
+
+// findIndex looks for any indexes following a variable reference.
+// Given a set of tokens it will return :
+func (e *Interpreter) findIndex() []int {
+
+	// return values
+	var indexes []int
+	run := true
+
+	// if the next token is after the end we're done
+	if e.offset+1 >= len(e.program) {
+		return indexes
+	}
+
+	// If the next token is "(" we're good
+	if e.program[e.offset].Type != token.LINDEX {
+		return indexes
+	}
+
+	// skip the "("
+	e.offset++
+
+	// Now collect indexes..
+	for e.offset < len(e.program) && run {
+
+		// if we find ")" we've finished
+		if e.program[e.offset].Type == token.RINDEX {
+			e.offset++
+			run = false
+		} else {
+
+			if e.program[e.offset].Type == token.INT {
+
+				a, _ := strconv.ParseFloat(e.program[e.offset].Literal, 64)
+
+				indexes = append(indexes, int(a))
+			} else if e.program[e.offset].Type == token.IDENT {
+
+				x := e.GetVariable(e.program[e.offset].Literal)
+				if x.Type() == object.NUMBER {
+					indexes = append(indexes, int(x.(*object.NumberObject).Value))
+				}
+			} else {
+
+				// if we've not go a number and not
+				if e.program[e.offset].Type != token.COMMA {
+					run = false
+				}
+			}
+			e.offset++
+		}
+	}
+
+	return indexes
 }
 
 // SetTrace allows the user to enable output of debugging-information

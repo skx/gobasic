@@ -36,7 +36,7 @@ func TestMathOperators(t *testing.T) {
 
 // TestMiscTokens just tests the tokens we've not otherwise covered.
 func TestMiscTokens(t *testing.T) {
-	input := `(),:;`
+	input := `()][,:;`
 
 	tests := []struct {
 		expectedType    token.Type
@@ -44,6 +44,8 @@ func TestMiscTokens(t *testing.T) {
 	}{
 		{token.LBRACKET, "("},
 		{token.RBRACKET, ")"},
+		{token.RINDEX, "]"},
+		{token.LINDEX, "["},
 		{token.COMMA, ","},
 		{token.COLON, ":"},
 		{token.SEMICOLON, ";"},

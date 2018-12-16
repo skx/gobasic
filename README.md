@@ -45,10 +45,8 @@ Currently the following obvious primitives work:
   * Allow the use of user-defined functions [examples/25-def-fn.bas](examples/25-def-fn.bas).
 
 Most of the maths-related primitives I'm familiar with from my days
-coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS.
-
-The interpreter has support for strings, and a small number of string-related
-primitives:
+coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS, along
+with the similar string-related primitives:
 
 * `LEN "STEVE"`
   * Returns the length of a string "STEVE" (5)
@@ -72,12 +70,33 @@ There are some (obvious) limitations:
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
   * If there are primitives you miss [report a bug](https://github.com/skx/gobasic/issues/) and I'll add them :)
-* Only floating-point and string values are permitted, there is no support for arrays.
+* When it comes to types only floating-point and string values are permitted.
+  * There is support for arrays but only one or two dimensional ones.
+
+### Arrays
+
+Arrays are used just like normal variables, but they need to be declared using the `DIM` statement.   Individual elements are accessed using the offsets in brackets after the variable name:
+
+    10 DIM a(10,10)
+    20 LET a[1,1]=10
+    30 PRINT a[1,1]
+
+Arrays are indexed from 0-N, so with an array size of ten you can access eleven
+elements:
+
+     10 DIM a(10)
+     20 a[0] = 0
+     30 a[1] = 1
+     40 ..
+     90 a[9] = 9
+    100 a[10] = 10
+
+ZX Spectrum BASIC indexed arrays from 1, denying the ability to use the zeroth element, which I've long considered a mistake.
+
 
 ### Line Numbers
 
-Line numbers are actually mostly optional, so the following program is
-valid and correct:
+Line numbers are _mostly_ optional, for examplethe following program is valid and correct:
 
      10 READ a
      20 IF a = 999 THEN GOTO 100
@@ -86,7 +105,7 @@ valid and correct:
     100 END
         DATA 1, 2, 3, 4, 999
 
-The only reason you need line-numbers is for the `GOTO` and `GOSUB` functions,
+The real reason you need line-numbers is for the `GOTO` and `GOSUB` functions,
 if you prefer to avoid them then you're welcome to do so.
 
 ### `IF` Statement
@@ -94,7 +113,7 @@ if you prefer to avoid them then you're welcome to do so.
 The handling of the IF statement is perhaps a little unusual, since I'm
 used to the BASIC provided by the ZX Spectrum which had no ELSE clause!
 
-The general form of the IF statement is:
+The general form of the IF statement I've implemented is:
 
     IF $CONDITIONAL THEN $STATEMENT1 [ELSE $STATEMENT2]
 
