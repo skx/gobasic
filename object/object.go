@@ -62,7 +62,12 @@ func Array(x int, y int) *ArrayObject {
 	a := &ArrayObject{X: x, Y: y}
 
 	// for each entry ensure we store a value.
-	c := x * y
+	var c int
+	if x == 0 {
+		c = y
+	} else {
+		c = x * y
+	}
 
 	// we default to "0"
 	for c > 0 {
@@ -76,7 +81,10 @@ func Array(x int, y int) *ArrayObject {
 // Get the value at the given X,Y coordinate
 func (a *ArrayObject) Get(x int, y int) Object {
 	offset := x*a.X + y
-	if offset > a.X*a.Y {
+	if a.X == 0 && offset > a.Y {
+		return &ErrorObject{Value: "Array access out of bounds!"}
+	}
+	if (a.X != 0) && (offset > a.X*a.Y) {
 		return &ErrorObject{Value: "Array access out of bounds!"}
 	}
 
@@ -84,14 +92,17 @@ func (a *ArrayObject) Get(x int, y int) Object {
 }
 
 // Set the value at the given X,Y coordinate
-func (a *ArrayObject) Set(x int, y int, obj Object) error {
+func (a *ArrayObject) Set(x int, y int, obj Object) Object {
 	offset := x*a.X + y
 
-	if offset > a.X*a.Y {
-		return fmt.Errorf("Array access out of bounds")
+	if a.X == 0 && offset > a.Y {
+		return &ErrorObject{Value: "Array access out of bounds!"}
+	}
+	if (a.X != 0) && (offset > a.X*a.Y) {
+		return &ErrorObject{Value: "Array access out of bounds!"}
 	}
 	a.Contents[offset] = obj
-	return nil
+	return obj
 }
 
 // String returns the string-contents of the string

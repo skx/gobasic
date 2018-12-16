@@ -1,7 +1,6 @@
 package object
 
 import (
-	"fmt"
 	"math"
 	"strings"
 	"testing"
@@ -98,7 +97,6 @@ func TestString(t *testing.T) {
 func TestArray(t *testing.T) {
 
 	// Create an array
-	fmt.Printf("Creating array\n")
 	a := Array(5, 5)
 
 	if a.Type() != ARRAY {
@@ -145,7 +143,7 @@ func TestArray(t *testing.T) {
 		t.Errorf("Expected error - got none!")
 	}
 	e = a.Set(3, 2, Number(3))
-	if e != nil {
-		t.Errorf("We didn't expect an error, but we found one")
+	if e.Type() == ERROR {
+		t.Errorf("We didn't expect an error, but we found one: %v", e)
 	}
 }
