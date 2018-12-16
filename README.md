@@ -75,13 +75,13 @@ There are some (obvious) limitations:
 
 ### Arrays
 
-Arrays are used just like normal variables. They are declared using the DIM statement. Individual elements are accessed using the offsets in brackets after the variable name:
+Arrays are used just like normal variables, but they need to be declared using the `DIM` statement.   Individual elements are accessed using the offsets in brackets after the variable name:
 
     10 DIM a(10,10)
     20 LET a[1,1]=10
     30 PRINT a[1,1]
 
-Arrays are indexed from 0-N, so with an array size of 10 you can access eleven
+Arrays are indexed from 0-N, so with an array size of ten you can access eleven
 elements:
 
      10 DIM a(10)
@@ -91,7 +91,7 @@ elements:
      90 a[9] = 9
     100 a[10] = 10
 
-ZX Spectrum BASIC indexed from 1, denying the ability to use the zeroth element, which I've long considered a mistake.
+ZX Spectrum BASIC indexed arrays from 1, denying the ability to use the zeroth element, which I've long considered a mistake.
 
 
 ### Line Numbers
