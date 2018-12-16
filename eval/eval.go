@@ -411,24 +411,29 @@ func (e *Interpreter) factor() object.Object {
 		case token.IDENT:
 
 			//
-			// TODO:
+			// Look for indexed variables
 			//
-			//   Handle array subscript(s)
-			//
-			//   We need to handle:
-			//
-			//     A
-			//     A[1]
-			//     A[1][2]
-			//
-			//  TODO:
-			//
+			e.offset++
+			index := e.findIndex()
+			if len(index) > 0 {
+
+				x := e.GetVariable(tok.Literal)
+				a := x.(*object.ArrayObject)
+
+				var ob object.Object
+				if len(index) == 1 {
+					ob = a.Get(0, index[0])
+				}
+				if len(index) == 2 {
+					ob = a.Get(index[0], index[1])
+				}
+				return ob
+			}
 
 			//
 			// Get the contents of the variable.
 			//
 			val := e.GetVariable(tok.Literal)
-			e.offset++
 			return val
 
 		default:
@@ -1828,8 +1833,7 @@ func (e *Interpreter) runLET() error {
 	//   LET foo[1] = ..
 	//   LET bar[1][2] = ..
 	//
-	// TODO
-	//
+	index := e.findIndex()
 
 	// Now "="
 	assign := e.program[e.offset]
@@ -1847,6 +1851,30 @@ func (e *Interpreter) runLET() error {
 	// Did we get an error in the expression?
 	if res.Type() == object.ERROR {
 		return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+	}
+
+	// Are we handling an array-index?
+	if len(index) > 0 {
+
+		// get the current variable
+		x := e.GetVariable(target.Literal)
+		a := x.(*object.ArrayObject)
+
+		// update the value
+		if len(index) == 1 {
+			res := a.Set(0, index[0], res)
+			if res.Type() == object.ERROR {
+				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+			}
+		}
+		if len(index) == 2 {
+			res := a.Set(index[0], index[1], res)
+			if res.Type() == object.ERROR {
+				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+			}
+		}
+
+		return nil
 	}
 
 	// Store the result
@@ -2219,6 +2247,61 @@ func (e *Interpreter) Run() error {
 	}
 
 	return nil
+}
+
+// findIndex looks for any indexes following a variable reference.
+// Given a set of tokens it will return :
+func (e *Interpreter) findIndex() []int {
+
+	// return values
+	var indexes []int
+	run := true
+
+	// if the next token is after the end we're done
+	if e.offset+1 >= len(e.program) {
+		return indexes
+	}
+
+	// If the next token is "(" we're good
+	if e.program[e.offset].Type != token.LINDEX {
+		return indexes
+	}
+
+	// skip the "("
+	e.offset++
+
+	// Now collect indexes..
+	for e.offset < len(e.program) && run {
+
+		// if we find ")" we've finished
+		if e.program[e.offset].Type == token.RINDEX {
+			e.offset++
+			run = false
+		} else {
+
+			if e.program[e.offset].Type == token.INT {
+
+				a, _ := strconv.ParseFloat(e.program[e.offset].Literal, 64)
+
+				indexes = append(indexes, int(a))
+			} else if e.program[e.offset].Type == token.IDENT {
+
+				x := e.GetVariable(e.program[e.offset].Literal)
+				if x.Type() == object.NUMBER {
+					indexes = append(indexes, int(x.(*object.NumberObject).Value))
+				}
+			} else {
+
+				// if we've not go a number and not
+				if e.program[e.offset].Type != token.COMMA {
+					run = false
+				}
+			}
+			e.offset++
+		}
+	}
+
+	return indexes
 }
 
 // SetTrace allows the user to enable output of debugging-information
