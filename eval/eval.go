@@ -1736,6 +1736,10 @@ func (e *Interpreter) runIF() error {
 		}
 
 		// Repeat?
+		if e.offset >= len(e.program) {
+			return fmt.Errorf("end of program processing IF")
+		}
+
 		target = e.program[e.offset]
 		e.offset++
 	}
