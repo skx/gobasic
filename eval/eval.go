@@ -418,6 +418,14 @@ func (e *Interpreter) factor() object.Object {
 			if len(index) > 0 {
 
 				x := e.GetVariable(tok.Literal)
+
+				// If there was an error, then return it.
+				if x.Type() == object.ERROR {
+					return x
+				}
+
+				// Otherwise we assume we've got an array
+				// index.
 				a := x.(*object.ArrayObject)
 
 				var ob object.Object
@@ -1858,16 +1866,27 @@ func (e *Interpreter) runLET() error {
 
 		// get the current variable
 		x := e.GetVariable(target.Literal)
+
+		// If there was an error, then return it.
+		if x.Type() == object.ERROR {
+			return fmt.Errorf("Error handling %s - %s", target.Literal, x.(*object.ErrorObject).Value)
+		}
+
+		// Otherwise assume we can index appropriately.
 		a := x.(*object.ArrayObject)
 
 		// update the value
 		if len(index) == 1 {
+
+			// 1d array
 			res := a.Set(0, index[0], res)
 			if res.Type() == object.ERROR {
 				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
 			}
 		}
 		if len(index) == 2 {
+
+			// 2d array
 			res := a.Set(index[0], index[1], res)
 			if res.Type() == object.ERROR {
 				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
