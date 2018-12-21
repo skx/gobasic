@@ -155,13 +155,16 @@ func RND(env interface{}, args []object.Object) object.Object {
 	}
 	i := args[0].(*object.NumberObject).Value
 
+	// convert to int
+	n := int(i)
+
 	// Ensure it is valid.
-	if i < 1 {
+	if n < 1 {
 		return object.Error("Argument to RND must be >0")
 	}
 
 	// Return the random number
-	return &object.NumberObject{Value: float64(rand.Intn(int(i)))}
+	return &object.NumberObject{Value: float64(rand.Intn(n))}
 }
 
 // SGN is the sign function (sometimes called signum).
