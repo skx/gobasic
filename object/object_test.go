@@ -187,4 +187,24 @@ func Test2DArray(t *testing.T) {
 	if e.Type() == ERROR {
 		t.Errorf("We didn't expect an error, but we found one: %v", e)
 	}
+
+	//
+	// Nuke the back-end storage, which will ensure that all our
+	// array-accesses will fail with out of range-errors.
+	//
+	a.Contents = nil
+
+	//
+	// Set, then Get
+	//
+	//
+	e = a.Set(1, 1, Number(3))
+	if e == nil {
+		t.Errorf("Expected error - got none!")
+	}
+	e = a.Get(1, 1)
+	if e.Type() != ERROR {
+		t.Errorf("Expected error - got %s", e.String())
+	}
+
 }
