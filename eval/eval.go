@@ -1270,13 +1270,24 @@ func (e *Interpreter) runDIM() error {
 
 		// 2D array
 		a, _ := strconv.ParseFloat(first.Literal, 64)
+		if a > 1024 {
+			return (fmt.Errorf("Dimension too large! %d > 1024", a))
+		}
+
 		b, _ := strconv.ParseFloat(first.Literal, 64)
+		if b > 1024 {
+			return (fmt.Errorf("Dimension too large! %d > 1024", b))
+		}
 
 		x = object.Array(int(a), int(b))
 	} else {
 
 		// 1D array
 		a, _ := strconv.ParseFloat(first.Literal, 64)
+		if a > 1024 {
+			return (fmt.Errorf("Dimension too large! %d > 1024", a))
+		}
+
 		x = object.Array(0, int(a))
 	}
 
