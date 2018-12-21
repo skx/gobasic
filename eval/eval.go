@@ -612,6 +612,18 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 		}
 
 		//
+		// OK so types do match - but we only care about
+		//   NUMBER op NUMBER, or STRING op STRING.
+		//
+		// If we see an array, error, or other type we're in
+		// trouble:
+		//
+		if t1.Type() != object.STRING &&
+			t1.Type() != object.NUMBER {
+			return object.Error("expr() - we don't support operations on non-number/non-string types '%v' + '%v'", t1, t2)
+		}
+
+		//
 		// Are the operands strings?
 		//
 		if t1.Type() == object.STRING {
@@ -630,7 +642,6 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 			} else {
 				return object.Error("expr() operation '%s' not supported for strings", tok.Literal)
 			}
-
 		} else {
 
 			//
