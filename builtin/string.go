@@ -68,15 +68,15 @@ func LEFT(env interface{}, args []object.Object) object.Object {
 	if args[1].Type() != object.NUMBER {
 		return object.Error("Wrong type")
 	}
-	n := args[1].(*object.NumberObject).Value
+	n := int(args[1].(*object.NumberObject).Value)
 
 	// ensure it is positive
 	if n < 0 {
 		return object.Error("Positive argument only")
 	}
 
-	if int(n) > len(in) {
-		n = float64(len(in))
+	if n > len(in) {
+		n = len(in)
 	}
 
 	left := in[0:int(n)]
@@ -162,15 +162,15 @@ func RIGHT(env interface{}, args []object.Object) object.Object {
 	if args[1].Type() != object.NUMBER {
 		return object.Error("Wrong type")
 	}
-	n := args[1].(*object.NumberObject).Value
+	n := int(args[1].(*object.NumberObject).Value)
 
 	// ensure it is positive
 	if n < 0 {
 		return object.Error("Positive argument only")
 	}
 
-	if int(n) > len(in) {
-		n = float64(len(in))
+	if n > len(in) {
+		n = len(in)
 	}
 	right := in[len(in)-int(n):]
 
