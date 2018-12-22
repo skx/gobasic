@@ -414,7 +414,11 @@ func (e *Interpreter) factor() object.Object {
 			// Look for indexed variables
 			//
 			e.offset++
-			index := e.findIndex()
+			index, ee := e.findIndex()
+
+			if ee != nil {
+				return object.Error(ee.Error())
+			}
 			if len(index) > 0 {
 
 				x := e.GetVariable(tok.Literal)
@@ -1868,7 +1872,10 @@ func (e *Interpreter) runLET() error {
 	//   LET foo[1] = ..
 	//   LET bar[1][2] = ..
 	//
-	index := e.findIndex()
+	index, ee := e.findIndex()
+	if ee != nil {
+		return ee
+	}
 
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing LET")
@@ -2306,29 +2313,30 @@ func (e *Interpreter) Run() error {
 
 // findIndex looks for any indexes following a variable reference.
 // Given a set of tokens it will return :
-func (e *Interpreter) findIndex() []int {
+func (e *Interpreter) findIndex() ([]int, error) {
 
 	// return values
 	var indexes []int
 	run := true
 
-	// if the next token is after the end we're done
+	// if the next token is after the end of the program we're done
 	if e.offset+1 >= len(e.program) {
-		return indexes
+		return indexes, nil
 	}
 
-	// If the next token is "(" we're good
+	// If the next token is not "[" we're not looking at an indexed
+	// expression at all, so we can terminate.
 	if e.program[e.offset].Type != token.LINDEX {
-		return indexes
+		return indexes, nil
 	}
 
-	// skip the "("
+	// skip over the open-index token ("[").
 	e.offset++
 
 	// Now collect indexes..
 	for e.offset < len(e.program) && run {
 
-		// if we find ")" we've finished
+		// if we find "]" we've finished
 		if e.program[e.offset].Type == token.RINDEX {
 			e.offset++
 			run = false
@@ -2344,20 +2352,23 @@ func (e *Interpreter) findIndex() []int {
 				x := e.GetVariable(e.program[e.offset].Literal)
 				if x.Type() == object.NUMBER {
 					indexes = append(indexes, int(x.(*object.NumberObject).Value))
+				} else {
+					return indexes, fmt.Errorf("Array indexes must be numbers!")
 				}
 			} else {
 
 				// if we've not got a number and not got a comm
 				// then that's an error.
 				if e.program[e.offset].Type != token.COMMA {
-					run = false
+
+					return indexes, fmt.Errorf("Unexpected value found when looking for index: %s", e.program[e.offset].String())
 				}
 			}
 			e.offset++
 		}
 	}
 
-	return indexes
+	return indexes, nil
 }
 
 // SetTrace allows the user to enable output of debugging-information
