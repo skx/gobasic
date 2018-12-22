@@ -341,6 +341,7 @@ func TestEOF(t *testing.T) {
 		"10 FOR I=",
 		"10 FOR I",
 		"10 FOR ",
+		"10 LET a[0",
 
 		// multi-line tests:
 		`10 DATA 3,4,5
