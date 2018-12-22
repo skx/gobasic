@@ -1279,7 +1279,7 @@ func (e *Interpreter) runDIM() error {
 			return (fmt.Errorf("Dimension too large! %f > 1024", a))
 		}
 
-		b, _ := strconv.ParseFloat(first.Literal, 64)
+		b, _ := strconv.ParseFloat(sec.Literal, 64)
 		if b > 1024 {
 			return (fmt.Errorf("Dimension too large! %f > 1024", b))
 		}
@@ -2351,7 +2351,8 @@ func (e *Interpreter) findIndex() []int {
 				}
 			} else {
 
-				// if we've not go a number and not
+				// if we've not got a number and not got a comm
+				// then that's an error.
 				if e.program[e.offset].Type != token.COMMA {
 					run = false
 				}

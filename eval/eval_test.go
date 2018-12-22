@@ -304,6 +304,32 @@ func TestDim(t *testing.T) {
 		t.Errorf("We found the wrong kind of error!")
 	}
 
+	//
+	// Final test is that we handle array dimensions that are
+	// too large.
+	//
+	dims := []string{
+		"10 DIM a(3,100300)",
+		"10 DIM b(100030,3)",
+		"10 DIM c(100030000)"}
+
+	for _, test := range dims {
+
+		tokener := tokenizer.New(test)
+		e, err := New(tokener)
+
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test, err.Error())
+		}
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected error running '%s', got none", test)
+		}
+		if !strings.Contains(err.Error(), "Dimension too large") {
+			t.Errorf("Error '%s' wasn't the expected error!", err.Error())
+		}
+	}
+
 }
 
 // TestEOF ensures that our bounds-checking of program works.
