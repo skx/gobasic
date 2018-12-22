@@ -310,6 +310,7 @@ func (e *Interpreter) factor() object.Object {
 		}
 
 		tok := e.program[e.offset]
+
 		switch tok.Type {
 		case token.LBRACKET:
 			// skip past the lbracket
@@ -557,6 +558,11 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 
 	// First argument.
 	t1 := e.term()
+
+	// Impossible error?
+	if t1 == nil {
+		return object.Error("Found a nil terminal")
+	}
 
 	// Did this error?
 	if t1.Type() == object.ERROR {
@@ -2265,7 +2271,10 @@ func (e *Interpreter) RunOnce() error {
 		//    10 DEF FN steve() = PRINT "Hello, world\n"
 		//    20 FN steve()
 		//
-		e.expr(true)
+		result := e.expr(true)
+		if result.Type() == object.ERROR {
+			return fmt.Errorf("%s", result.String())
+		}
 	}
 
 	//
