@@ -287,7 +287,7 @@ func TestDim(t *testing.T) {
 	//
 	failTypes := `
 10 DIM a(3)
-20 LET b="steve"
+20 DIM b(3)
 30 LET c=a + b
 `
 	// Run the script
@@ -300,7 +300,7 @@ func TestDim(t *testing.T) {
 	if err == nil {
 		t.Errorf("We expected an error, but found none!")
 	}
-	if !strings.Contains(err.Error(), "type mismatch") {
+	if !strings.Contains(err.Error(), "non-number/non-string") {
 		t.Errorf("We found the wrong kind of error!")
 	}
 
