@@ -133,6 +133,19 @@ func Test1DArray(t *testing.T) {
 	if err2.Type() != ERROR {
 		t.Errorf("Expected a bounds-error, got none")
 	}
+
+	// Test that we have negative bound-checking on Get
+	err3 := a.Get(0, -6)
+	if err3.Type() != ERROR {
+		t.Errorf("Expected a bounds-error, got none")
+	}
+
+	// Test that we have negative bound-checking on Set
+	err4 := a.Set(0, -6, err1)
+	if err4.Type() != ERROR {
+		t.Errorf("Expected a bounds-error, got none")
+	}
+
 }
 
 func Test2DArray(t *testing.T) {

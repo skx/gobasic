@@ -88,13 +88,16 @@ func Array(x int, y int) *ArrayObject {
 
 // Get the value at the given X,Y coordinate
 func (a *ArrayObject) Get(x int, y int) Object {
-	offset := x*a.X + y
+	offset := int(x*a.X + y)
 
 	if a.X == 0 && offset >= a.Y {
 		return &ErrorObject{Value: "Get-Array access out of bounds (Y)"}
 	}
 	if (a.X != 0) && (offset > a.X*a.Y) {
 		return &ErrorObject{Value: "Get-Array access out of bounds (X,Y)"}
+	}
+	if offset < 0 {
+		return &ErrorObject{Value: "Get-Array access out of bounds (negative index)"}
 	}
 	if offset > len(a.Contents) {
 		return &ErrorObject{Value: "Get-Array access out of bounds (LEN)"}
@@ -104,13 +107,16 @@ func (a *ArrayObject) Get(x int, y int) Object {
 
 // Set the value at the given X,Y coordinate
 func (a *ArrayObject) Set(x int, y int, obj Object) Object {
-	offset := x*a.X + y
+	offset := int(x*a.X + y)
 
 	if a.X == 0 && offset >= a.Y {
 		return &ErrorObject{Value: "Set-Array access out of bounds (Y)"}
 	}
 	if (a.X != 0) && (offset > a.X*a.Y) {
 		return &ErrorObject{Value: "Set-Array access out of bounds (X,Y)"}
+	}
+	if offset < 0 {
+		return &ErrorObject{Value: "Set-Array access out of bounds (negative index)"}
 	}
 	if offset > len(a.Contents) {
 		return &ErrorObject{Value: "Set-Array access out of bounds (LEN)"}
