@@ -1487,22 +1487,20 @@ func (e *Interpreter) runGOSUB() error {
 	//
 	// Lookup the offset of the given line-number in our program.
 	//
-	offset := e.lines[target.Literal]
+	offset, ok := e.lines[target.Literal]
 
 	//
-	// If we found it then use it.
+	// If we found it then change to executing there
 	//
-	// If we didn't find the line then we'll continue
-	// execution at the last line.
-	//
-	// This is strictly speaking a bug, but there is
-	// the chance this is OK.
-	//
-	//
-	if offset >= 0 {
+	if ok {
 		e.offset = offset
+		return nil
 	}
-	return nil
+
+	//
+	// Otherwise we have an error.
+	//
+	return fmt.Errorf("GOSUB: Line %s does not exist!", target.Literal)
 }
 
 // runGOTO handles a control-flow change
@@ -1526,22 +1524,20 @@ func (e *Interpreter) runGOTO() error {
 	//
 	// Lookup the offset of the given line-number in our program.
 	//
-	offset := e.lines[target.Literal]
+	offset, ok := e.lines[target.Literal]
 
 	//
-	// If we found it then use it.
+	// If we found it then change to executing there
 	//
-	// If we didn't find the line then we'll continue
-	// execution at the last line.
-	//
-	// This is strictly speaking a bug, but there is
-	// the chance this is OK.
-	//
-	if offset >= 0 {
+	if ok {
 		e.offset = offset
+		return nil
 	}
 
-	return nil
+	//
+	// Otherwise we have an error.
+	//
+	return fmt.Errorf("GOTO: Line %s does not exist!", target.Literal)
 }
 
 // runINPUT handles input of numbers from the user.

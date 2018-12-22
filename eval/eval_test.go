@@ -677,6 +677,23 @@ func TestGoSub(t *testing.T) {
 	}
 
 	//
+	// Now we test that GOSUB to a missing line fails
+	//
+	fail2 := `10 GOSUB 1000
+20 END`
+	e, err = FromString(fail2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail2, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Line 1000 does not exist") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
 	// This will work.
 	//
 	ok1 := `
@@ -730,6 +747,23 @@ func TestGoto(t *testing.T) {
 		t.Errorf("Expected to see an error, but didn't.")
 	}
 	if !strings.Contains(err.Error(), "GOTO should be followed by an integer") {
+		t.Errorf("Our error-message wasn't what we expected")
+	}
+
+	//
+	// Now we test that GOTO of a missing line fails
+	//
+	fail2 := `10 GOTO 1000
+20 END`
+	e, err = FromString(fail2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", fail2, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("Expected to see an error, but didn't.")
+	}
+	if !strings.Contains(err.Error(), "Line 1000 does not exist") {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 
