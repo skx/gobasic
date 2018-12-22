@@ -1874,6 +1874,10 @@ func (e *Interpreter) runLET() error {
 	//
 	index := e.findIndex()
 
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing LET")
+	}
+
 	// Now "="
 	assign := e.program[e.offset]
 	if assign.Type != token.ASSIGN {
