@@ -424,6 +424,11 @@ func (e *Interpreter) factor() object.Object {
 					return x
 				}
 
+				// Ensure we've got an index.
+				if x.Type() != object.ARRAY {
+					return (object.Error("Object is not an array!"))
+				}
+
 				// Otherwise we assume we've got an array
 				// index.
 				a := x.(*object.ArrayObject)
@@ -1896,6 +1901,11 @@ func (e *Interpreter) runLET() error {
 		// If there was an error, then return it.
 		if x.Type() == object.ERROR {
 			return fmt.Errorf("Error handling %s - %s", target.Literal, x.(*object.ErrorObject).Value)
+		}
+
+		// Ensure we've got an index.
+		if x.Type() != object.ARRAY {
+			return (fmt.Errorf("Object is not an array, it is %s", x.String()))
 		}
 
 		// Otherwise assume we can index appropriately.
