@@ -281,6 +281,29 @@ func TestDim(t *testing.T) {
 		t.Errorf("Expected sum to be 33.5, got %f", result)
 	}
 
+	//
+	// Now we test that operations will fail, as expected, upon
+	// mis-matched types.
+	//
+	failTypes := `
+10 DIM a(3)
+20 LET b="steve"
+30 LET c=a + b
+`
+	// Run the script
+	tokener = tokenizer.New(failTypes)
+	e, err = New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", failTypes, err.Error())
+	}
+	err = e.Run()
+	if err == nil {
+		t.Errorf("We expected an error, but found none!")
+	}
+	if !strings.Contains(err.Error(), "type mismatch") {
+		t.Errorf("We found the wrong kind of error!")
+	}
+
 }
 
 // TestEOF ensures that our bounds-checking of program works.
