@@ -19,6 +19,9 @@ The implementation is simple for two main reasons:
 
 Currently the following obvious primitives work:
 
+* `DIM`
+  * Create an array, only one and two-dimensional arrays are supported.
+  * See [examples/95-arrays.bas](examples/95-arrays) for a quick sample.
 * `END`
   * Exit the program.
 * `GOTO`
