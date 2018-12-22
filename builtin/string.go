@@ -115,7 +115,7 @@ func MID(env interface{}, args []object.Object) object.Object {
 	if args[1].Type() != object.NUMBER {
 		return object.Error("Wrong type")
 	}
-	offset := args[1].(*object.NumberObject).Value
+	offset := int(args[1].(*object.NumberObject).Value)
 	if offset < 0 {
 		return object.Error("Positive argument only")
 	}
@@ -124,22 +124,22 @@ func MID(env interface{}, args []object.Object) object.Object {
 	if args[2].Type() != object.NUMBER {
 		return object.Error("Wrong type")
 	}
-	count := args[2].(*object.NumberObject).Value
+	count := int(args[2].(*object.NumberObject).Value)
 	if count < 0 {
 		return object.Error("Positive argument only")
 	}
 
 	// too far
-	if int(offset) > len(in) {
+	if offset > len(in) {
 		return &object.StringObject{Value: ""}
 	}
 
 	// get the string from the position
-	out := in[int(offset):]
+	out := in[offset:]
 
 	// now cut, by length
-	if int(count) >= len(out) {
-		count = float64(len(out))
+	if count >= len(out) {
+		count = len(out)
 	}
 
 	out = out[:int(count)]
