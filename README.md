@@ -185,6 +185,8 @@ But this prompts for a number:
 
     10 INPUT "Enter a number", a
 
+This seemed better than trying to return a string, unless the input looked like a number (i.e. the input matched `/^([0-9\.]+)$/` we could store a number, otherwise a string).
+
 
 ## 30 PRINT "Installation"
 
@@ -233,7 +235,7 @@ well-defined steps:
 * Parse those tokens and build an abstract syntax tree (AST).
 * Walk that tree, evaluating as you go.
 
-As is common with early 8-bit home-computers this implementation is a little more basic:
+As is common with early 8-bit home-computers this implementation is a little more BASIC:
 
 * We parse the input into a series of tokens, defined in [token/token.go](token/token.go)
   * The parsing happens in [tokenizer/tokenizer.go](tokenizer/tokenizer.go)
