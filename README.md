@@ -262,7 +262,7 @@ Perhaps the best demonstration of the code are the following two samples:
   * Prompt the user for their name and the number of stars to print.
   * Then print them.  Riveting!  Fascinating!  A program for the whole family!
 * [examples/99-game.bas](examples/99-game.bas)
-  * A class game where you guess the random number the computer has thought of.
+  * A classic game where you guess the random number the computer has thought of.
 
 
 ## 70 PRINT "Embedding"
@@ -280,7 +280,7 @@ The example defines several new functions which can be called by BASIC:
 * `SAVE`
 * `CIRCLE`
 
-When the script runs it does some basic variable manipulation and it also
+When the script runs it does some BASIC variable manipulation and it also
 creates a PNG file - the `PLOT` function allows your script to set a pixel
 and the `CIRCLE` primitive draws an outline of a circle.  Finally the
 `SAVE` function writes out the result.
@@ -331,7 +331,7 @@ The project contain a number of test-cases, which you can execute like so:
 
     $ go test ./...
 
-Finally if our test-coverage drops beneath 95% that is _also_ a bug.  The
+Finally __if our test-coverage drops beneath 95%__ that is __a bug__.  The
 test coverage of most of our packages is 100%, unfortunately the main `eval/`
 package is not yet completely covered.
 
