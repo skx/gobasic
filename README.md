@@ -15,9 +15,10 @@ The implementation is simple for two main reasons:
   * However the embedded sample, described later in this file, demonstrates using BASIC to create a PNG image.
   * There is also a HTTP-based BASIC server, also described later, which allows you to create images "interactively".
 * I didn't implement the full BASIC set of primitives.
-  * Although most of the commands available to the ZX Spectrum are implemented. I only excluded things relating to tape, user-defined functions, etc.
+  * Although most of the commands available to the ZX Spectrum are implemented. I only excluded things relating to tape, PEEK, POKE, etc.
+  * If you want to add new BASIC keywords this is easy, and the samples mentioned above do that.
 
-Currently the following obvious primitives work:
+The following obvious primitives work as you'd expect:
 
 * `DIM`
   * Create an array, only one and two-dimensional arrays are supported.
@@ -27,38 +28,37 @@ Currently the following obvious primitives work:
 * `GOTO`
   * Jump to the given line.
 * `GOSUB` / `RETURN`
-  * Used to call subroutines, via line-indexes.
+  * Used to call the subroutines at the specified line.
 * `IF` / `THEN` / `ELSE`
   * Conditional execution.
 * `INPUT`
-  * Allow reading a string `INPUT "Enter a string", a$`.
-  * Allow reading a number `INPUT "Enter a number", a`.
+  * Allow reading a string, or number (see later note about types).
 * `LET`
-  * Assign a string/integer/float value to a variable.
+  * Assign a value to a variable, creating it if necessary.
 * `FOR` & `NEXT`
   * Looping constructs.
 * `PRINT`
   * Print a string, an integer, or variable.
-  * Multiple arguments may be separated by comma.
+  * Multiple arguments may be separated by commas.
 * `REM`
   * A single-line comment (BASIC has no notion of multi-line comments).
 * `READ` & `DATA`
-  * Allow reading from stored data within the program [examples/35-read-data.bas](examples/35-read-data.bas)
+  * Allow reading from stored data within the program.
+  * See [examples/35-read-data.bas](examples/35-read-data.bas) for a demonstration.
 * `DEF FN` & `FN`
-  * Allow the use of user-defined functions [examples/25-def-fn.bas](examples/25-def-fn.bas).
+  * Allow user-defined functions to be defined or invoked.
+  * See [examples/25-def-fn.bas](examples/25-def-fn.bas) for an example.
 
-Most of the maths-related primitives I'm familiar with from my days
-coding on a ZX Spectrum are present, for example SIN, COS, PI, ABS, along
-with the similar string-related primitives:
+Most of the maths-related primitives I'm familiar with are also present, for example SIN, COS, PI, ABS, along with the similar string-related primitives:
 
 * `LEN "STEVE"`
-  * Returns the length of a string "STEVE" (5)
+  * Returns the length of a string "STEVE" (5).
 * `LEFT$ "STEVE", 2`
   * Returns the left-most 2 characters of "STEVE" ("ST").
 * `RIGHT$ "STEVE", 2`
   * Returns the right-most 2 characters of "STEVE" ("VE").
 * `CHR$ 42`
-  * Converts the integer 42 to a character (`*`).  (i.e. ASCII value)
+  * Converts the integer 42 to a character (`*`).  (i.e. ASCII value.)
 * `CODE " "`
   * Converts the given character to the integer value (32).
 
@@ -66,9 +66,11 @@ with the similar string-related primitives:
 
 ## 20 PRINT "Limitations"
 
-This project was started as [a weekend-project](https://blog.steve.fi/so_i_wrote_a_basic_basic.html), although I have now developed it a fair bit more.
+This project was started as [a weekend-project](https://blog.steve.fi/so_i_wrote_a_basic_basic.html), although it has subsequently been improved and extended.
 
-There are some (obvious) limitations:
+The code has near-total test-coverage, and has been hammered with multiple days of fuzz-testing (i.e. Feeding random programs into the interpreter to see if it will die - see [FUZZING.md](FUZZING.md) for more details on that.)
+
+That said there are some (obvious) limitations:
 
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
@@ -82,7 +84,7 @@ Arrays are used just like normal variables, but they need to be declared using t
 
     10 DIM a(10,10)
     20 LET a[1,1]=10
-    30 PRINT a[1,1]
+    30 PRINT a[1,1], "\n"
 
 Arrays are indexed from 0-N, so with an array size of ten you can access eleven
 elements:
@@ -99,7 +101,7 @@ ZX Spectrum BASIC indexed arrays from 1, denying the ability to use the zeroth e
 
 ### Line Numbers
 
-Line numbers are _mostly_ optional, for examplethe following program is valid and correct:
+Line numbers are _mostly_ optional, for example the following program is valid and correct:
 
      10 READ a
      20 IF a = 999 THEN GOTO 100
@@ -108,7 +110,7 @@ Line numbers are _mostly_ optional, for examplethe following program is valid an
     100 END
         DATA 1, 2, 3, 4, 999
 
-The real reason you need line-numbers is for the `GOTO` and `GOSUB` functions,
+The main reason you need line-numbers is for the `GOTO` and `GOSUB` functions,
 if you prefer to avoid them then you're welcome to do so.
 
 ### `IF` Statement
