@@ -190,11 +190,19 @@ This seemed better than trying to return a string, unless the input looked like 
 
 ## 30 PRINT "Installation"
 
+### Build without Go Modules (Go before 1.11)
+
 Providing you have a working [go-installation](https://golang.org/) you should be able to install this software by running:
 
     go get -u github.com/skx/gobasic
 
 **NOTE** This will only install the command-line driver, rather than the HTTP-server, or the embedded example code.
+
+### Build with Go Modules (Go 1.11 or higher)
+
+    git clone https://github.com/skx/gobasic ;# make sure to clone outside of GOPATH
+    cd gobasic
+    go install
 
 If you don't have a golang environment setup you should be able to download various binaries from the github release page:
 
