@@ -862,6 +862,72 @@ func TestIF(t *testing.T) {
 		t.Errorf("The error we found was not what we expected: %s", err.Error())
 	}
 
+	//
+	// Now some simple tests of "GOTO" in IF
+	//
+	// The first with a `GOTO` token, the second without.
+	//
+	test1 := `
+10 IF 2 < 10 THEN GOTO 40
+20 LET a = 3
+30 END
+40 LET a = 33
+50 END
+`
+	test2 := `
+10 IF 2 < 10 THEN 40 ELSE 99
+20 LET a = 2
+30 END
+40 LET a = 313
+50 END
+`
+	//
+	// test1
+	//
+	e, err = FromString(test1)
+	if err != nil {
+		t.Errorf("Failed to parse program")
+	}
+
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Didn't expect a runtime-error, received one %s", err.Error())
+	}
+	cur := e.GetVariable("a")
+	if cur.Type() == object.ERROR {
+		t.Errorf("Variable 'a' does not exist for %s", test1)
+	}
+	if cur.Type() != object.NUMBER {
+		t.Errorf("Variable 'a' had wrong type: %s", cur.String())
+	}
+	out := cur.(*object.NumberObject).Value
+	if out != 3 {
+		t.Errorf("Expected 'a' to be %d, got %f", 3, out)
+	}
+
+	//
+	// test2
+	//
+	e, err = FromString(test2)
+	if err != nil {
+		t.Errorf("Failed to parse program")
+	}
+
+	err = e.Run()
+	if err != nil {
+		t.Errorf("Didn't expect a runtime-error, received one %s", err.Error())
+	}
+	cur = e.GetVariable("a")
+	if cur.Type() == object.ERROR {
+		t.Errorf("Variable 'a' does not exist for %s", test2)
+	}
+	if cur.Type() != object.NUMBER {
+		t.Errorf("Variable 'a' had wrong type: %s", cur.String())
+	}
+	out = cur.(*object.NumberObject).Value
+	if out != 2 {
+		t.Errorf("Expected 'a' to be %d, got %f", 2, out)
+	}
 }
 
 // TestINPUT performs testing of our INPUT implementation.

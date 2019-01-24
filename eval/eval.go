@@ -137,6 +137,11 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	t.fns = make(map[string]userFunction)
 
 	//
+	// The previous token we've seen, if any.
+	//
+	var prevToken token.Token
+
+	//
 	// Save the tokens that our program consists of, one by one,
 	// until we hit the end.
 	//
@@ -169,9 +174,29 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 			// sequential.  Or at least going-backwards.
 		}
 
+		//
+		// If the previous token was a "THEN" or "ELSE", and the
+		// current token is an integer then we add in the implicit
+		// GOTO.
+		//
+		// This allows the following two programs to be identical:
+		//
+		//   IF 1 < 2 THEN 300 ELSE 400
+		//
+		//   IF 1 < 2 THEN GOTO 300 ELSE GOTO 400
+		//
+		if prevToken.Type == token.THEN || prevToken.Type == token.ELSE {
+			if tok.Type == token.INT {
+				t.program = append(t.program,
+					token.Token{Type: token.GOTO, Literal: "GOTO"})
+			}
+		}
+
 		// Regardless append the token to our array
 		t.program = append(t.program, tok)
 
+		// Continue - recording the previous token too.
+		prevToken = tok
 		offset++
 	}
 
