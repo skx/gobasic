@@ -901,8 +901,8 @@ func TestIF(t *testing.T) {
 		t.Errorf("Variable 'a' had wrong type: %s", cur.String())
 	}
 	out := cur.(*object.NumberObject).Value
-	if out != 3 {
-		t.Errorf("Expected 'a' to be %d, got %f", 3, out)
+	if out != 33 {
+		t.Errorf("Expected 'a' to be %d, got %f", 33, out)
 	}
 
 	//
@@ -925,8 +925,8 @@ func TestIF(t *testing.T) {
 		t.Errorf("Variable 'a' had wrong type: %s", cur.String())
 	}
 	out = cur.(*object.NumberObject).Value
-	if out != 2 {
-		t.Errorf("Expected 'a' to be %d, got %f", 2, out)
+	if out != 313 {
+		t.Errorf("Expected 'a' to be %d, got %f", 313, out)
 	}
 }
 
