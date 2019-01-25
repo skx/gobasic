@@ -1889,8 +1889,6 @@ func (e *Interpreter) runLET() error {
 	}
 
 	//
-	// TODO
-	//
 	// At this point we've handled
 	//   LET foo
 	//
@@ -2140,6 +2138,7 @@ func (e *Interpreter) runREAD() error {
 
 		// Get the token.
 		tok := e.program[e.offset]
+		e.offset++
 
 		// Have we hit the end of the line?  If so we set `run`
 		// to be false, which means we hit the `return nil` at the
@@ -2155,7 +2154,6 @@ func (e *Interpreter) runREAD() error {
 
 		// Comma?
 		if tok.Type == token.COMMA {
-			e.offset++
 			continue
 		}
 
@@ -2174,15 +2172,73 @@ func (e *Interpreter) runREAD() error {
 		}
 
 		//
-		// Set the value, and bump our index
+		// At this point we've handled
+		//   READ foo
 		//
-		e.SetVariable(tok.Literal, e.data[e.dataOffset])
-		e.dataOffset++
+		// That would usually be all we needed, because we'd expect
+		//   READ foo, ...
+		//
+		// However we also have to consider the case of arrays, which
+		// means we need to look for:
+		//
+		//   READ foo[1], ..
+		//   READ bar[1][2] = ..
+		//
+		index, ee := e.findIndex()
+		if ee != nil {
+			return ee
+		}
 
 		//
-		// Repeat for more variables
+		// Set the value, and bump our index
 		//
-		e.offset++
+		// Are we handling an array-index?
+		if len(index) > 0 {
+
+			// get the current variable
+			x := e.GetVariable(tok.Literal)
+
+			// If there was an error, then return it.
+			if x.Type() == object.ERROR {
+				return fmt.Errorf("Error handling %s - %s", tok.Literal, x.(*object.ErrorObject).Value)
+			}
+
+			// Ensure we've got an index.
+			if x.Type() != object.ARRAY {
+				return (fmt.Errorf("Object is not an array, it is %s", x.String()))
+			}
+
+			// Otherwise assume we can index appropriately.
+			a := x.(*object.ArrayObject)
+
+			// update the value
+			if len(index) == 1 {
+
+				// 1d array
+				res := a.Set(0, index[0], e.data[e.dataOffset])
+				if res.Type() == object.ERROR {
+					return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+				}
+			}
+			if len(index) == 2 {
+
+				// 2d array
+				res := a.Set(index[0], index[1], e.data[e.dataOffset])
+				if res.Type() == object.ERROR {
+					return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+				}
+			}
+
+		} else {
+			// Store the result
+			e.SetVariable(tok.Literal, e.data[e.dataOffset])
+		}
+
+		//
+		// Now we've set something, move to the next DATA-item.
+		//
+		e.dataOffset++
+
 	}
 
 	return nil

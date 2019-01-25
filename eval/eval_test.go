@@ -1285,7 +1285,7 @@ func TestRead(t *testing.T) {
 	//
 	fail2 := `
 10 DATA "a", "b", "c"
-20 READ a, b, c, d
+20 READ a, b, c, d, e, f
 `
 	e, err = FromString(fail2)
 	if err != nil {
