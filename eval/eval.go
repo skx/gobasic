@@ -1868,10 +1868,21 @@ func (e *Interpreter) runIF() error {
 }
 
 // runLET handles variable creation/updating.
-func (e *Interpreter) runLET() error {
+func (e *Interpreter) runLET(skipLet bool) error {
 
-	// Bump past the LET token
-	e.offset++
+	// Bump past the LET token, unless we've
+	// been told not to.
+	//
+	// This is used when we see a bare ident
+	// such as in the following script:
+	//
+	//    10 LET a =3
+	//    20 b = 3
+	//    30 PRINT "A:", a, " B:", b, "\n"
+	//
+	if skipLet {
+		e.offset++
+	}
 
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing LET")
@@ -2330,7 +2341,7 @@ func (e *Interpreter) RunOnce() error {
 	case token.IF:
 		err = e.runIF()
 	case token.LET:
-		err = e.runLET()
+		err = e.runLET(true)
 	case token.NEXT:
 		err = e.runNEXT()
 	case token.REM:
@@ -2340,7 +2351,11 @@ func (e *Interpreter) RunOnce() error {
 	case token.READ:
 		err = e.runREAD()
 	case token.IDENT:
-		err = fmt.Errorf("Unexpected identifier %v", tok)
+		//
+		// If we receive an ident then we assume it is a LET-less
+		// assignment.
+		//
+		err = e.runLET(false)
 	default:
 		//
 		// This is either a clever piece of code, or a terrible

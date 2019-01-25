@@ -1057,14 +1057,39 @@ func TestLet(t *testing.T) {
 
 	cur := e.GetVariable("a")
 	if cur.Type() == object.ERROR {
-		t.Errorf("Variable a does not exist!")
+		t.Errorf("Variable 'a' does not exist!")
 	}
 	if cur.Type() != object.STRING {
-		t.Errorf("Variable a had wrong type: %s", cur.String())
+		t.Errorf("Variable 'a' had wrong type: %s", cur.String())
 	}
 	out := cur.(*object.StringObject).Value
 	if out != "Steve" {
-		t.Errorf("Expected x to be %s, got %s", "Steve", out)
+		t.Errorf("Expected 'a' to be %s, got %s", "Steve", out)
+	}
+
+	//
+	// Now a working example, without a LET statement.
+	//
+	ok2 := "10 s = \"Steve Kemp\"\n"
+	e, err = FromString(ok2)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", ok2, err.Error())
+	}
+	err = e.Run()
+	if err != nil {
+		t.Errorf("We found an unexpected error: %s", err.Error())
+	}
+
+	cur = e.GetVariable("s")
+	if cur.Type() == object.ERROR {
+		t.Errorf("Variable 's' does not exist!")
+	}
+	if cur.Type() != object.STRING {
+		t.Errorf("Variable 's' had wrong type: %s", cur.String())
+	}
+	out = cur.(*object.StringObject).Value
+	if out != "Steve Kemp" {
+		t.Errorf("Expected 'a' to be %s, got %s", "Steve Kemp", out)
 	}
 }
 
@@ -1487,39 +1512,6 @@ func TestTrace(t *testing.T) {
 		t.Errorf("Expected to see no error, but got one: %s", err.Error())
 	}
 
-}
-
-// TestRawIdent tests that we handle bogus statements correctly.
-// NOTE: If/when we support LET being optional this test-case will fail.
-func TestRawIdent(t *testing.T) {
-
-	//
-	// Programs that are bogus
-	//
-	tests := []string{
-		"10 A = 3",
-		"10 A * B",
-	}
-
-	//
-	// Run each one
-	//
-	for _, test := range tests {
-
-		tokener := tokenizer.New(test)
-		e, err := New(tokener)
-		if err != nil {
-			t.Errorf("Error parsing %s - %s", test, err.Error())
-		}
-
-		err = e.Run()
-		if err == nil {
-			t.Errorf("Expected an error - found none in %s", test)
-		}
-		if !strings.Contains(err.Error(), "Unexpected identifier") {
-			t.Errorf("Got an error, but it was the wrong one: %s", err.Error())
-		}
-	}
 }
 
 // TestVariables gets/sets some variables and ensures they work
