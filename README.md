@@ -3,6 +3,28 @@
 [![license](https://img.shields.io/github/license/skx/gobasic.svg)](https://github.com/skx/gobasic/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/skx/gobasic.svg)](https://github.com/skx/gobasic/releases/latest)
 
+
+* [10 PRINT "GOBASIC!"](#10-print-gobasic)
+* [20 PRINT "Limitations"](#20-print-limitations)
+  * [Arrays](#arrays)
+  * [Line Numbers](#line-numbers)
+  * [IF Statement](#if-statement)
+  * [DATA / READ Statements](#data--read-statements)
+  * [Builtin Functions](#builtin-functions)
+  * [Types](#types)
+* [30 PRINT "Installation"](#30-print-installation)
+  * [Build without Go Modules (Go before 1.11)](#build-without-go-modules-go-before-111)
+  * [Build with Go Modules (Go 1.11 or higher)](#build-with-go-modules-go-111-or-higher)
+* [40 PRINT "Usage"](#40-print-usage)
+* [50 PRINT "Implementation"](#50-print-implementation)
+* [60 PRINT "Sample Code"](#60-print-sample-code)
+* [70 PRINT "Embedding"](#70-print-embedding)
+* [80 PRINT "Visual BASIC!"](#80-print-visual-basic)
+* [90 PRINT "Bugs?"](#90-print-bugs)
+* [100 PRINT "Project Goals / Links"](#100-print-project-goals--links)
+
+
+
 # 10 PRINT "GOBASIC!"
 
 This repository contains a naive implementation of BASIC, written in Golang.
