@@ -296,7 +296,12 @@ Perhaps the best demonstration of the code are the following two samples:
 * [examples/99-game.bas](examples/99-game.bas)
   * A classic game where you guess the random number the computer has thought of.
 
-<br/><br/><br/><br/>
+ \
+ \
+ \
+ \
+
+
 ## 70 PRINT "Embedding"
 
 The interpreter is designed to be easy to embed into your application(s)
