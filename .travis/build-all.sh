@@ -14,7 +14,7 @@ fi
 #
 # We build on multiple platforms/archs
 #
-BUILD_PLATFORMS="linux darwin freebsd"
+BUILD_PLATFORMS="linux darwin freebsd windows"
 BUILD_ARCHS="amd64 386"
 
 # For each platform
