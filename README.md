@@ -25,7 +25,10 @@
 * [90 PRINT "Bugs?"](#90-print-bugs)
 * [100 PRINT "Project Goals / Links"](#100-print-project-goals--links)
 
-
+<br />
+<br />
+<br />
+<br />
 
 # 10 PRINT "GOBASIC!"
 
@@ -86,7 +89,10 @@ Most of the maths-related primitives I'm familiar with are also present, for exa
 * `CODE " "`
   * Converts the given character to the integer value (32).
 
-
+<br />
+<br />
+<br />
+<br />
 
 ## 20 PRINT "Limitations"
 
@@ -212,6 +218,12 @@ But this prompts for a number:
 This seemed better than trying to return a string, unless the input looked like a number (i.e. the input matched `/^([0-9\.]+)$/` we could store a number, otherwise a string).
 
 
+<br />
+<br />
+<br />
+<br />
+
+
 ## 30 PRINT "Installation"
 
 ### Build without Go Modules (Go before 1.11)
@@ -232,6 +244,11 @@ If you don't have a golang environment setup you should be able to download vari
 
 * [Binary Releases](https://github.com/skx/gobasic/releases)
 
+
+<br />
+<br />
+<br />
+<br />
 
 
 ## 40 PRINT "Usage"
@@ -256,6 +273,11 @@ Execute it like this:
 
 **NOTE**: I feel nostalgic seeing keywords in upper-case, but `PRINT` and `print` are treated identically.
 
+
+<br />
+<br />
+<br />
+<br />
 
 
 ## 50 PRINT "Implementation"
@@ -283,6 +305,11 @@ As is common with early 8-bit home-computers this implementation is a little mor
 As there is no AST step errors cannot be detected prior to the execution of programs - because we only hit them after we've started running.
 
 
+<br />
+<br />
+<br />
+<br />
+
 
 ## 60 PRINT "Sample Code"
 
@@ -300,7 +327,7 @@ Perhaps the best demonstration of the code are the following two samples:
 <br />
 <br />
 <br />
-<br />
+
 
 ## 70 PRINT "Embedding"
 
@@ -330,6 +357,11 @@ BASIC scripts is pretty simple.  (This is how SIN, COS, etc are implemented
 in the standalone interpreter.)
 
 
+<br />
+<br />
+<br />
+<br />
+
 
 ## 80 PRINT "Visual BASIC!"
 
@@ -352,6 +384,10 @@ be shown in the bottom of the screen.  Something like this:
 There are several included examples which you can load/launch by clicking upon them.
 
 
+<br />
+<br />
+<br />
+<br />
 
 
 ## 90 PRINT "Bugs?"
@@ -381,6 +417,12 @@ In addition to the test-cases which have been manually written the interpreter
 has also been fuzz-tested, which has resulted in some significant improvements.
 
 See [FUZZING.md](FUZZING.md) for details of how to run the fuzz-tests.
+
+
+<br />
+<br />
+<br />
+<br />
 
 
 ## 100 PRINT "Project Goals / Links"
