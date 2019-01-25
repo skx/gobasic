@@ -99,7 +99,7 @@ That said there are some (obvious) limitations:
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
   * If there are specific primitives you miss, then please [report a bug](https://github.com/skx/gobasic/issues/).
-    * The project is open to suggestions, but do bear in mind the [project golas]((#100-print-project-goals--links)) listed later on.
+    * The project is open to suggestions, but do bear in mind the [project goals]((#100-print-project-goals--links)) listed later on.
 * When it comes to types only floating-point and string values are permitted.
   * There is support for arrays but only one or two dimensional ones.
 
@@ -151,7 +151,7 @@ Only a single statement is permitted between "THEN" and "ELSE", and again betwee
     IF 1 > 0 THEN PRINT "OK"
     IF 1 > 3 THEN PRINT "SOMETHING IS BROKEN": ELSE PRINT "Weird!"
 
-In that second example you see that "`:`" was used to terminate the `PRINT` statement, which otherwise would have tried to consume all input until it hit a newline.
+In that second example you'll see that "`:`" was used to terminate the `PRINT` statement, which otherwise would have tried to consume all input until it hit a newline.
 
 The set of comparison functions _probably_ includes everything you need:
 
