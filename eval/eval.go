@@ -2284,7 +2284,7 @@ func (e *Interpreter) RunOnce() error {
 	case token.READ:
 		err = e.runREAD()
 	case token.IDENT:
-		err = fmt.Errorf("Invalid statement %v", tok)
+		err = fmt.Errorf("Unexpected identifier %v", tok)
 	default:
 		//
 		// This is either a clever piece of code, or a terrible
