@@ -354,6 +354,33 @@ has also been fuzz-tested, which has resulted in some significant improvements.
 See [FUZZING.md](FUZZING.md) for details of how to run the fuzz-tests.
 
 
+## 100 PRINT "Project Goals / Links"
+
+It is never the intention of this project to support _all_ things that are
+possible in the various dialects of BASIC.
+
+There are facilities which will make porting programs useful, such as
+the ability to use `WHILE`/`END` loops, functions with named-parameters,
+and primitives such as SLEEP, BEEP, & etc.
+
+Above all else this project is supposed to be fun, for me.  Which means
+if there are two ways of implementing something I'll pick the way I remember
+back when I was 12 and computers were .. fun!
+
+If there are feature-requests which seem less fun, and less immediately
+useful to me - with my biased memories of coding on a ZX Spectrum - I will
+tag them "wontfix".  If you contribute a pull-request to support them I will
+accept them, but I'm probably not likely to work upon them directly.
+
+That said there are cases where I can be persuaded, and there are a lot
+of other BASIC intepreters out there, so I won't feel bad if this particular
+project doesn't suit your needs.
+
+One project, slightly related to this, which might be worth checking up
+on is this one:
+
+* https://github.com/udhos/basgo
+
 
 Steve
 --
