@@ -1489,6 +1489,39 @@ func TestTrace(t *testing.T) {
 
 }
 
+// TestRawIdent tests that we handle bogus statements correctly.
+// NOTE: If/when we support LET being optional this test-case will fail.
+func TestRawIdent(t *testing.T) {
+
+	//
+	// Programs that are bogus
+	//
+	tests := []string{
+		"10 A = 3",
+		"10 A * B",
+	}
+
+	//
+	// Run each one
+	//
+	for _, test := range tests {
+
+		tokener := tokenizer.New(test)
+		e, err := New(tokener)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test, err.Error())
+		}
+
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected an error - found none in %s", test)
+		}
+		if !strings.Contains(err.Error(), "Unexpected identifier") {
+			t.Errorf("Got an error, but it was the wrong one: %s", err.Error())
+		}
+	}
+}
+
 // TestVariables gets/sets some variables and ensures they work
 func TestVariables(t *testing.T) {
 

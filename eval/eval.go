@@ -2283,6 +2283,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runRETURN()
 	case token.READ:
 		err = e.runREAD()
+	case token.IDENT:
+		err = fmt.Errorf("Unexpected identifier %v", tok)
 	default:
 		//
 		// This is either a clever piece of code, or a terrible
