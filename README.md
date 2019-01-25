@@ -98,7 +98,8 @@ That said there are some (obvious) limitations:
 
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
-  * If there are primitives you miss [report a bug](https://github.com/skx/gobasic/issues/) and I'll add them :)
+  * If there are specific primitives you miss, then please [report a bug](https://github.com/skx/gobasic/issues/).
+    * The project is open to suggestions, but do bear in mind the [project golas]((#100-print-project-goals--links)) listed later on.
 * When it comes to types only floating-point and string values are permitted.
   * There is support for arrays but only one or two dimensional ones.
 
@@ -140,8 +141,7 @@ if you prefer to avoid them then you're welcome to do so.
 ### `IF` Statement
 
 The handling of the IF statement is perhaps a little unusual, since I'm
-used to the BASIC provided by the ZX Spectrum which had no ELSE clause!
-
+used to the BASIC provided by the ZX Spectrum which had no ELSE clause.
 The general form of the IF statement I've implemented is:
 
     IF $CONDITIONAL THEN $STATEMENT1 [ELSE $STATEMENT2]
