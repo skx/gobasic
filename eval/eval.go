@@ -2170,6 +2170,124 @@ func (e *Interpreter) runREAD() error {
 	return nil
 }
 
+// SWAP swaps the contents of two variables.
+//
+// This is most useful for swapping array-values.
+func (e *Interpreter) runSWAP() error {
+
+	// Skip past the SWAP token
+	e.offset++
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing SWAP")
+	}
+
+	//
+	// Now the first variable
+	//
+	a := e.program[e.offset]
+
+	e.offset++
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing SWAP")
+	}
+	if a.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after SWAP, got %v", a)
+	}
+
+	//
+	// At this point we've handled
+	//   SWAP foo
+	//
+	// However there might be an array-index:
+	//
+	//   SWAP foo[1], bar
+	//
+	// So look for that too.
+	//
+	aIndex, aErr := e.findIndex()
+	if aErr != nil {
+		return aErr
+	}
+
+	//
+	// Now we expect a ","
+	//
+	comma := e.program[e.offset]
+	if comma.Type != token.COMMA {
+		return fmt.Errorf("Expected comma after SWAP a, got %v", comma)
+	}
+	e.offset++
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing SWAP")
+	}
+
+	//
+	// Now we look for the second variable
+	//
+	b := e.program[e.offset]
+
+	e.offset++
+	if b.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after SWAP a, got %v", b)
+	}
+
+	//
+	// At this point we've handled
+	//   SWAP foo, bar
+	//
+	// However there might be an array-index:
+	//
+	//   SWAP foo, bar[1]
+	//
+	// So look for that too.
+	//
+	bIndex, bErr := e.findIndex()
+	if bErr != nil {
+		return bErr
+	}
+
+	//
+	// We'll store the two values here
+	//
+	var aVal object.Object
+	var bVal object.Object
+
+	//
+	// Now fetch the value: A
+	//
+	if len(aIndex) != 0 {
+		aVal = e.GetArrayVariable(a.Literal, aIndex)
+	} else {
+		aVal = e.GetVariable(a.Literal)
+	}
+
+	//
+	// Now fetch the value: B
+	//
+	if len(bIndex) != 0 {
+		bVal = e.GetArrayVariable(b.Literal, bIndex)
+	} else {
+		bVal = e.GetVariable(b.Literal)
+	}
+
+	//
+	// And swap :)
+	//
+	if len(aIndex) != 0 {
+		e.SetArrayVariable(a.Literal, aIndex, bVal)
+	} else {
+		e.SetVariable(a.Literal, bVal)
+	}
+
+	if len(bIndex) != 0 {
+		e.SetArrayVariable(b.Literal, bIndex, aVal)
+	} else {
+		e.SetVariable(b.Literal, aVal)
+	}
+
+	return nil
+}
+
 // RETURN handles a control-flow operation
 func (e *Interpreter) runRETURN() error {
 
@@ -2265,6 +2383,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runRETURN()
 	case token.READ:
 		err = e.runREAD()
+	case token.SWAP:
+		err = e.runSWAP()
 	case token.IDENT:
 		//
 		// If we receive an ident then we assume it is a LET-less
