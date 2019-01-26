@@ -391,6 +391,9 @@ func TestEOF(t *testing.T) {
 		"10 FOR I",
 		"10 FOR ",
 		"10 LET a[0",
+		"10 SWAP",
+		"10 SWAP a",
+		"10 SWAP a,",
 
 		// multi-line tests:
 		`10 DATA 3,4,5
@@ -1449,6 +1452,105 @@ func TestRun(t *testing.T) {
 	if !strings.Contains(err.Error(), "Unclosed FOR loop") {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
+}
+
+// TestSwap ensures that the SWAP statement is sane.
+func TestSwap(t *testing.T) {
+
+	//
+	// Some simple failures
+	//
+	fails := []string{
+		"10 SWAP 3",
+		"10 SWAP a",
+		"10 SWAP a,3",
+		"10 SWAP \"steve\", 3",
+		"10 SWAP \"steve\" 3",
+		"10 SWAP a a a a",
+	}
+
+	for _, test := range fails {
+
+		tokener := tokenizer.New(test)
+		e, err := New(tokener)
+		if err != nil {
+			t.Errorf("Error parsing %s - %s", test, err.Error())
+		}
+
+		err = e.Run()
+		if err == nil {
+			t.Errorf("Expected an error - found none")
+		}
+		if !strings.Contains(err.Error(), "SWAP") {
+			t.Errorf("Got an error, but it was the wrong one: %s", err.Error())
+		}
+	}
+
+	//
+	// Simple Swap
+	//
+	test1 := `10 REM simple swap
+20 a ="Kemp"
+30 LET b = 44
+40 SWAP a,b`
+
+	tokener := tokenizer.New(test1)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", test1, err.Error())
+	}
+	err = e.Run()
+
+	if err != nil {
+		t.Errorf("Found an unexpected error:%s", err.Error())
+	}
+
+	A := e.GetVariable("a")
+	if A.Type() != object.NUMBER {
+		t.Errorf("Unexpectedly managed to retrieve a missing variable")
+	}
+	B := e.GetVariable("b")
+	if B.Type() != object.STRING {
+		t.Errorf("Unexpectedly managed to retrieve a missing variable")
+	}
+
+	test2 := `10 REM indexed-swap
+	20 DIM A(3)
+	30 A[2] = "Steve"
+	40 A[1] = "Kemp"
+	50 SWAP A[1], A[2]
+	`
+	tokener = tokenizer.New(test2)
+	e, err = New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", test2, err.Error())
+	}
+	err = e.Run()
+
+	if err != nil {
+		t.Errorf("Found an unexpected error:%s", err.Error())
+	}
+
+	var a []int
+	a = append(a, 1)
+	A = e.GetArrayVariable("A", a)
+	if A.Type() != object.STRING {
+		t.Errorf("Array variable has the wrong type")
+	}
+	if A.(*object.StringObject).Value != "Steve" {
+		t.Errorf("Failed to swap array")
+	}
+
+	var b []int
+	b = append(a, 2)
+	B = e.GetArrayVariable("A", b)
+	if B.Type() != object.STRING {
+		t.Errorf("Array variable has the wrong type")
+	}
+	if B.(*object.StringObject).Value != "Kemp" {
+		t.Errorf("Failed to swap array")
+	}
+
 }
 
 // TestStringFail tests that expr() errors on bogus string operations.

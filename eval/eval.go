@@ -445,32 +445,13 @@ func (e *Interpreter) factor() object.Object {
 			if ee != nil {
 				return object.Error(ee.Error())
 			}
+
+			//
+			// Indexed?  Then get it.
+			//
 			if len(index) > 0 {
-
-				x := e.GetVariable(tok.Literal)
-
-				// If there was an error, then return it.
-				if x.Type() == object.ERROR {
-					return x
-				}
-
-				// Ensure we've got an index.
-				if x.Type() != object.ARRAY {
-					return (object.Error("Object is not an array!"))
-				}
-
-				// Otherwise we assume we've got an array
-				// index.
-				a := x.(*object.ArrayObject)
-
-				var ob object.Object
-				if len(index) == 1 {
-					ob = a.Get(0, index[0])
-				}
-				if len(index) == 2 {
-					ob = a.Get(index[0], index[1])
-				}
-				return ob
+				val := e.GetArrayVariable(tok.Literal, index)
+				return val
 			}
 
 			//
@@ -1941,42 +1922,8 @@ func (e *Interpreter) runLET(skipLet bool) error {
 
 	// Are we handling an array-index?
 	if len(index) > 0 {
-
-		// get the current variable
-		x := e.GetVariable(target.Literal)
-
-		// If there was an error, then return it.
-		if x.Type() == object.ERROR {
-			return fmt.Errorf("Error handling %s - %s", target.Literal, x.(*object.ErrorObject).Value)
-		}
-
-		// Ensure we've got an index.
-		if x.Type() != object.ARRAY {
-			return (fmt.Errorf("Object is not an array, it is %s", x.String()))
-		}
-
-		// Otherwise assume we can index appropriately.
-		a := x.(*object.ArrayObject)
-
-		// update the value
-		if len(index) == 1 {
-
-			// 1d array
-			res := a.Set(0, index[0], res)
-			if res.Type() == object.ERROR {
-				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
-			}
-		}
-		if len(index) == 2 {
-
-			// 2d array
-			res := a.Set(index[0], index[1], res)
-			if res.Type() == object.ERROR {
-				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
-			}
-		}
-
-		return nil
+		err := e.SetArrayVariable(target.Literal, index, res)
+		return err
 	}
 
 	// Store the result
@@ -2206,40 +2153,8 @@ func (e *Interpreter) runREAD() error {
 		// Are we handling an array-index?
 		if len(index) > 0 {
 
-			// get the current variable
-			x := e.GetVariable(tok.Literal)
-
-			// If there was an error, then return it.
-			if x.Type() == object.ERROR {
-				return fmt.Errorf("Error handling %s - %s", tok.Literal, x.(*object.ErrorObject).Value)
-			}
-
-			// Ensure we've got an index.
-			if x.Type() != object.ARRAY {
-				return (fmt.Errorf("Object is not an array, it is %s", x.String()))
-			}
-
-			// Otherwise assume we can index appropriately.
-			a := x.(*object.ArrayObject)
-
-			// update the value
-			if len(index) == 1 {
-
-				// 1d array
-				res := a.Set(0, index[0], e.data[e.dataOffset])
-				if res.Type() == object.ERROR {
-					return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
-				}
-			}
-			if len(index) == 2 {
-
-				// 2d array
-				res := a.Set(index[0], index[1], e.data[e.dataOffset])
-				if res.Type() == object.ERROR {
-					return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
-				}
-			}
-
+			// Store the result in the array
+			e.SetArrayVariable(tok.Literal, index, e.data[e.dataOffset])
 		} else {
 			// Store the result
 			e.SetVariable(tok.Literal, e.data[e.dataOffset])
@@ -2250,6 +2165,124 @@ func (e *Interpreter) runREAD() error {
 		//
 		e.dataOffset++
 
+	}
+
+	return nil
+}
+
+// SWAP swaps the contents of two variables.
+//
+// This is most useful for swapping array-values.
+func (e *Interpreter) runSWAP() error {
+
+	// Skip past the SWAP token
+	e.offset++
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing SWAP")
+	}
+
+	//
+	// Now the first variable
+	//
+	a := e.program[e.offset]
+
+	e.offset++
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing SWAP")
+	}
+	if a.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after SWAP, got %v", a)
+	}
+
+	//
+	// At this point we've handled
+	//   SWAP foo
+	//
+	// However there might be an array-index:
+	//
+	//   SWAP foo[1], bar
+	//
+	// So look for that too.
+	//
+	aIndex, aErr := e.findIndex()
+	if aErr != nil {
+		return aErr
+	}
+
+	//
+	// Now we expect a ","
+	//
+	comma := e.program[e.offset]
+	if comma.Type != token.COMMA {
+		return fmt.Errorf("Expected comma after SWAP a, got %v", comma)
+	}
+	e.offset++
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("Hit end of program processing SWAP")
+	}
+
+	//
+	// Now we look for the second variable
+	//
+	b := e.program[e.offset]
+
+	e.offset++
+	if b.Type != token.IDENT {
+		return fmt.Errorf("Expected IDENT after SWAP a, got %v", b)
+	}
+
+	//
+	// At this point we've handled
+	//   SWAP foo, bar
+	//
+	// However there might be an array-index:
+	//
+	//   SWAP foo, bar[1]
+	//
+	// So look for that too.
+	//
+	bIndex, bErr := e.findIndex()
+	if bErr != nil {
+		return bErr
+	}
+
+	//
+	// We'll store the two values here
+	//
+	var aVal object.Object
+	var bVal object.Object
+
+	//
+	// Now fetch the value: A
+	//
+	if len(aIndex) != 0 {
+		aVal = e.GetArrayVariable(a.Literal, aIndex)
+	} else {
+		aVal = e.GetVariable(a.Literal)
+	}
+
+	//
+	// Now fetch the value: B
+	//
+	if len(bIndex) != 0 {
+		bVal = e.GetArrayVariable(b.Literal, bIndex)
+	} else {
+		bVal = e.GetVariable(b.Literal)
+	}
+
+	//
+	// And swap :)
+	//
+	if len(aIndex) != 0 {
+		e.SetArrayVariable(a.Literal, aIndex, bVal)
+	} else {
+		e.SetVariable(a.Literal, bVal)
+	}
+
+	if len(bIndex) != 0 {
+		e.SetArrayVariable(b.Literal, bIndex, aVal)
+	} else {
+		e.SetVariable(b.Literal, aVal)
 	}
 
 	return nil
@@ -2350,6 +2383,8 @@ func (e *Interpreter) RunOnce() error {
 		err = e.runRETURN()
 	case token.READ:
 		err = e.runREAD()
+	case token.SWAP:
+		err = e.runSWAP()
 	case token.IDENT:
 		//
 		// If we receive an ident then we assume it is a LET-less
@@ -2498,6 +2533,48 @@ func (e *Interpreter) SetVariable(id string, val object.Object) {
 	e.vars.Set(id, val)
 }
 
+// SetArrayVariable sets the contents of the specified array value.
+//
+// Useful for testing/embedding
+func (e *Interpreter) SetArrayVariable(id string, index []int, val object.Object) error {
+
+	// get the current variable - i.e. the parent array
+	x := e.GetVariable(id)
+
+	// If there was an error, then return it.
+	if x.Type() == object.ERROR {
+		return fmt.Errorf("Error handling %s - %s", id, x.(*object.ErrorObject).Value)
+	}
+
+	// Ensure we've got an index.
+	if x.Type() != object.ARRAY {
+		return (fmt.Errorf("Object is not an array, it is %s", x.String()))
+	}
+
+	// Otherwise assume we can index appropriately.
+	a := x.(*object.ArrayObject)
+
+	// update the value
+	if len(index) == 1 {
+
+		// 1d array
+		res := a.Set(0, index[0], val)
+		if res.Type() == object.ERROR {
+			return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+		}
+	}
+	if len(index) == 2 {
+
+		// 2d array
+		res := a.Set(index[0], index[1], val)
+		if res.Type() == object.ERROR {
+			return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+		}
+	}
+
+	return nil
+}
+
 // GetVariable returns the contents of the given variable.
 //
 // Useful for testing/embedding.
@@ -2509,6 +2586,36 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 		return val
 	}
 	return object.Error("The variable '%s' doesn't exist", id)
+}
+
+// GetArrayVariable gets the contents of the specified array value.
+//
+// Useful for testing/embedding
+func (e *Interpreter) GetArrayVariable(id string, index []int) object.Object {
+	x := e.GetVariable(id)
+
+	// If there was an error, then return it.
+	if x.Type() == object.ERROR {
+		return x
+	}
+
+	// Ensure we've got an index.
+	if x.Type() != object.ARRAY {
+		return (object.Error("Object is not an array!"))
+	}
+
+	// Otherwise we assume we've got an array
+	// index.
+	a := x.(*object.ArrayObject)
+
+	var ob object.Object
+	if len(index) == 1 {
+		ob = a.Get(0, index[0])
+	}
+	if len(index) == 2 {
+		ob = a.Get(index[0], index[1])
+	}
+	return ob
 }
 
 // RegisterBuiltin registers a function as a built-in, so that it can

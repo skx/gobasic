@@ -72,6 +72,9 @@ The following obvious primitives work as you'd expect:
 * `READ` & `DATA`
   * Allow reading from stored data within the program.
   * See [examples/35-read-data.bas](examples/35-read-data.bas) for a demonstration.
+* `SWAP`
+  * Allow swapping the contents of two variables.
+  * Useful for sorting arrays.
 * `DEF FN` & `FN`
   * Allow user-defined functions to be defined or invoked.
   * See [examples/25-def-fn.bas](examples/25-def-fn.bas) for an example.
