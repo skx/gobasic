@@ -58,11 +58,12 @@ const (
 	XOR = "XOR"
 
 	// Misc
-	DATA = "DATA"
-	DIM  = "DIM"
 	DEF  = "DEF"
+	DIM  = "DIM"
 	FN   = "FN"
 	READ = "READ"
+	SWAP = "SWAP"
+	DATA = "DATA"
 
 	// Woo-operators
 	ASSIGN   = "=" // LET x = 3
@@ -110,6 +111,7 @@ var keywords = map[string]Type{
 	"rem":    REM,
 	"return": RETURN,
 	"step":   STEP,
+	"swap":   SWAP,
 	"then":   THEN,
 	"to":     TO,
 	"xor":    XOR,
