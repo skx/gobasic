@@ -152,12 +152,18 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	//
 	offset := 0
 	for {
+
+		//
+		// Process each token from our tokenizer.
+		//
 		tok := stream.NextToken()
 		if tok.Type == token.EOF {
 			break
 		}
 
+		//
 		// Did we find a line-number?
+		//
 		if tok.Type == token.LINENO {
 
 			// Save the offset in the map
@@ -192,7 +198,7 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 			}
 		}
 
-		// Regardless append the token to our array
+		// Append the token to our array
 		t.program = append(t.program, tok)
 
 		// Continue - recording the previous token too.
@@ -201,11 +207,55 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	}
 
 	//
-	// Process the program looking for DATA statements
+	// Now our `t.program` array is an array of tokens which
+	// we'll execute.
 	//
-	// For each one store the data in the line in our Data array
+	// We're going to parse that program, looking for the
+	// definitions of user-defined functions, and any DATA
+	// statements.
+	//
+	// The DATA-statements we load at parse-time since that
+	// is a little neater.
+	//
+	// The user-defined functions we need to parse at run-time
+	// since they might be invoked before they're defined otherwise
+	// like this:
+	//
+	//   10 PRINT SQUARE(3)
+	//   20 DEF FN SQUARE(a) a * a
+	//
+	// Having the user reorder their program to avoid that would
+	// be a pain..
+	//
+
+	//
+	// We're not initially inside a comment.
+	//
+	inComment := false
+
+	//
+	// Process the complete program, now we've stored it.
 	//
 	for offset, tok := range t.program {
+
+		//
+		// If we're in a comment then skip all action until
+		// we hit the next newline (or EOF).
+		//
+		if inComment {
+			if tok.Type == token.NEWLINE {
+				inComment = false
+			}
+			continue
+		}
+
+		//
+		// Comments start with REM, if we find a REM then
+		// we're in a comment.
+		//
+		if tok.Type == token.REM {
+			inComment = true
+		}
 
 		//
 		// We found a data-token.
@@ -261,6 +311,9 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 
 	}
 
+	//
+	// By default none of the data will have been read.
+	//
 	t.dataOffset = 0
 
 	//
