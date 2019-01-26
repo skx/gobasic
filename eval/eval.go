@@ -2498,6 +2498,48 @@ func (e *Interpreter) SetVariable(id string, val object.Object) {
 	e.vars.Set(id, val)
 }
 
+// SetArrayVariable sets the contents of the specified array value.
+//
+// Useful for testing/embedding
+func (e *Interpreter) SetArrayVariable(id string, index []int, val object.Object) error {
+
+	// get the current variable - i.e. the parent array
+	x := e.GetVariable(id)
+
+	// If there was an error, then return it.
+	if x.Type() == object.ERROR {
+		return fmt.Errorf("Error handling %s - %s", id, x.(*object.ErrorObject).Value)
+	}
+
+	// Ensure we've got an index.
+	if x.Type() != object.ARRAY {
+		return (fmt.Errorf("Object is not an array, it is %s", x.String()))
+	}
+
+	// Otherwise assume we can index appropriately.
+	a := x.(*object.ArrayObject)
+
+	// update the value
+	if len(index) == 1 {
+
+		// 1d array
+		res := a.Set(0, index[0], val)
+		if res.Type() == object.ERROR {
+			return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+		}
+	}
+	if len(index) == 2 {
+
+		// 2d array
+		res := a.Set(index[0], index[1], val)
+		if res.Type() == object.ERROR {
+			return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
+		}
+	}
+
+	return nil
+}
+
 // GetVariable returns the contents of the given variable.
 //
 // Useful for testing/embedding.
@@ -2509,6 +2551,36 @@ func (e *Interpreter) GetVariable(id string) object.Object {
 		return val
 	}
 	return object.Error("The variable '%s' doesn't exist", id)
+}
+
+// GetArrayVariable gets the contents of the specified array value.
+//
+// Useful for testing/embedding
+func (e *Interpreter) GetArrayVariable(id string, index []int) object.Object {
+	x := e.GetVariable(id)
+
+	// If there was an error, then return it.
+	if x.Type() == object.ERROR {
+		return x
+	}
+
+	// Ensure we've got an index.
+	if x.Type() != object.ARRAY {
+		return (object.Error("Object is not an array!"))
+	}
+
+	// Otherwise we assume we've got an array
+	// index.
+	a := x.(*object.ArrayObject)
+
+	var ob object.Object
+	if len(index) == 1 {
+		ob = a.Get(0, index[0])
+	}
+	if len(index) == 2 {
+		ob = a.Get(index[0], index[1])
+	}
+	return ob
 }
 
 // RegisterBuiltin registers a function as a built-in, so that it can
