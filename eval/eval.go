@@ -445,32 +445,13 @@ func (e *Interpreter) factor() object.Object {
 			if ee != nil {
 				return object.Error(ee.Error())
 			}
+
+			//
+			// Indexed?  Then get it.
+			//
 			if len(index) > 0 {
-
-				x := e.GetVariable(tok.Literal)
-
-				// If there was an error, then return it.
-				if x.Type() == object.ERROR {
-					return x
-				}
-
-				// Ensure we've got an index.
-				if x.Type() != object.ARRAY {
-					return (object.Error("Object is not an array!"))
-				}
-
-				// Otherwise we assume we've got an array
-				// index.
-				a := x.(*object.ArrayObject)
-
-				var ob object.Object
-				if len(index) == 1 {
-					ob = a.Get(0, index[0])
-				}
-				if len(index) == 2 {
-					ob = a.Get(index[0], index[1])
-				}
-				return ob
+				val := e.GetArrayVariable(tok.Literal, index)
+				return val
 			}
 
 			//
@@ -1941,42 +1922,8 @@ func (e *Interpreter) runLET(skipLet bool) error {
 
 	// Are we handling an array-index?
 	if len(index) > 0 {
-
-		// get the current variable
-		x := e.GetVariable(target.Literal)
-
-		// If there was an error, then return it.
-		if x.Type() == object.ERROR {
-			return fmt.Errorf("Error handling %s - %s", target.Literal, x.(*object.ErrorObject).Value)
-		}
-
-		// Ensure we've got an index.
-		if x.Type() != object.ARRAY {
-			return (fmt.Errorf("Object is not an array, it is %s", x.String()))
-		}
-
-		// Otherwise assume we can index appropriately.
-		a := x.(*object.ArrayObject)
-
-		// update the value
-		if len(index) == 1 {
-
-			// 1d array
-			res := a.Set(0, index[0], res)
-			if res.Type() == object.ERROR {
-				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
-			}
-		}
-		if len(index) == 2 {
-
-			// 2d array
-			res := a.Set(index[0], index[1], res)
-			if res.Type() == object.ERROR {
-				return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
-			}
-		}
-
-		return nil
+		err := e.SetArrayVariable(target.Literal, index, res)
+		return err
 	}
 
 	// Store the result
@@ -2206,40 +2153,8 @@ func (e *Interpreter) runREAD() error {
 		// Are we handling an array-index?
 		if len(index) > 0 {
 
-			// get the current variable
-			x := e.GetVariable(tok.Literal)
-
-			// If there was an error, then return it.
-			if x.Type() == object.ERROR {
-				return fmt.Errorf("Error handling %s - %s", tok.Literal, x.(*object.ErrorObject).Value)
-			}
-
-			// Ensure we've got an index.
-			if x.Type() != object.ARRAY {
-				return (fmt.Errorf("Object is not an array, it is %s", x.String()))
-			}
-
-			// Otherwise assume we can index appropriately.
-			a := x.(*object.ArrayObject)
-
-			// update the value
-			if len(index) == 1 {
-
-				// 1d array
-				res := a.Set(0, index[0], e.data[e.dataOffset])
-				if res.Type() == object.ERROR {
-					return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
-				}
-			}
-			if len(index) == 2 {
-
-				// 2d array
-				res := a.Set(index[0], index[1], e.data[e.dataOffset])
-				if res.Type() == object.ERROR {
-					return fmt.Errorf("%s", res.(*object.ErrorObject).Value)
-				}
-			}
-
+			// Store the result in the array
+			e.SetArrayVariable(tok.Literal, index, e.data[e.dataOffset])
 		} else {
 			// Store the result
 			e.SetVariable(tok.Literal, e.data[e.dataOffset])
