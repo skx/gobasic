@@ -145,39 +145,17 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	// Save the tokens that our program consists of, one by one,
 	// until we hit the end.
 	//
-	// We also record the offset at which each line starts, which
-	// means that the GOTO & GOSUB statements don't need to scan
-	// the program from start to finish to find the destination
-	// to jump to.
+	// We also insert any implied GOTO statements into IF
+	// statements which lack them.
 	//
-	offset := 0
 	for {
 
 		//
-		// Process each token from our tokenizer.
+		// Fetch the next token from our tokenizer.
 		//
 		tok := stream.NextToken()
 		if tok.Type == token.EOF {
 			break
-		}
-
-		//
-		// Did we find a line-number?
-		//
-		if tok.Type == token.LINENO {
-
-			// Save the offset in the map
-			line := tok.Literal
-
-			// Already an offset?  That means we
-			// have duplicate line-numbers
-			if t.lines[line] != 0 {
-				fmt.Printf("WARN: Line %s is duplicated - GOTO/GOSUB behaviour is undefined\n", line)
-			}
-			t.lines[line] = offset
-
-			// TODO: Warn about line-numbers not being
-			// sequential.  Or at least going-backwards.
 		}
 
 		//
@@ -198,12 +176,13 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 			}
 		}
 
+		//
 		// Append the token to our array
+		//
 		t.program = append(t.program, tok)
 
 		// Continue - recording the previous token too.
 		prevToken = tok
-		offset++
 	}
 
 	//
@@ -237,6 +216,27 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	// Process the complete program, now we've stored it.
 	//
 	for offset, tok := range t.program {
+
+		//
+		// Did we find a line-number?
+		//
+		if tok.Type == token.LINENO {
+
+			//
+			// Get the line-number.
+			//
+			line := tok.Literal
+
+			//
+			// Do we already have an offset saved?
+			//
+			// If so that means we have duplicate line-numbers
+			//
+			if t.lines[line] != 0 {
+				fmt.Printf("WARN: Line %s is duplicated - GOTO/GOSUB behaviour is undefined\n", line)
+			}
+			t.lines[line] = offset
+		}
 
 		//
 		// If we're in a comment then skip all action until
