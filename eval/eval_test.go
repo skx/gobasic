@@ -3,7 +3,6 @@
 package eval
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -1482,7 +1481,6 @@ func TestSwap(t *testing.T) {
 		if err == nil {
 			t.Errorf("Expected an error - found none")
 		}
-		fmt.Printf("SWAP error: %s\n", err.Error())
 		if !strings.Contains(err.Error(), "SWAP") {
 			t.Errorf("Got an error, but it was the wrong one: %s", err.Error())
 		}
