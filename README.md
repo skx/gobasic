@@ -48,8 +48,8 @@ The implementation is simple for two main reasons:
 The following obvious primitives work as you'd expect:
 
 * `DIM`
-  * Create an array, only one and two-dimensional arrays are supported.
-  * See [examples/95-arrays.bas](examples/95-arrays) for a quick sample.
+  * Create an array.  Note that only one and two-dimensional arrays are supported.
+  * See [examples/95-arrays.bas](examples/95-arrays) and [examples/100-array-sort.bas](examples/100-array-sort.bas) for quick samples.
 * `END`
   * Exit the program.
 * `GOTO`
@@ -71,10 +71,10 @@ The following obvious primitives work as you'd expect:
   * A single-line comment (BASIC has no notion of multi-line comments).
 * `READ` & `DATA`
   * Allow reading from stored data within the program.
-  * See [examples/35-read-data.bas](examples/35-read-data.bas) for a demonstration.
+  * See [examples/35-read-data.bas](examples/35-read-data.bas) for a demonstration, along with [examples/100-array-sort.bas](examples/100-array-sort.bas).
 * `SWAP`
   * Allow swapping the contents of two variables.
-  * Useful for sorting arrays.
+  * Useful for sorting arrays, as shown in [examples/100-array-sort.bas](examples/100-array-sort.bas).
 * `DEF FN` & `FN`
   * Allow user-defined functions to be defined or invoked.
   * See [examples/25-def-fn.bas](examples/25-def-fn.bas) for an example.
