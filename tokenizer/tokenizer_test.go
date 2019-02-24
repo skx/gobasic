@@ -16,6 +16,7 @@ func TestMathOperators(t *testing.T) {
 	}{
 		{token.PLUS, "+"},
 		{token.MINUS, "-"},
+		{token.MINUS, "-"},
 		{token.SLASH, "/"},
 		{token.ASTERISK, "*"},
 		{token.MOD, "%"},
