@@ -1,4 +1,3 @@
-[![Travis CI](https://img.shields.io/travis/skx/gobasic/master.svg?style=flat-square)](https://travis-ci.org/skx/gobasic)
 [![Coverage Status](https://coveralls.io/repos/github/skx/gobasic/badge.svg?branch=master)](https://coveralls.io/github/skx/gobasic?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/skx/gobasic)](https://goreportcard.com/report/github.com/skx/gobasic)
 [![license](https://img.shields.io/github/license/skx/gobasic.svg)](https://github.com/skx/gobasic/blob/master/LICENSE)
@@ -455,6 +454,17 @@ One project, slightly related to this, which might be worth checking up
 on is this one:
 
 * https://github.com/udhos/basgo
+
+
+## Github Setup
+
+This repository is configured to run tests upon every commit, and when
+pull-requests are created/updated.  The testing is carried out via
+[.github/run-tests.sh](.github/run-tests.sh) which is used by the
+[github-action-tester](https://github.com/skx/github-action-tester) action.
+
+Releases are automated in a similar fashion via [.github/build](.github/build),
+and the [github-action-publish-binaries](https://github.com/skx/github-action-publish-binaries) action.
 
 
 Steve
