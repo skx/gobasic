@@ -46,5 +46,9 @@ for OS in ${BUILD_PLATFORMS[@]}; do
 
         # Build the main-binary
         go build -ldflags "-X main.version=$(git describe --tags 2>/dev/null || echo 'master')" -o "${BASE}-${SUFFIX}"
+
+        # Build the HTTP-server too
+        cd ./goserver && go build -o ../goserver-${SUFFIX} . && cd ..
+
     done
 done
