@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# This will allow the linter to be installed.  All a mess.
+rm go.mod
+
 # Install the lint-tool
 go get -u golang.org/x/lint/golint
 
