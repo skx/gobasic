@@ -1569,7 +1569,7 @@ func (e *Interpreter) runGOSUB() error {
 	//
 	// Otherwise we have an error.
 	//
-	return fmt.Errorf("GOSUB: Line %s does not exist!", target.Literal)
+	return fmt.Errorf("GOSUB: Line %s does not exist", target.Literal)
 }
 
 // runGOTO handles a control-flow change
@@ -1606,7 +1606,7 @@ func (e *Interpreter) runGOTO() error {
 	//
 	// Otherwise we have an error.
 	//
-	return fmt.Errorf("GOTO: Line %s does not exist!", target.Literal)
+	return fmt.Errorf("GOTO: Line %s does not exist", target.Literal)
 }
 
 // runINPUT handles input of numbers from the user.
@@ -2548,7 +2548,7 @@ func (e *Interpreter) findIndex() ([]int, error) {
 				if x.Type() == object.NUMBER {
 					indexes = append(indexes, int(x.(*object.NumberObject).Value))
 				} else {
-					return indexes, fmt.Errorf("Array indexes must be numbers!")
+					return indexes, fmt.Errorf("Array indexes must be numbers")
 				}
 			} else {
 
