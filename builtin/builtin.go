@@ -1,4 +1,4 @@
-// The builtin package contains the implementation for the core functions
+// Package builtin contains the implementation for the core functions
 // implemented for BASIC, such as SIN, COS, RND, PRINT, etc.
 //
 // The builtin package also provides an interface which with you can
