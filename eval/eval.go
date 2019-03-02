@@ -1694,7 +1694,7 @@ func (e *Interpreter) runINPUT() error {
 	var input string
 
 	if flag.Lookup("test.v") == nil {
-		input, _ = e.STDIN.ReadString('\n')
+		input, _ = e.StdInput().ReadString('\n')
 	} else {
 		//
 		// This is horrid
