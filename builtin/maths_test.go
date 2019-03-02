@@ -6,7 +6,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/skx/gobasic/object"
+	"github.com/andydotxyz/gobasic/object"
 )
 
 func TestABS(t *testing.T) {

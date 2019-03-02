@@ -1,7 +1,7 @@
-[![Coverage Status](https://coveralls.io/repos/github/skx/gobasic/badge.svg?branch=master)](https://coveralls.io/github/skx/gobasic?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/skx/gobasic)](https://goreportcard.com/report/github.com/skx/gobasic)
-[![license](https://img.shields.io/github/license/skx/gobasic.svg)](https://github.com/skx/gobasic/blob/master/LICENSE)
-[![Release](https://img.shields.io/github/release/skx/gobasic.svg)](https://github.com/skx/gobasic/releases/latest)
+[![Coverage Status](https://coveralls.io/repos/github/andydotxyz/gobasic/badge.svg?branch=master)](https://coveralls.io/github/andydotxyz/gobasic?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/andydotxyz/gobasic)](https://goreportcard.com/report/github.com/andydotxyz/gobasic)
+[![license](https://img.shields.io/github/license/andydotxyz/gobasic.svg)](https://github.com/andydotxyz/gobasic/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/release/andydotxyz/gobasic.svg)](https://github.com/andydotxyz/gobasic/releases/latest)
 
 
 # 05 PRINT "Index"
@@ -107,7 +107,7 @@ That said there are some (obvious) limitations:
 
 * Only a single statement is allowed upon each line.
 * Only a subset of the language is implemented.
-  * If there are specific primitives you miss, then please [report a bug](https://github.com/skx/gobasic/issues/).
+  * If there are specific primitives you miss, then please [report a bug](https://github.com/andydotxyz/gobasic/issues/).
     * The project is open to suggestions, but do bear in mind the [project goals]((#100-print-project-goals--links)) listed later on.
 * When it comes to types only floating-point and string values are permitted.
   * There is support for arrays but only one or two dimensional ones.
@@ -233,19 +233,19 @@ This seemed better than trying to return a string, unless the input looked like 
 
 Providing you have a working [go-installation](https://golang.org/) you should be able to install this software by running:
 
-    go get -u github.com/skx/gobasic
+    go get -u github.com/andydotxyz/gobasic
 
 **NOTE** This will only install the command-line driver, rather than the HTTP-server, or the embedded example code.
 
 ### Build with Go Modules (Go 1.11 or higher)
 
-    git clone https://github.com/skx/gobasic ;# make sure to clone outside of GOPATH
+    git clone https://github.com/andydotxyz/gobasic ;# make sure to clone outside of GOPATH
     cd gobasic
     go install
 
 If you don't have a golang environment setup you should be able to download various binaries from the github release page:
 
-* [Binary Releases](https://github.com/skx/gobasic/releases)
+* [Binary Releases](https://github.com/andydotxyz/gobasic/releases)
 
 
 <br />
@@ -382,7 +382,7 @@ Once running open your browser at the URL:
 The view will have an area of entering code, and once you run it the result will
 be shown in the bottom of the screen.  Something like this:
 
-![alt text](https://github.com/skx/gobasic/raw/master/goserver/screenshot.png "Sample view")
+![alt text](https://github.com/andydotxyz/gobasic/raw/master/goserver/screenshot.png "Sample view")
 
 There are several included examples which you can load/launch by clicking upon them.
 
@@ -397,7 +397,7 @@ There are several included examples which you can load/launch by clicking upon t
 
 It is probable that bugs exist in this interpreter, but I've tried to do
 as much testing as I can.  If you spot anything that
-seems wrong please do [report an issue](https://github.com/skx/gobasic/issues).
+seems wrong please do [report an issue](https://github.com/andydotxyz/gobasic/issues).
 
 * If the interpreter segfaults that is a bug.
   * Even if the program is invalid, bogus, or malformed the interpreter should cope with it.
@@ -461,10 +461,10 @@ on is this one:
 This repository is configured to run tests upon every commit, and when
 pull-requests are created/updated.  The testing is carried out via
 [.github/run-tests.sh](.github/run-tests.sh) which is used by the
-[github-action-tester](https://github.com/skx/github-action-tester) action.
+[github-action-tester](https://github.com/andydotxyz/github-action-tester) action.
 
 Releases are automated in a similar fashion via [.github/build](.github/build),
-and the [github-action-publish-binaries](https://github.com/skx/github-action-publish-binaries) action.
+and the [github-action-publish-binaries](https://github.com/andydotxyz/github-action-publish-binaries) action.
 
 
 Steve

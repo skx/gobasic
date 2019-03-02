@@ -5,7 +5,7 @@ package eval
 import (
 	"testing"
 
-	"github.com/skx/gobasic/object"
+	"github.com/andydotxyz/gobasic/object"
 )
 
 // TestInt: Test we can store/retrieve an int.

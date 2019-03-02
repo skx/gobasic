@@ -25,14 +25,14 @@ workflow "Handle Release" {
 ## Run the test-cases, via .github/run-tests.sh
 ##
 action "Test" {
-  uses = "skx/github-action-tester@master"
+  uses = "andydotxyz/github-action-tester@master"
 }
 
 ##
 ## Build the binaries, via .github/build, then upload them.
 ##
 action "Upload" {
-  uses = "skx/github-action-publish-binaries@master"
+  uses = "andydotxyz/github-action-publish-binaries@master"
   args = "go*-*"
   secrets = ["GITHUB_TOKEN"]
 }

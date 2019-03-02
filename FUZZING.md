@@ -7,7 +7,7 @@ If you don't have the appropriate tools installed you can fetch them via:
 
 Now you can build the `eval` package with fuzzing enabled:
 
-    $ go-fuzz-build github.com/skx/gobasic/eval
+    $ go-fuzz-build github.com/andydotxyz/gobasic/eval
 
 Create a location to hold the work, and give it copies of some sample-programs:
 

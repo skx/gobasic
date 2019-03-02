@@ -9,7 +9,7 @@
 package tokenizer
 
 import (
-	"github.com/skx/gobasic/token"
+	"github.com/andydotxyz/gobasic/token"
 )
 
 // Tokenizer holds our state.

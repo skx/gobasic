@@ -1,1 +1,1 @@
-module github.com/skx/gobasic
+module github.com/andydotxyz/gobasic

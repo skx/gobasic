@@ -7,7 +7,7 @@ package builtin
 import (
 	"fmt"
 
-	"github.com/skx/gobasic/object"
+	"github.com/andydotxyz/gobasic/object"
 )
 
 // DUMP just displays the only argument it received.

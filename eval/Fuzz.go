@@ -1,6 +1,6 @@
 package eval
 
-import "github.com/skx/gobasic/tokenizer"
+import "github.com/andydotxyz/gobasic/tokenizer"
 
 // Fuzz is the function that our fuzzer-application uses.
 // See `FUZZING.md` in our distribution for how to invoke it.

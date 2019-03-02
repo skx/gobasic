@@ -22,9 +22,9 @@ import (
 	"image/png"
 	"os"
 
-	"github.com/skx/gobasic/eval"
-	"github.com/skx/gobasic/object"
-	"github.com/skx/gobasic/tokenizer"
+	"github.com/andydotxyz/gobasic/eval"
+	"github.com/andydotxyz/gobasic/object"
+	"github.com/andydotxyz/gobasic/tokenizer"
 )
 
 // img holds a canvas.

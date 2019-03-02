@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/skx/gobasic/eval"
-	"github.com/skx/gobasic/token"
-	"github.com/skx/gobasic/tokenizer"
+	"github.com/andydotxyz/gobasic/eval"
+	"github.com/andydotxyz/gobasic/token"
+	"github.com/andydotxyz/gobasic/tokenizer"
 )
 
 // This version-string will be updated via travis for generated binaries.

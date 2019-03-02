@@ -13,7 +13,7 @@ package builtin
 import (
 	"sync"
 
-	"github.com/skx/gobasic/object"
+	"github.com/andydotxyz/gobasic/object"
 )
 
 // Signature is the signature of a builtin-function.
