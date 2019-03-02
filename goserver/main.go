@@ -16,6 +16,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/andydotxyz/gobasic/builtin"
 	"image"
 	"image/color"
 	"image/draw"
@@ -45,7 +46,7 @@ func init() {
 //
 // It is invoked with two arguments (NUMBER NUMBER) and sets
 // the corresponding pixel in our canvas to be Red.
-func plotFunction(env interface{}, args []object.Object) object.Object {
+func plotFunction(env builtin.Environment, args []object.Object) object.Object {
 
 	var x, y float64
 
@@ -81,7 +82,7 @@ func plotFunction(env interface{}, args []object.Object) object.Object {
 //
 // We save the image-canvas to a temporary file, and set that filename
 // within the BASIC environment.
-func saveFunction(env interface{}, args []object.Object) object.Object {
+func saveFunction(env builtin.Environment, args []object.Object) object.Object {
 
 	// If we have no image, create it.
 	if img == nil {
@@ -100,7 +101,7 @@ func saveFunction(env interface{}, args []object.Object) object.Object {
 
 	// And save the temporary filename in a variable
 
-	env.(*eval.Interpreter).SetVariable("file.name", &object.StringObject{Value: tmpfile.Name()})
+	env.Data().(*eval.Interpreter).SetVariable("file.name", &object.StringObject{Value: tmpfile.Name()})
 
 	// Finally we can nuke the image
 	img = nil
@@ -109,7 +110,7 @@ func saveFunction(env interface{}, args []object.Object) object.Object {
 }
 
 // colorFunction allows the user to change the current colour.
-func colorFunction(env interface{}, args []object.Object) object.Object {
+func colorFunction(env builtin.Environment, args []object.Object) object.Object {
 
 	var r, g, b float64
 
@@ -141,7 +142,7 @@ func colorFunction(env interface{}, args []object.Object) object.Object {
 }
 
 // circleFunction allows drawing a circle upon our image.
-func circleFunction(env interface{}, args []object.Object) object.Object {
+func circleFunction(env builtin.Environment, args []object.Object) object.Object {
 
 	var xx, yy, rr float64
 
@@ -211,7 +212,7 @@ func circleFunction(env interface{}, args []object.Object) object.Object {
 }
 
 // lineFunction draws a line.
-func lineFunction(env interface{}, args []object.Object) object.Object {
+func lineFunction(env builtin.Environment, args []object.Object) object.Object {
 
 	var xx1, yy1, xx2, yy2 float64
 

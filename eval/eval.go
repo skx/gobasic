@@ -115,6 +115,10 @@ func (i *Interpreter) StdOutput() *bufio.Writer {
 	return i.STDOUT
 }
 
+func (i *Interpreter) Data() interface{} {
+	return i
+}
+
 // New is our constructor.
 //
 // Given a lexer we store all the tokens it produced in our array, and

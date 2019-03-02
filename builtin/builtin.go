@@ -74,4 +74,6 @@ func (b *Builtins) Get(name string) (int, Signature) {
 type Environment interface {
 	StdInput()  *bufio.Reader
 	StdOutput() *bufio.Writer
+
+	Data() interface{}
 }

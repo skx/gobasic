@@ -22,6 +22,10 @@ func (b *bufferEnv) StdOutput() *bufio.Writer {
 	return b.writer
 }
 
+func (b *bufferEnv) Data() interface{} {
+	return nil
+}
+
 func TestDump(t *testing.T) {
 	buf := bytes.NewBuffer([]byte{})
 	env := &bufferEnv{}
