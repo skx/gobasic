@@ -20,7 +20,7 @@ func init() {
 }
 
 // ABS implements ABS
-func ABS(env interface{}, args []object.Object) object.Object {
+func ABS(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -38,7 +38,7 @@ func ABS(env interface{}, args []object.Object) object.Object {
 }
 
 // ACS (arccosine)
-func ACS(env interface{}, args []object.Object) object.Object {
+func ACS(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -50,7 +50,7 @@ func ACS(env interface{}, args []object.Object) object.Object {
 }
 
 // ASN (arcsine)
-func ASN(env interface{}, args []object.Object) object.Object {
+func ASN(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -62,7 +62,7 @@ func ASN(env interface{}, args []object.Object) object.Object {
 }
 
 // ATN (arctan)
-func ATN(env interface{}, args []object.Object) object.Object {
+func ATN(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -74,7 +74,7 @@ func ATN(env interface{}, args []object.Object) object.Object {
 }
 
 // BIN converts a number from binary.
-func BIN(env interface{}, args []object.Object) object.Object {
+func BIN(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -94,7 +94,7 @@ func BIN(env interface{}, args []object.Object) object.Object {
 }
 
 // COS implements the COS function..
-func COS(env interface{}, args []object.Object) object.Object {
+func COS(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -106,7 +106,7 @@ func COS(env interface{}, args []object.Object) object.Object {
 }
 
 // EXP x=e^x EXP
-func EXP(env interface{}, args []object.Object) object.Object {
+func EXP(env Environment, args []object.Object) object.Object {
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
 		return object.Error("Wrong type")
@@ -117,7 +117,7 @@ func EXP(env interface{}, args []object.Object) object.Object {
 }
 
 // INT implements INT
-func INT(env interface{}, args []object.Object) object.Object {
+func INT(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -130,7 +130,7 @@ func INT(env interface{}, args []object.Object) object.Object {
 }
 
 // LN calculates logarithms to the base e - LN
-func LN(env interface{}, args []object.Object) object.Object {
+func LN(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -142,12 +142,12 @@ func LN(env interface{}, args []object.Object) object.Object {
 }
 
 // PI returns the value of PI
-func PI(env interface{}, args []object.Object) object.Object {
+func PI(env Environment, args []object.Object) object.Object {
 	return &object.NumberObject{Value: math.Pi}
 }
 
 // RND implements RND
-func RND(env interface{}, args []object.Object) object.Object {
+func RND(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -168,7 +168,7 @@ func RND(env interface{}, args []object.Object) object.Object {
 }
 
 // SGN is the sign function (sometimes called signum).
-func SGN(env interface{}, args []object.Object) object.Object {
+func SGN(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -187,7 +187,7 @@ func SGN(env interface{}, args []object.Object) object.Object {
 }
 
 // SIN operats the sin function.
-func SIN(env interface{}, args []object.Object) object.Object {
+func SIN(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -199,7 +199,7 @@ func SIN(env interface{}, args []object.Object) object.Object {
 }
 
 // SQR implements square root.
-func SQR(env interface{}, args []object.Object) object.Object {
+func SQR(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -215,7 +215,7 @@ func SQR(env interface{}, args []object.Object) object.Object {
 }
 
 // TAN implements the tan function.
-func TAN(env interface{}, args []object.Object) object.Object {
+func TAN(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {

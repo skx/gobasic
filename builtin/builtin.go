@@ -11,6 +11,7 @@
 package builtin
 
 import (
+	"bufio"
 	"sync"
 
 	"github.com/skx/gobasic/object"
@@ -22,7 +23,7 @@ import (
 // single object back to the caller.
 //
 // In the case of an error then the object will be an error-object.
-type Signature func(env interface{}, args []object.Object) object.Object
+type Signature func(env Environment, args []object.Object) object.Object
 
 // Builtins holds our state.
 type Builtins struct {
@@ -68,4 +69,9 @@ func (b *Builtins) Get(name string) (int, Signature) {
 	defer b.lock.Unlock()
 
 	return b.argRegistry[name], b.fnRegistry[name]
+}
+
+type Environment interface {
+	StdInput()  *bufio.Reader
+	StdOutput() *bufio.Writer
 }

@@ -3,52 +3,86 @@
 package builtin
 
 import (
+	"bufio"
+	"bytes"
 	"testing"
 
 	"github.com/skx/gobasic/object"
 )
 
+type bufferEnv struct {
+	writer *bufio.Writer
+}
+
+func (b *bufferEnv) StdInput() *bufio.Reader {
+	return nil
+}
+
+func (b *bufferEnv) StdOutput() *bufio.Writer {
+	return b.writer
+}
+
 func TestDump(t *testing.T) {
+	buf := bytes.NewBuffer([]byte{})
+	env := &bufferEnv{}
+	env.writer = bufio.NewWriter(buf)
 
 	//
 	// Number
 	//
 	var in1 []object.Object
 	in1 = append(in1, object.Number(1))
-	out1 := DUMP(nil, in1)
+	out1 := DUMP(env, in1)
 	if out1.Type() != object.NUMBER {
 		t.Errorf("We didn't receive a number in response")
 	}
+	str := buf.String()
+	if str != "NUMBER: 1.000000\n" {
+		t.Errorf("We didn't print the correct string: %s", str)
+	}
+	buf.Reset()
 
 	//
 	// String
 	//
 	var in2 []object.Object
 	in2 = append(in2, object.String("Stve"))
-	out2 := DUMP(nil, in2)
+	out2 := DUMP(env, in2)
 	if out2.Type() != object.NUMBER {
 		t.Errorf("We didn't receive a number in response")
 	}
+	str = buf.String()
+	if str != "STRING: Stve\n" {
+		t.Errorf("We didn't print the correct string: %s", str)
+	}
+	buf.Reset()
 
 	//
 	// Error
 	//
 	var in3 []object.Object
 	in3 = append(in3, object.Error("Stve"))
-	out3 := DUMP(nil, in3)
+	out3 := DUMP(env, in3)
 	if out3.Type() != object.NUMBER {
 		t.Errorf("We didn't receive a number in response")
+	}
+	str = buf.String()
+	if str != "Error: Stve\n" {
+		t.Errorf("We didn't print the correct string: %s", str)
 	}
 }
 
 func TestPrint(t *testing.T) {
+	buf := bytes.NewBuffer([]byte{})
+	env := &bufferEnv{}
+	env.writer = bufio.NewWriter(buf)
 
 	//
 	// Number
 	//
 	var in1 []object.Object
 	in1 = append(in1, object.Number(1))
-	out1 := PRINT(nil, in1)
+	out1 := PRINT(env, in1)
 	if out1.Type() != object.NUMBER {
 		t.Errorf("We didn't receive a number in response")
 	}
@@ -56,13 +90,18 @@ func TestPrint(t *testing.T) {
 		t.Errorf("We didn't print one item: %f",
 			out1.(*object.NumberObject).Value)
 	}
+	str := buf.String()
+	if str != "1\n" {
+		t.Errorf("We didn't print the correct string: %s", str)
+	}
+	buf.Reset()
 
 	//
 	// String
 	//
 	var in2 []object.Object
 	in2 = append(in2, object.String("Stve"))
-	out2 := PRINT(nil, in2)
+	out2 := PRINT(env, in2)
 	if out2.Type() != object.NUMBER {
 		t.Errorf("We didn't receive a number in response")
 	}
@@ -70,13 +109,18 @@ func TestPrint(t *testing.T) {
 		t.Errorf("We didn't print one item: %f",
 			out2.(*object.NumberObject).Value)
 	}
+	str = buf.String()
+	if str != "Stve\n" {
+		t.Errorf("We didn't print the correct string: %s", str)
+	}
+	buf.Reset()
 
 	//
 	// Error
 	//
 	var in3 []object.Object
 	in3 = append(in3, object.Error("Stve"))
-	out3 := PRINT(nil, in3)
+	out3 := PRINT(env, in3)
 	if out3.Type() != object.NUMBER {
 		t.Errorf("We didn't receive a number in response")
 	}
@@ -84,6 +128,11 @@ func TestPrint(t *testing.T) {
 		t.Errorf("We didn't print one item:%f",
 			out3.(*object.NumberObject).Value)
 	}
+	str = buf.String()
+	if str != "Stve\n" {
+		t.Errorf("We didn't print the correct string: %s", str)
+	}
+	buf.Reset()
 
 	//
 	// Now a bunch of things
@@ -93,7 +142,7 @@ func TestPrint(t *testing.T) {
 	in4 = append(in4, object.String("Stve"))
 	in4 = append(in4, object.Number(3))
 	in4 = append(in4, object.Number(4.3))
-	out4 := PRINT(nil, in4)
+	out4 := PRINT(env, in4)
 	if out4.Type() != object.NUMBER {
 		t.Errorf("We didn't receive a number in response")
 	}
@@ -101,5 +150,8 @@ func TestPrint(t *testing.T) {
 		t.Errorf("We didn't print the expected count of items:%f",
 			out4.(*object.NumberObject).Value)
 	}
-
+	str = buf.String()
+	if str != "StveStve34.300000\n" {
+		t.Errorf("We didn't print the correct string: %s", str)
+	}
 }
