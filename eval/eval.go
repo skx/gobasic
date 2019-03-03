@@ -15,7 +15,6 @@ package eval
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"math"
 	"os"
@@ -1694,26 +1693,11 @@ func (e *Interpreter) runINPUT() error {
 	//
 	// Read the input from the user.
 	//
-	var input string
+	input, _ := e.StdInput().ReadString('\n')
 
-	if flag.Lookup("test.v") == nil {
-		input, _ = e.StdInput().ReadString('\n')
-	} else {
-		//
-		// This is horrid
-		//
-		// If prompt contains "string" we return a string
-		//
-		// If prompt contains "number" we return a number
-		//
-		if strings.Contains(p, "string") {
-			input = "steve"
-		}
-		if strings.Contains(p, "number") {
-			input = "3.21"
-		}
-
-	}
+	//
+	// Remove the newline(s).
+	//
 	input = strings.TrimRight(input, "\n")
 
 	//
