@@ -107,16 +107,19 @@ type Interpreter struct {
 	fns map[string]userFunction
 }
 
-func (i *Interpreter) StdInput() *bufio.Reader {
-	return i.STDIN
+// StdInput allows access to the input-reading object.
+func (e *Interpreter) StdInput() *bufio.Reader {
+	return e.STDIN
 }
 
-func (i *Interpreter) StdOutput() *bufio.Writer {
-	return i.STDOUT
+// StdOutput allows access to the output-writing object.
+func (e *Interpreter) StdOutput() *bufio.Writer {
+	return e.STDOUT
 }
 
-func (i *Interpreter) Data() interface{} {
-	return i
+// Data allows access to the interpreter
+func (e *Interpreter) Data() interface{} {
+	return e
 }
 
 // New is our constructor.
