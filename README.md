@@ -1,4 +1,3 @@
-[![Coverage Status](https://coveralls.io/repos/github/skx/gobasic/badge.svg?branch=master)](https://coveralls.io/github/skx/gobasic?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/skx/gobasic)](https://goreportcard.com/report/github.com/skx/gobasic)
 [![license](https://img.shields.io/github/license/skx/gobasic.svg)](https://github.com/skx/gobasic/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/skx/gobasic.svg)](https://github.com/skx/gobasic/releases/latest)
