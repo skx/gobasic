@@ -78,6 +78,9 @@ type Interpreter struct {
 	// STDIN is an input-reader used for the INPUT statement
 	STDIN *bufio.Reader
 
+	// STDOUT is the writer used for PRINT and DUMP statements
+	STDOUT *bufio.Writer
+
 	// Hack: Was the previous statement a GOTO/GOSUB?
 	jump bool
 
@@ -104,6 +107,18 @@ type Interpreter struct {
 	fns map[string]userFunction
 }
 
+func (i *Interpreter) StdInput() *bufio.Reader {
+	return i.STDIN
+}
+
+func (i *Interpreter) StdOutput() *bufio.Writer {
+	return i.STDOUT
+}
+
+func (i *Interpreter) Data() interface{} {
+	return i
+}
+
 // New is our constructor.
 //
 // Given a lexer we store all the tokens it produced in our array, and
@@ -125,6 +140,9 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 
 	// allow reading from STDIN
 	t.STDIN = bufio.NewReader(os.Stdin)
+
+	// set standard output for STDOUT
+	t.STDOUT = bufio.NewWriter(os.Stdout)
 
 	//
 	// Setup a map to hold our jump-targets
@@ -1676,7 +1694,7 @@ func (e *Interpreter) runINPUT() error {
 	var input string
 
 	if flag.Lookup("test.v") == nil {
-		input, _ = e.STDIN.ReadString('\n')
+		input, _ = e.StdInput().ReadString('\n')
 	} else {
 		//
 		// This is horrid

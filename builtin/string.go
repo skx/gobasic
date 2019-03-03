@@ -13,7 +13,7 @@ import (
 )
 
 // CHR returns the character specified by the given ASCII code.
-func CHR(env interface{}, args []object.Object) object.Object {
+func CHR(env Environment, args []object.Object) object.Object {
 
 	// Get the (float) argument.
 	if args[0].Type() != object.NUMBER {
@@ -33,7 +33,7 @@ func CHR(env interface{}, args []object.Object) object.Object {
 }
 
 // CODE returns the integer value of the specified character.
-func CODE(env interface{}, args []object.Object) object.Object {
+func CODE(env Environment, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
@@ -53,7 +53,7 @@ func CODE(env interface{}, args []object.Object) object.Object {
 }
 
 // LEFT returns the N left-most characters of the string.
-func LEFT(env interface{}, args []object.Object) object.Object {
+func LEFT(env Environment, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
@@ -85,7 +85,7 @@ func LEFT(env interface{}, args []object.Object) object.Object {
 }
 
 // LEN returns the length of the given string
-func LEN(env interface{}, args []object.Object) object.Object {
+func LEN(env Environment, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
@@ -100,7 +100,7 @@ func LEN(env interface{}, args []object.Object) object.Object {
 }
 
 // MID returns the N characters from the given offset
-func MID(env interface{}, args []object.Object) object.Object {
+func MID(env Environment, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
@@ -147,7 +147,7 @@ func MID(env interface{}, args []object.Object) object.Object {
 }
 
 // RIGHT returns the N right-most characters of the string.
-func RIGHT(env interface{}, args []object.Object) object.Object {
+func RIGHT(env Environment, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
@@ -178,7 +178,7 @@ func RIGHT(env interface{}, args []object.Object) object.Object {
 }
 
 // STR converts a number to a string
-func STR(env interface{}, args []object.Object) object.Object {
+func STR(env Environment, args []object.Object) object.Object {
 
 	// Error?
 	if args[0].Type() == object.ERROR {
@@ -204,7 +204,7 @@ func STR(env interface{}, args []object.Object) object.Object {
 }
 
 // TL returns a string, minus the first character.
-func TL(env interface{}, args []object.Object) object.Object {
+func TL(env Environment, args []object.Object) object.Object {
 
 	// Get the (string) argument.
 	if args[0].Type() != object.STRING {
@@ -224,7 +224,7 @@ func TL(env interface{}, args []object.Object) object.Object {
 }
 
 // VAL converts a string to a number
-func VAL(env interface{}, args []object.Object) object.Object {
+func VAL(env Environment, args []object.Object) object.Object {
 
 	// Error?
 	if args[0].Type() == object.ERROR {
