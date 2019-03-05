@@ -1688,12 +1688,23 @@ func (e *Interpreter) runINPUT() error {
 	default:
 		return fmt.Errorf("INPUT invalid prompt-type %s", prompt.String())
 	}
-	fmt.Printf("%s", p)
+
+	inStream := e.STDIN
+	if inStream == nil {
+		inStream = bufio.NewReader(os.Stdin)
+	}
+	outStream := e.STDOUT
+	if outStream == nil {
+		outStream = bufio.NewWriter(os.Stdout)
+	}
+
+	outStream.WriteString(p)
+	outStream.Flush()
 
 	//
 	// Read the input from the user.
 	//
-	input, _ := e.StdInput().ReadString('\n')
+	input, _ := inStream.ReadString('\n')
 
 	//
 	// Remove the newline(s).
