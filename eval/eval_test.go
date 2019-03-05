@@ -4,8 +4,6 @@ package eval
 
 import (
 	"bufio"
-	"bytes"
-	"fmt"
 	"strings"
 	"testing"
 
@@ -968,14 +966,12 @@ func TestINPUT(t *testing.T) {
 	//
 	// Fake buffer for reading a string from.
 	//
-	strBuf := bytes.NewBuffer([]byte{})
-	fmt.Fprint(strBuf, "STEVE\n")
+	strBuf := strings.NewReader("STEVE\n")
 
 	//
 	// Fake buffer for reading a number from.
 	//
-	numBuf := bytes.NewBuffer([]byte{})
-	fmt.Fprint(numBuf, "3.13\n")
+	numBuf := strings.NewReader("3.13\n")
 
 	//
 	// Read a string
