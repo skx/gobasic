@@ -106,14 +106,17 @@ type Interpreter struct {
 	fns map[string]userFunction
 }
 
+// StdInput allows access to the input-reading object.
 func (e *Interpreter) StdInput() *bufio.Reader {
 	return e.STDIN
 }
 
+// StdOutput allows access to the output-writing object.
 func (e *Interpreter) StdOutput() *bufio.Writer {
 	return e.STDOUT
 }
 
+// Data allows access to the interpreter
 func (e *Interpreter) Data() interface{} {
 	return e
 }
