@@ -1702,6 +1702,10 @@ func (e *Interpreter) runINPUT() error {
 	// Read the input from the user.
 	//
 	input, _ := inStream.ReadString('\n')
+
+	//
+	// Remove the newline(s).
+	//
 	input = strings.TrimRight(input, "\n")
 
 	//

@@ -16,7 +16,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"github.com/andydotxyz/gobasic/builtin"
 	"image"
 	"image/color"
 	"image/draw"
@@ -26,6 +25,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/andydotxyz/gobasic/builtin"
 	"github.com/andydotxyz/gobasic/eval"
 	"github.com/andydotxyz/gobasic/object"
 	"github.com/andydotxyz/gobasic/tokenizer"

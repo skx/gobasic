@@ -1,4 +1,3 @@
-[![Coverage Status](https://coveralls.io/repos/github/andydotxyz/gobasic/badge.svg?branch=master)](https://coveralls.io/github/andydotxyz/gobasic?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/andydotxyz/gobasic)](https://goreportcard.com/report/github.com/andydotxyz/gobasic)
 [![license](https://img.shields.io/github/license/andydotxyz/gobasic.svg)](https://github.com/andydotxyz/gobasic/blob/master/LICENSE)
 [![Release](https://img.shields.io/github/release/andydotxyz/gobasic.svg)](https://github.com/andydotxyz/gobasic/releases/latest)

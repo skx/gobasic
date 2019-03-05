@@ -4,6 +4,8 @@ package eval
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -964,22 +966,37 @@ func TestINPUT(t *testing.T) {
 	}
 
 	//
-	// Read a string
+	// Fake buffer for reading a string from.
 	//
-	// NOTE: This requires (hacked) support in eval.go
+	strBuf := bytes.NewBuffer([]byte{})
+	fmt.Fprint(strBuf, "STEVE\n")
+
+	//
+	// Fake buffer for reading a number from.
+	//
+	numBuf := bytes.NewBuffer([]byte{})
+	fmt.Fprint(numBuf, "3.13\n")
+
+	//
+	// Read a string
 	//
 	ok1 := `
 10 INPUT "give me a string", a$
 `
 	e, err := FromString(ok1)
-	e.STDIN = bufio.NewReader(strings.NewReader("steve\n"))
 	if err != nil {
 		t.Errorf("Error parsing %s - %s", ok1, err.Error())
 	}
+
+	// Fake input
+	e.STDIN = bufio.NewReader(strBuf)
 	err = e.Run()
 	if err != nil {
 		t.Errorf("Unexpected error, reading input %s", err.Error())
 	}
+
+	//
+	//
 	//
 	// Now a$ should be a string
 	//
@@ -988,24 +1005,23 @@ func TestINPUT(t *testing.T) {
 		t.Errorf("Variable a$ had wrong type: %s", cur.String())
 	}
 	out := cur.(*object.StringObject).Value
-	if out != "steve" {
+	if out != "STEVE" {
 		t.Errorf("Reading INPUT returned the wrong string: %s", out)
 	}
 
 	//
 	// Read a number
 	//
-	// NOTE: This requires (hacked) support in eval.go
-	//
 	ok2 := `
 10 LET p="Give me a number"
 20 INPUT p,b
 `
 	e, err = FromString(ok2)
-	e.STDIN = bufio.NewReader(strings.NewReader("3.21\n"))
 	if err != nil {
 		t.Errorf("Error parsing %s - %s", ok2, err.Error())
 	}
+	// Fake input
+	e.STDIN = bufio.NewReader(numBuf)
 	err = e.Run()
 	if err != nil {
 		t.Errorf("Unexpected error, reading input %s", err.Error())
@@ -1018,7 +1034,7 @@ func TestINPUT(t *testing.T) {
 		t.Errorf("Variable b had wrong type: %s", cur.String())
 	}
 	out2 := cur.(*object.NumberObject).Value
-	if out2 != 3.21 {
+	if out2 != 3.130000 {
 		t.Errorf("Reading INPUT returned the wrong number: %f", out2)
 	}
 }
