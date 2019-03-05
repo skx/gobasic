@@ -24,7 +24,7 @@ The contents of `data/index.html` are stored in a compiled form inside the file 
 
 Install `implant`, if you don't already have it:
 
-    go get -u github.com/andydotxyz/implant
+    go get -u github.com/skx/implant
 
 Then run this to update the `static.go` file:
 

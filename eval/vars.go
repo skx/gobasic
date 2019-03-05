@@ -7,7 +7,7 @@ package eval
 import (
 	"sync"
 
-	"github.com/andydotxyz/gobasic/object"
+	"github.com/skx/gobasic/object"
 )
 
 // Variables holds our state

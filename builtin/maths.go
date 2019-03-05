@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/andydotxyz/gobasic/object"
+	"github.com/skx/gobasic/object"
 )
 
 // init ensures that we've initialized our random-number state

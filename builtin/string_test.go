@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/andydotxyz/gobasic/object"
+	"github.com/skx/gobasic/object"
 )
 
 func TestChr(t *testing.T) {

@@ -21,10 +21,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/andydotxyz/gobasic/builtin"
-	"github.com/andydotxyz/gobasic/object"
-	"github.com/andydotxyz/gobasic/token"
-	"github.com/andydotxyz/gobasic/tokenizer"
+	"github.com/skx/gobasic/builtin"
+	"github.com/skx/gobasic/object"
+	"github.com/skx/gobasic/token"
+	"github.com/skx/gobasic/tokenizer"
 )
 
 // userFunction is a structure that holds one entry for each user-defined function.
@@ -106,16 +106,16 @@ type Interpreter struct {
 	fns map[string]userFunction
 }
 
-func (i *Interpreter) StdInput() *bufio.Reader {
-	return i.STDIN
+func (e *Interpreter) StdInput() *bufio.Reader {
+	return e.STDIN
 }
 
-func (i *Interpreter) StdOutput() *bufio.Writer {
-	return i.STDOUT
+func (e *Interpreter) StdOutput() *bufio.Writer {
+	return e.STDOUT
 }
 
-func (i *Interpreter) Data() interface{} {
-	return i
+func (e *Interpreter) Data() interface{} {
+	return e
 }
 
 // New is our constructor.

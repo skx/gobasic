@@ -25,10 +25,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/andydotxyz/gobasic/builtin"
-	"github.com/andydotxyz/gobasic/eval"
-	"github.com/andydotxyz/gobasic/object"
-	"github.com/andydotxyz/gobasic/tokenizer"
+	"github.com/skx/gobasic/builtin"
+	"github.com/skx/gobasic/eval"
+	"github.com/skx/gobasic/object"
+	"github.com/skx/gobasic/tokenizer"
 )
 
 // img holds the canvas we draw into.

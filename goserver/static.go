@@ -1,5 +1,5 @@
 //
-// This file was generated via github.com/andydotxyz/implant/
+// This file was generated via github.com/skx/implant/
 //
 // Local edits will be lost.
 //

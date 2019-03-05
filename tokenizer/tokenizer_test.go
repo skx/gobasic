@@ -3,7 +3,7 @@ package tokenizer
 import (
 	"testing"
 
-	"github.com/andydotxyz/gobasic/token"
+	"github.com/skx/gobasic/token"
 )
 
 // TestMathOperators enures we can recognise "mathematical" operators.

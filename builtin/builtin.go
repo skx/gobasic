@@ -14,7 +14,7 @@ import (
 	"bufio"
 	"sync"
 
-	"github.com/andydotxyz/gobasic/object"
+	"github.com/skx/gobasic/object"
 )
 
 // Signature is the signature of a builtin-function.
