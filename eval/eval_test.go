@@ -3,6 +3,7 @@
 package eval
 
 import (
+	"bufio"
 	"strings"
 	"testing"
 
@@ -971,6 +972,7 @@ func TestINPUT(t *testing.T) {
 10 INPUT "give me a string", a$
 `
 	e, err := FromString(ok1)
+	e.STDIN = bufio.NewReader(strings.NewReader("steve\n"))
 	if err != nil {
 		t.Errorf("Error parsing %s - %s", ok1, err.Error())
 	}
@@ -1000,6 +1002,7 @@ func TestINPUT(t *testing.T) {
 20 INPUT p,b
 `
 	e, err = FromString(ok2)
+	e.STDIN = bufio.NewReader(strings.NewReader("3.21\n"))
 	if err != nil {
 		t.Errorf("Error parsing %s - %s", ok2, err.Error())
 	}
