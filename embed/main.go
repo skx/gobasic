@@ -16,13 +16,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/andydotxyz/gobasic/builtin"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/png"
 	"os"
 
+	"github.com/skx/gobasic/builtin"
 	"github.com/skx/gobasic/eval"
 	"github.com/skx/gobasic/object"
 	"github.com/skx/gobasic/tokenizer"
