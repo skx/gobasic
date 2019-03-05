@@ -15,7 +15,6 @@ package eval
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"math"
 	"os"
@@ -1686,31 +1685,13 @@ func (e *Interpreter) runINPUT() error {
 	default:
 		return fmt.Errorf("INPUT invalid prompt-type %s", prompt.String())
 	}
-	fmt.Printf("%s", p)
+	e.StdOutput().WriteString(p)
+	e.StdOutput().Flush()
 
 	//
 	// Read the input from the user.
 	//
-	var input string
-
-	if flag.Lookup("test.v") == nil {
-		input, _ = e.StdInput().ReadString('\n')
-	} else {
-		//
-		// This is horrid
-		//
-		// If prompt contains "string" we return a string
-		//
-		// If prompt contains "number" we return a number
-		//
-		if strings.Contains(p, "string") {
-			input = "steve"
-		}
-		if strings.Contains(p, "number") {
-			input = "3.21"
-		}
-
-	}
+	input, _ := e.StdInput().ReadString('\n')
 	input = strings.TrimRight(input, "\n")
 
 	//
