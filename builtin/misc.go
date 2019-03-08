@@ -63,7 +63,9 @@ func PRINT(env Environment, args []object.Object) object.Object {
 			out.WriteString(fmt.Sprintf("%s", ent.(*object.ErrorObject).Value))
 		}
 	}
-	out.WriteRune('\n')
+	if env != nil {
+		out.WriteString(env.LineEnding())
+	}
 	out.Flush()
 
 	// Return the count of values we printed.

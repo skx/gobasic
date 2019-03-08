@@ -80,6 +80,10 @@ type Interpreter struct {
 	// STDOUT is the writer used for PRINT and DUMP statements
 	STDOUT *bufio.Writer
 
+	// LINEEND defines any additional characters to output when printing
+	// to the output or error streams.
+	LINEEND string
+
 	// Hack: Was the previous statement a GOTO/GOSUB?
 	jump bool
 
@@ -119,6 +123,10 @@ func (e *Interpreter) StdOutput() *bufio.Writer {
 // Data allows access to the interpreter
 func (e *Interpreter) Data() interface{} {
 	return e
+}
+
+func (i *Interpreter) LineEnding() string {
+	return i.LINEEND
 }
 
 // New is our constructor.
