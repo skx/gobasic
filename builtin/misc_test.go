@@ -18,8 +18,16 @@ func (b *bufferEnv) StdInput() *bufio.Reader {
 	return nil
 }
 
+func (b *bufferEnv) LineEnding() string {
+	return "\n"
+}
+
 func (b *bufferEnv) StdOutput() *bufio.Writer {
 	return b.writer
+}
+
+func (b *bufferEnv) StdError() *bufio.Writer {
+	return nil
 }
 
 func (b *bufferEnv) Data() interface{} {
