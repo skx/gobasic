@@ -235,8 +235,8 @@ func TestDim(t *testing.T) {
 
 	for _, test := range invalid {
 
-		tokener := tokenizer.New(test)
-		e, err := New(tokener)
+		tokener = tokenizer.New(test)
+		e, err = New(tokener)
 		err = e.Run()
 
 		if err == nil {

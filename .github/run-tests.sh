@@ -20,7 +20,7 @@ echo "Completed linter .."
 
 # Run the shadow-checker
 echo "Launching shadowed-variable check .."
-go vet -vettool=$(which shadow)
+go vet -vettool=$(which shadow) ./...
 echo "Completed shadowed-variable check .."
 
 # Run golang tests
