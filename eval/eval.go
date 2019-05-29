@@ -402,6 +402,7 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	t.RegisterBuiltin("LEN", 1, builtin.LEN)
 	t.RegisterBuiltin("MID$", 3, builtin.MID)
 	t.RegisterBuiltin("RIGHT$", 2, builtin.RIGHT)
+	t.RegisterBuiltin("SPC", 1, builtin.SPC)
 	t.RegisterBuiltin("STR$", 1, builtin.STR)
 	t.RegisterBuiltin("TL$", 1, builtin.TL)
 
