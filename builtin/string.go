@@ -177,6 +177,28 @@ func RIGHT(env Environment, args []object.Object) object.Object {
 	return &object.StringObject{Value: string(right)}
 }
 
+// SPC returns a string containing the given number of spaces
+func SPC(env Environment, args []object.Object) object.Object {
+
+	// Get the (float) argument.
+	if args[0].Type() != object.NUMBER {
+		return object.Error("Wrong type")
+	}
+	n := int(args[0].(*object.NumberObject).Value)
+
+	// ensure it is positive
+	if n < 0 {
+		return object.Error("Positive argument only")
+	}
+
+	s := ""
+	for i := 0; i < n; i++ {
+		s += " "
+	}
+
+	return &object.StringObject{Value: s}
+}
+
 // STR converts a number to a string
 func STR(env Environment, args []object.Object) object.Object {
 

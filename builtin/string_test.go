@@ -423,6 +423,73 @@ func TestRight(t *testing.T) {
 
 }
 
+func TestSpc(t *testing.T) {
+
+	//
+	// Call with a non-number argument.
+	//
+	var failArgs []object.Object
+	failArgs = append(failArgs, object.Error("Bogus type"))
+	out := SPC(nil, failArgs)
+	if out.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// Now a string which will also fail.
+	//
+	var nArgs []object.Object
+	nArgs = append(nArgs, object.String("steve"))
+	out = SPC(nil, nArgs)
+	if out.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+
+	//
+	// Call with a negative argument.
+	//
+	var failArgs2 []object.Object
+	failArgs2 = append(failArgs2, object.Number(-33))
+	out2 := SPC(nil, failArgs2)
+	if out2.Type() != object.ERROR {
+		t.Errorf("We expected a type-error, but didn't receive one")
+	}
+	if !strings.Contains(out2.String(), "Positive") {
+		t.Errorf("Our error message wasn't what we expected")
+	}
+
+	//
+	// Now do it properly.
+	//
+	var fArgs []object.Object
+	fArgs = append(fArgs, object.Number(17))
+	fOut := SPC(nil, fArgs)
+	if fOut.Type() != object.STRING {
+		t.Errorf("We expected a string return, but didn't get one: %s", fOut.String())
+	}
+	if len(fOut.(*object.StringObject).Value) != 17 {
+		t.Errorf("Function returned the wrong length: '%s' - %d", fOut.String(), len(fOut.String()))
+	}
+
+	//
+	// Now do it properly - int
+	//
+	var iArgs []object.Object
+	iArgs = append(iArgs, object.Number(3))
+	iOut := SPC(nil, iArgs)
+	if iOut.Type() != object.STRING {
+		t.Errorf("We expected a string return, but didn't get one: %s", iOut.String())
+	}
+	if len(iOut.(*object.StringObject).Value) != 3 {
+		t.Errorf("Function returned the wrong length: '%s'", fOut.String())
+	}
+
+	if (iOut.(*object.StringObject).Value) != "   " {
+		t.Errorf("Function returned a surprising result '%s'", iOut.String())
+	}
+
+}
+
 func TestStr(t *testing.T) {
 
 	//
