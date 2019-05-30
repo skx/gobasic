@@ -173,7 +173,8 @@ The set of comparison functions _probably_ includes everything you need:
   * This passes if `a` is a number which is not zero.
   * This passes if `a` is a string which is non-empty.
 
-If you're missing something from that list please let me know by filing an issue.
+You can see several examples of the IF statement in use in the example [examples/70-if.bas](examples/70-if.bas).
+
 
 
 ### `DATA` / `READ` Statements
