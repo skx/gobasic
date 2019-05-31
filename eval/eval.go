@@ -1480,35 +1480,72 @@ func (e *Interpreter) runForLoop() error {
 	if to.Type != token.TO {
 		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
 	}
-
 	e.offset++
-	if e.offset >= len(e.program) {
+
+	// The terminal value.
+	//
+	// Here we're lookin for either a literal, or falling back to
+	// an expression.
+	//
+	if (e.offset) >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing FOR")
 	}
 
-	// Now an integer/variable
-	endI := e.program[e.offset]
-
+	//
+	// End value we'll populate.
+	//
 	var end float64
 
-	if endI.Type == token.INT {
-		v, _ := strconv.ParseFloat(endI.Literal, 64)
-		end = v
-	} else if endI.Type == token.IDENT {
+	//
+	// Get the current/next token.
+	//
+	endI := e.program[e.offset]
 
+	//
+	// If it is a variable then use the value - or return the error
+	//
+	if endI.Type == token.IDENT {
 		x := e.GetVariable(endI.Literal)
 		if x.Type() != object.NUMBER {
 			return fmt.Errorf("FOR: end-variable must be an integer")
 		}
 		end = x.(*object.NumberObject).Value
+
+		//
+		// Step past the variable-name.
+		//
+		e.offset++
 	} else {
-		return fmt.Errorf("Expected INT/VARIABLE after 'FOR %s=%s TO', got %v", target.Literal, startI, endI)
+
+		//
+		// if it wasn't a variable then it's either a literal number
+		// or an expression.
+		//
+		// This will handle both cases.
+		//
+		tmp := e.expr(true)
+		if tmp.Type() != object.NUMBER {
+			return fmt.Errorf("FOR loops expect an integer STEP, got %s", tmp.String())
+		}
+		end = tmp.(*object.NumberObject).Value
+
+		//
+		// NOTE: Here we move past the value/expression.
+		//
+
+		//
+		// Hence why we bumped in the previous case
+		//
 	}
 
-	// Default step is 1.
+	//
+	// The default step-increment is 1.
+	//
 	step := 1.0
 
-	e.offset++
+	//
+	// Make sure we're still within our program.
+	//
 	if e.offset >= len(e.program) {
 		return fmt.Errorf("Hit end of program processing FOR")
 	}
