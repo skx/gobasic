@@ -1,5 +1,6 @@
 10 REM
-20 REM This is a horrid script which converts a string to lower-case
+20 REM This is a horrid script which converts the case of strings.
+30 REM First upper->lower, then the reverse.
 40 REM
 
 100 LET A="STEVE IS LOWER-CASE"

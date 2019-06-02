@@ -1,5 +1,5 @@
  10 REM
- 20 REM THis program demonstrates the use of arrays
+ 20 REM This program demonstrates the use of arrays
  30 REM It creates a 10x10 array, full of random numbers,
  40 REM then prints it out - as hex
 
@@ -52,7 +52,7 @@
 2080 RETURN
 
 
-10000 REM 0-9
+10000 REM ASCII-codes of the digits 0-9
 10010 DATA 48, 49, 50, 51, 52, 53, 55, 55, 56, 57
-10020 REM A-F
+10000 REM ASCII-codes of the letters A-F
 10030 DATA 65, 66, 67, 68, 69, 70

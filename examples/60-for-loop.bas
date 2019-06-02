@@ -1,5 +1,5 @@
 10 REM
-20 REM This program tests for-loops a little.
+20 REM This program demonstrates the use of FOR-loops.
 30 REM
 
 100 PRINT "IN ONES\n"
