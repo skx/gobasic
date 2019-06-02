@@ -386,6 +386,7 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	t.RegisterBuiltin("EXP", 1, builtin.EXP)
 	t.RegisterBuiltin("INT", 1, builtin.INT)
 	t.RegisterBuiltin("LN", 1, builtin.LN)
+	t.RegisterBuiltin("LOG", 1, builtin.LN)
 	t.RegisterBuiltin("PI", 0, builtin.PI)
 	t.RegisterBuiltin("RND", 1, builtin.RND)
 	t.RegisterBuiltin("SGN", 1, builtin.SGN)
