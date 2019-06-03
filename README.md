@@ -48,7 +48,7 @@ The following obvious primitives work as you'd expect:
 
 * `DIM`
   * Create an array.  Note that only one and two-dimensional arrays are supported.
-  * See [examples/95-arrays.bas](examples/95-arrays) and [examples/100-array-sort.bas](examples/100-array-sort.bas) for quick samples.
+  * See [examples/95-arrays.bas](examples/95-arrays) and [examples/40-array-sort.bas](examples/40-array-sort.bas) for quick samples.
 * `END`
   * Exit the program.
 * `GOTO`
