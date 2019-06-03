@@ -323,7 +323,7 @@ Perhaps the best demonstration of the code are the following two samples:
 * [examples/90-stars.bas](examples/90-stars.bas)
   * Prompt the user for their name and the number of stars to print.
   * Then print them.  Riveting!  Fascinating!  A program for the whole family!
-* [examples/99-game.bas](examples/99-game.bas)
+* [examples/55-game.bas](examples/55-game.bas)
   * A classic game where you guess the random number the computer has thought of.
 
 <br />
