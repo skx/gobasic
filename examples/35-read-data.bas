@@ -1,6 +1,6 @@
 10 REM
 20 REM This program prints the output of reading from DATA
-30
+30 REM
 40 FOR n=1 TO 6
 50   READ D
 60   DATA 2,4,"Six"

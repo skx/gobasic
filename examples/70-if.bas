@@ -1,15 +1,29 @@
-10 REM This program demonstrates our in-progress IF support
-20 REM
-30 REM For the moment we skip a single token, and allow a single
-40 REM expression between THEN+ELSE, or ELSE+NEWLINE
-50 REM
+ 10 REM
+ 20 REM This program demonstrates our IF support.
+ 50 REM
 
-100 IF 1 < 10 THEN PRINT "OK1\n" : ELSE PRINT "FAIL1\n"
-110 IF 1 > 0 THEN PRINT "OK2\n" : ELSE PRINT "FAIL2\n"
 
-120 REM
-130 REM Prove execution keeps going.
-140 REM
+100 FOR A=1 TO 2
+110   FOR B=1 TO 2
+120     PRINT "A=";A;" B=";B;"\n"
+130     IF A=1 AND B=2 THEN PRINT " --> A=1 AND B=2\n"
+140     IF A=2 OR B=2  THEN PRINT " --> A=2 OR B=2\n"
+150     IF A=2 AND B=2 THEN PRINT " --> A AND B ARE BOTH 2\n"
+160   NEXT B
+170 NEXT A
 
-150 LET a = 3
-160 PRINT "A is", a, "\n"
+200 IF 1 < 10 THEN PRINT "OK1\n" : ELSE PRINT "FAIL1\n"
+210 IF 1 > 0  THEN PRINT "OK2\n" : ELSE PRINT "FAIL2\n"
+
+300 LET a = 3
+310 IF A THEN PRINT "OK3\n" : ELSE PRINT "FAIL3\n"
+
+400 LET A = BIN 00001111
+410 LET B = BIN 11110000
+420 LET C = A OR B
+430 IF  C = BIN 11111111 THEN PRINT "OR worked\n"
+
+500 LET A = BIN 10000001
+510 LET B = BIN 10000011
+520 LET C = A AND B
+530 IF  C = 129 THEN PRINT "AND worked\n"

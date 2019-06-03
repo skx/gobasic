@@ -1,5 +1,4 @@
 00 REM This program tests GOTO-handling.
-05 REM And I guess the REM statement.
 10 GOTO 80
 20 GOTO 70
 30 GOTO 60

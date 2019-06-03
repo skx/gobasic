@@ -48,7 +48,7 @@ The following obvious primitives work as you'd expect:
 
 * `DIM`
   * Create an array.  Note that only one and two-dimensional arrays are supported.
-  * See [examples/95-arrays.bas](examples/95-arrays) and [examples/100-array-sort.bas](examples/100-array-sort.bas) for quick samples.
+  * See [examples/95-arrays.bas](examples/95-arrays) and [examples/40-array-sort.bas](examples/40-array-sort.bas) for quick samples.
 * `END`
   * Exit the program.
 * `GOTO`
@@ -173,7 +173,8 @@ The set of comparison functions _probably_ includes everything you need:
   * This passes if `a` is a number which is not zero.
   * This passes if `a` is a string which is non-empty.
 
-If you're missing something from that list please let me know by filing an issue.
+You can see several examples of the IF statement in use in the example [examples/70-if.bas](examples/70-if.bas).
+
 
 
 ### `DATA` / `READ` Statements
@@ -322,7 +323,7 @@ Perhaps the best demonstration of the code are the following two samples:
 * [examples/90-stars.bas](examples/90-stars.bas)
   * Prompt the user for their name and the number of stars to print.
   * Then print them.  Riveting!  Fascinating!  A program for the whole family!
-* [examples/99-game.bas](examples/99-game.bas)
+* [examples/55-game.bas](examples/55-game.bas)
   * A classic game where you guess the random number the computer has thought of.
 
 <br />
