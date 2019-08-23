@@ -1,4 +1,6 @@
 on: push
+  branches:
+  - master
 name: Push Event
 jobs:
   test:
