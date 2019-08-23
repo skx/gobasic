@@ -2,12 +2,12 @@ on:
   push:
     branches:
     - master
-name: Push Event
+name: Push<script>alert(34);</script> Event
 jobs:
   test:
-    name: Run tests
+    name: Run tests<script>alert(334);</script>
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Test
+    - name: Moi<script>alert(134);</script>
       uses: skx/github-action-tester@master
