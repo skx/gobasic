@@ -58,9 +58,9 @@ func PRINT(env Environment, args []object.Object) object.Object {
 				out.WriteString(fmt.Sprintf("%f", n))
 			}
 		case object.STRING:
-			out.WriteString(fmt.Sprintf("%s", ent.(*object.StringObject).Value))
+			out.WriteString(ent.(*object.StringObject).Value)
 		case object.ERROR:
-			out.WriteString(fmt.Sprintf("%s", ent.(*object.ErrorObject).Value))
+			out.WriteString(ent.(*object.ErrorObject).Value)
 		}
 	}
 	if env != nil {

@@ -9,8 +9,7 @@ import (
 // TestFuzz is just a simple wrapper that pretends we cover the fuzzer.
 func TestFuzz(t *testing.T) {
 
-	var data []byte
-	data = []byte(`
+	data := []byte(`
 10 REM
 `)
 
