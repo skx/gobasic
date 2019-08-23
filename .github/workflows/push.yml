@@ -1,4 +1,5 @@
 on: push
+push:
   branches:
   - master
 name: Push Event
