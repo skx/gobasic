@@ -236,7 +236,7 @@ func TestDim(t *testing.T) {
 	for _, test := range invalid {
 
 		tokener = tokenizer.New(test)
-		e, err = New(tokener)
+		e, _ = New(tokener)
 		err = e.Run()
 
 		if err == nil {
@@ -326,7 +326,7 @@ func TestDim(t *testing.T) {
 		if err == nil {
 			t.Errorf("Expected error running '%s', got none", test)
 		}
-		if !strings.Contains(err.Error(), "Dimension too large") {
+		if !strings.Contains(err.Error(), "dimension too large") {
 			t.Errorf("Error '%s' wasn't the expected error!", err.Error())
 		}
 	}
@@ -862,7 +862,7 @@ func TestIF(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected runtime-error, received none")
 	}
-	if !strings.Contains(err.Error(), "Expected THEN after IF") {
+	if !strings.Contains(err.Error(), "expected THEN after IF") {
 		t.Errorf("The error we found was not what we expected: %s", err.Error())
 	}
 
@@ -1238,7 +1238,7 @@ func TestNext(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected to see an error, but didn't.")
 	}
-	if !strings.Contains(err.Error(), "Expected IDENT after NEXT in FOR loop") {
+	if !strings.Contains(err.Error(), "expected IDENT after NEXT in FOR loop") {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 
@@ -1319,7 +1319,7 @@ func TestRead(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected to see an error, but didn't.")
 	}
-	if !strings.Contains(err.Error(), "Expected identifier") {
+	if !strings.Contains(err.Error(), "expected identifier") {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 
@@ -1338,7 +1338,7 @@ func TestRead(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected to see an error, but didn't.")
 	}
-	if !strings.Contains(err.Error(), "Read past the end of our DATA storage") {
+	if !strings.Contains(err.Error(), "read past the end of our DATA storage") {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 
@@ -1400,6 +1400,9 @@ func TestRem(t *testing.T) {
 
 		tokener := tokenizer.New(test)
 		e, err := New(tokener)
+		if err != nil {
+			t.Errorf("unexpected error parsing '%s' - %s", test, err.Error())
+		}
 
 		err = e.Run()
 		if err != nil {
@@ -1464,7 +1467,7 @@ func TestRun(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected to see an error, but didn't.")
 	}
-	if !strings.Contains(err.Error(), "Unclosed FOR loop") {
+	if !strings.Contains(err.Error(), "unclosed FOR loop") {
 		t.Errorf("Our error-message wasn't what we expected")
 	}
 }
@@ -1556,8 +1559,7 @@ func TestSwap(t *testing.T) {
 		t.Errorf("Failed to swap array")
 	}
 
-	var b []int
-	b = append(a, 2)
+	b := append(a, 2)
 	B = e.GetArrayVariable("A", b)
 	if B.Type() != object.STRING {
 		t.Errorf("Array variable has the wrong type")

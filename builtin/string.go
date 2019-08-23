@@ -213,8 +213,7 @@ func STR(env Environment, args []object.Object) object.Object {
 	}
 
 	// Get the value
-	var i float64
-	i = args[0].(*object.NumberObject).Value
+	i := args[0].(*object.NumberObject).Value
 	s := ""
 
 	if i == float64(int(i)) {

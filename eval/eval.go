@@ -329,7 +329,6 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 
 				case token.NEWLINE:
 					run = false
-					break
 				case token.COMMA:
 					// NOP
 				case token.STRING:
@@ -338,7 +337,7 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 					i, _ := strconv.ParseFloat(tk.Literal, 64)
 					t.data = append(t.data, &object.NumberObject{Value: i})
 				default:
-					return nil, fmt.Errorf("Error reading DATA - Unhandled token: %s", tk.String())
+					return nil, fmt.Errorf("error reading DATA - Unhandled token: %s", tk.String())
 				}
 				start++
 			}
@@ -354,7 +353,7 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 			//
 			err := t.parseDefFN(offset)
 			if err != nil {
-				return nil, fmt.Errorf("Error in DEF FN: %s", err.Error())
+				return nil, fmt.Errorf("error in DEF FN: %s", err.Error())
 
 			}
 		}
@@ -700,7 +699,7 @@ func (e *Interpreter) expr(allowBinOp bool) object.Object {
 		// This is mostly due to our naive parser, because
 		// it gets confused handling "IF BLAH AND BLAH  .."
 		//
-		if allowBinOp == false {
+		if !allowBinOp {
 			if tok.Type == token.AND ||
 				tok.Type == token.OR ||
 				tok.Type == token.XOR {
@@ -827,11 +826,11 @@ func (e *Interpreter) compare(allowBinOp bool) object.Object {
 
 		switch t1.Type() {
 		case object.STRING:
-			if "" != t1.(*object.StringObject).Value {
+			if t1.(*object.StringObject).Value != "" {
 				return &object.NumberObject{Value: 1}
 			}
 		case object.NUMBER:
-			if 0 != t1.(*object.NumberObject).Value {
+			if t1.(*object.NumberObject).Value != 0 {
 				return &object.NumberObject{Value: 1}
 			}
 		}
@@ -957,37 +956,37 @@ func (e *Interpreter) parseDefFN(offset int) error {
 	// skip past the DEF
 	offset++
 	if offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DEF FN")
+		return fmt.Errorf("hit end of program processing DEF FN")
 	}
 
 	// Next token should be "FN"
 	fn := e.program[offset]
 	if fn.Type != token.FN {
-		return (fmt.Errorf("Expected FN after DEF"))
+		return (fmt.Errorf("expected FN after DEF"))
 	}
 	offset++
 	if offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DEF FN")
+		return fmt.Errorf("hit end of program processing DEF FN")
 	}
 
 	// Now a name
 	name := e.program[offset]
 	if name.Type != token.IDENT {
-		return (fmt.Errorf("Expected function-name after 'DEF FN', got %s", name.String()))
+		return (fmt.Errorf("expected function-name after 'DEF FN', got %s", name.String()))
 	}
 	offset++
 	if offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DEF FN")
+		return fmt.Errorf("hit end of program processing DEF FN")
 	}
 
 	// Now an opening parenthesis.
 	open := e.program[offset]
 	if open.Type != token.LBRACKET {
-		return (fmt.Errorf("Expected ( after 'DEF FN %s'", name))
+		return (fmt.Errorf("expected ( after 'DEF FN %s'", name))
 	}
 	offset++
 	if offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DEF FN")
+		return fmt.Errorf("hit end of program processing DEF FN")
 	}
 
 	//
@@ -1021,7 +1020,7 @@ func (e *Interpreter) parseDefFN(offset int) error {
 		// Otherwise we'll assume we have an ID.
 		// Anything else is an error.
 		if tt.Type != token.IDENT {
-			return (fmt.Errorf("Unexpected token %s in DEF FN %s", tt.String(), name))
+			return (fmt.Errorf("unexpected token %s in DEF FN %s", tt.String(), name))
 		}
 
 		//
@@ -1036,7 +1035,7 @@ func (e *Interpreter) parseDefFN(offset int) error {
 	// Ensure we've still got tokens.
 	//
 	if offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DEF FN")
+		return fmt.Errorf("hit end of program processing DEF FN")
 	}
 
 	//
@@ -1045,7 +1044,7 @@ func (e *Interpreter) parseDefFN(offset int) error {
 	eq := e.program[offset]
 	offset++
 	if eq.Type != token.ASSIGN {
-		return (fmt.Errorf("Expected = after 'DEF FN %s(%s) - Got %s", name, strings.Join(args, ","), eq.String()))
+		return (fmt.Errorf("expected = after 'DEF FN %s(%s) - Got %s", name, strings.Join(args, ","), eq.String()))
 	}
 
 	//
@@ -1075,7 +1074,7 @@ func (e *Interpreter) parseDefFN(offset int) error {
 	// Empty body?
 	//
 	if body == "" {
-		return fmt.Errorf("Hit end of program processing DEF FN")
+		return fmt.Errorf("hit end of program processing DEF FN")
 	}
 
 	//
@@ -1307,11 +1306,11 @@ func (e *Interpreter) runDIM() error {
 	// 1. We now expect a variable name.
 	//
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DIM")
+		return fmt.Errorf("hit end of program processing DIM")
 	}
 	target := e.program[e.offset]
 	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after DIM, got %v", target)
+		return fmt.Errorf("expected IDENT after DIM, got %v", target)
 	}
 	e.offset++
 
@@ -1319,11 +1318,11 @@ func (e *Interpreter) runDIM() error {
 	// 2. Now we expect "("
 	//
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DIM")
+		return fmt.Errorf("hit end of program processing DIM")
 	}
 	open := e.program[e.offset]
 	if open.Type != token.LBRACKET {
-		return fmt.Errorf("Expected '(' after 'DIM' , got %v", open)
+		return fmt.Errorf("expected '(' after 'DIM' , got %v", open)
 	}
 	e.offset++
 
@@ -1331,11 +1330,11 @@ func (e *Interpreter) runDIM() error {
 	// 3. Now we expect a dimension.
 	//
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DIM")
+		return fmt.Errorf("hit end of program processing DIM")
 	}
 	first := e.program[e.offset]
 	if first.Type != token.INT {
-		return fmt.Errorf("Expected 'INT' after 'DIM(' , got %v", first)
+		return fmt.Errorf("expected 'INT' after 'DIM(' , got %v", first)
 	}
 	e.offset++
 
@@ -1348,7 +1347,7 @@ func (e *Interpreter) runDIM() error {
 	// 4.  Now we either expect a "," or a ")"
 	//
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DIM")
+		return fmt.Errorf("hit end of program processing DIM")
 	}
 	tok := e.program[e.offset]
 	e.offset++
@@ -1359,7 +1358,7 @@ func (e *Interpreter) runDIM() error {
 		// Get the next factor
 		//
 		if e.offset >= len(e.program) {
-			return fmt.Errorf("Hit end of program processing DIM")
+			return fmt.Errorf("hit end of program processing DIM")
 		}
 
 		//
@@ -1372,11 +1371,11 @@ func (e *Interpreter) runDIM() error {
 		}
 
 		if e.offset >= len(e.program) {
-			return fmt.Errorf("Hit end of program processing DIM")
+			return fmt.Errorf("hit end of program processing DIM")
 		}
 		close := e.program[e.offset]
 		if close.Type != token.RBRACKET {
-			return fmt.Errorf("Expected ')' after 'DIM %s(%s' , got %v", target.Literal, first, tok)
+			return fmt.Errorf("expected ')' after 'DIM %s(%s' , got %v", target.Literal, first, tok)
 
 		}
 		e.offset++
@@ -1384,7 +1383,7 @@ func (e *Interpreter) runDIM() error {
 		//
 		// Get the next factor
 		//
-		return fmt.Errorf("Expected ')' after 'DIM %s(%s' , got %v", target.Literal, first, tok)
+		return fmt.Errorf("expected ')' after 'DIM %s(%s' , got %v", target.Literal, first, tok)
 	}
 
 	//
@@ -1397,12 +1396,12 @@ func (e *Interpreter) runDIM() error {
 		// 2D array
 		a, _ := strconv.ParseFloat(first.Literal, 64)
 		if a > 1024 {
-			return (fmt.Errorf("Dimension too large! %f > 1024", a))
+			return (fmt.Errorf("dimension too large! %f > 1024", a))
 		}
 
 		b, _ := strconv.ParseFloat(sec.Literal, 64)
 		if b > 1024 {
-			return (fmt.Errorf("Dimension too large! %f > 1024", b))
+			return (fmt.Errorf("dimension too large! %f > 1024", b))
 		}
 
 		x = object.Array(int(a), int(b))
@@ -1411,7 +1410,7 @@ func (e *Interpreter) runDIM() error {
 		// 1D array
 		a, _ := strconv.ParseFloat(first.Literal, 64)
 		if a > 1024 {
-			return (fmt.Errorf("Dimension too large! %f > 1024", a))
+			return (fmt.Errorf("dimension too large! %f > 1024", a))
 		}
 
 		x = object.Array(0, int(a))
@@ -1431,34 +1430,34 @@ func (e *Interpreter) runForLoop() error {
 
 	// Ensure we've not walked off the end of the program.
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing FOR")
+		return fmt.Errorf("hit end of program processing FOR")
 	}
 
 	// We now expect a variable name.
 	target := e.program[e.offset]
 	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after FOR, got %v", target)
+		return fmt.Errorf("expected IDENT after FOR, got %v", target)
 	}
 	e.offset++
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing FOR")
+		return fmt.Errorf("hit end of program processing FOR")
 	}
 
 	// Now an EQUALS
 	eq := e.program[e.offset]
 	if eq.Type != token.ASSIGN {
-		return fmt.Errorf("Expected = after 'FOR %s' , got %v", target.Literal, eq)
+		return fmt.Errorf("expected = after 'FOR %s' , got %v", target.Literal, eq)
 	}
 	e.offset++
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing FOR")
+		return fmt.Errorf("hit end of program processing FOR")
 	}
 
 	// Now an integer/variable
 	startI := e.program[e.offset]
 	e.offset++
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing FOR")
+		return fmt.Errorf("hit end of program processing FOR")
 	}
 
 	var start float64
@@ -1473,13 +1472,13 @@ func (e *Interpreter) runForLoop() error {
 		}
 		start = x.(*object.NumberObject).Value
 	} else {
-		return fmt.Errorf("Expected INT/VARIABLE after 'FOR %s=', got %v", target.Literal, startI)
+		return fmt.Errorf("expected INT/VARIABLE after 'FOR %s=', got %v", target.Literal, startI)
 	}
 
 	// Now TO
 	to := e.program[e.offset]
 	if to.Type != token.TO {
-		return fmt.Errorf("Expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
+		return fmt.Errorf("expected TO after 'FOR %s=%s', got %v", target.Literal, startI, to)
 	}
 	e.offset++
 
@@ -1489,7 +1488,7 @@ func (e *Interpreter) runForLoop() error {
 	// an expression.
 	//
 	if (e.offset) >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing FOR")
+		return fmt.Errorf("hit end of program processing FOR")
 	}
 
 	//
@@ -1548,7 +1547,7 @@ func (e *Interpreter) runForLoop() error {
 	// Make sure we're still within our program.
 	//
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing FOR")
+		return fmt.Errorf("hit end of program processing FOR")
 	}
 
 	// Is the next token a step?
@@ -1558,7 +1557,7 @@ func (e *Interpreter) runForLoop() error {
 		e.offset++
 
 		if e.offset >= len(e.program) {
-			return fmt.Errorf("Hit end of program processing FOR")
+			return fmt.Errorf("hit end of program processing FOR")
 		}
 
 		// Parse the STEP-expression.
@@ -1619,7 +1618,7 @@ func (e *Interpreter) runGOSUB() error {
 	e.offset++
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing GOSUB")
+		return fmt.Errorf("hit end of program processing GOSUB")
 	}
 
 	// Get the target
@@ -1668,7 +1667,7 @@ func (e *Interpreter) runGOTO() error {
 	e.offset++
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing GOTO")
+		return fmt.Errorf("hit end of program processing GOTO")
 	}
 
 	// Get the GOTO-target
@@ -1709,7 +1708,7 @@ func (e *Interpreter) runINPUT() error {
 	e.offset++
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing INPUT")
+		return fmt.Errorf("hit end of program processing INPUT")
 	}
 
 	// Get the prompt
@@ -1717,7 +1716,7 @@ func (e *Interpreter) runINPUT() error {
 	e.offset++
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing INPUT")
+		return fmt.Errorf("hit end of program processing INPUT")
 	}
 
 	// We expect a comma
@@ -1728,7 +1727,7 @@ func (e *Interpreter) runINPUT() error {
 	}
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing INPUT")
+		return fmt.Errorf("hit end of program processing INPUT")
 	}
 
 	// Now the ID
@@ -1894,7 +1893,7 @@ func (e *Interpreter) runIF() error {
 	// Now we're in the THEN section.
 	//
 	if target.Type != token.THEN {
-		return fmt.Errorf("Expected THEN after IF EXPR, got %v", target)
+		return fmt.Errorf("expected THEN after IF EXPR, got %v", target)
 	}
 
 	//
@@ -1995,7 +1994,7 @@ func (e *Interpreter) runLET(skipLet bool) error {
 	}
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing LET")
+		return fmt.Errorf("hit end of program processing LET")
 	}
 
 	// We now expect an ID
@@ -2003,10 +2002,10 @@ func (e *Interpreter) runLET(skipLet bool) error {
 
 	e.offset++
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing LET")
+		return fmt.Errorf("hit end of program processing LET")
 	}
 	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after LET, got %v", target)
+		return fmt.Errorf("expected IDENT after LET, got %v", target)
 	}
 
 	//
@@ -2028,18 +2027,18 @@ func (e *Interpreter) runLET(skipLet bool) error {
 	}
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing LET")
+		return fmt.Errorf("hit end of program processing LET")
 	}
 
 	// Now "="
 	assign := e.program[e.offset]
 	if assign.Type != token.ASSIGN {
-		return fmt.Errorf("Expected assignment after LET x, got %v", assign)
+		return fmt.Errorf("expected assignment after LET x, got %v", assign)
 	}
 	e.offset++
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing LET")
+		return fmt.Errorf("hit end of program processing LET")
 	}
 	// now we're at the expression/value/whatever
 	res := e.expr(true)
@@ -2067,14 +2066,14 @@ func (e *Interpreter) runNEXT() error {
 	e.offset++
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing NEXT")
+		return fmt.Errorf("hit end of program processing NEXT")
 	}
 
 	// Get the identifier
 	target := e.program[e.offset]
 	e.offset++
 	if target.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after NEXT in FOR loop, got %v", target)
+		return fmt.Errorf("expected IDENT after NEXT in FOR loop, got %v", target)
 	}
 
 	// OK we've found the tail of a loop
@@ -2213,7 +2212,7 @@ func (e *Interpreter) runREAD() error {
 	// Ensure we don't walk off the end of our program.
 	//
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing DATA")
+		return fmt.Errorf("hit end of program processing DATA")
 	}
 
 	//
@@ -2246,7 +2245,7 @@ func (e *Interpreter) runREAD() error {
 
 		// OK that just leaves IDENT
 		if tok.Type != token.IDENT {
-			return (fmt.Errorf("Expected identifier after DATA - found %s", tok.String()))
+			return (fmt.Errorf("expected identifier after DATA - found %s", tok.String()))
 		}
 
 		//
@@ -2255,7 +2254,7 @@ func (e *Interpreter) runREAD() error {
 		// not read too much.
 		//
 		if e.dataOffset >= len(e.data) {
-			return fmt.Errorf("Read past the end of our DATA storage - length %d", len(e.data))
+			return fmt.Errorf("read past the end of our DATA storage - length %d", len(e.data))
 		}
 
 		//
@@ -2307,7 +2306,7 @@ func (e *Interpreter) runSWAP() error {
 	// Skip past the SWAP token
 	e.offset++
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing SWAP")
+		return fmt.Errorf("hit end of program processing SWAP")
 	}
 
 	//
@@ -2317,10 +2316,10 @@ func (e *Interpreter) runSWAP() error {
 
 	e.offset++
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing SWAP")
+		return fmt.Errorf("hit end of program processing SWAP")
 	}
 	if a.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after SWAP, got %v", a)
+		return fmt.Errorf("expected IDENT after SWAP, got %v", a)
 	}
 
 	//
@@ -2343,11 +2342,11 @@ func (e *Interpreter) runSWAP() error {
 	//
 	comma := e.program[e.offset]
 	if comma.Type != token.COMMA {
-		return fmt.Errorf("Expected comma after SWAP a, got %v", comma)
+		return fmt.Errorf("expected comma after SWAP a, got %v", comma)
 	}
 	e.offset++
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing SWAP")
+		return fmt.Errorf("hit end of program processing SWAP")
 	}
 
 	//
@@ -2357,7 +2356,7 @@ func (e *Interpreter) runSWAP() error {
 
 	e.offset++
 	if b.Type != token.IDENT {
-		return fmt.Errorf("Expected IDENT after SWAP a, got %v", b)
+		return fmt.Errorf("expected IDENT after SWAP a, got %v", b)
 	}
 
 	//
@@ -2443,7 +2442,7 @@ func (e *Interpreter) runRETURN() error {
 func (e *Interpreter) RunOnce() error {
 
 	if e.offset >= len(e.program) {
-		return fmt.Errorf("Hit end of program processing RunOnce()")
+		return fmt.Errorf("hit end of program processing RunOnce()")
 	}
 
 	//
@@ -2567,7 +2566,7 @@ func (e *Interpreter) Run() error {
 		err := e.RunOnce()
 
 		if err != nil {
-			return fmt.Errorf("Line %s : %s", e.lineno, err.Error())
+			return fmt.Errorf("line %s : %s", e.lineno, err.Error())
 		}
 	}
 
@@ -2576,7 +2575,7 @@ func (e *Interpreter) Run() error {
 	// alert on unclosed FOR-loops.
 	//
 	if !e.loops.Empty() {
-		return fmt.Errorf("Unclosed FOR loop")
+		return fmt.Errorf("unclosed FOR loop")
 	}
 
 	return nil
@@ -2624,7 +2623,7 @@ func (e *Interpreter) findIndex() ([]int, error) {
 				if x.Type() == object.NUMBER {
 					indexes = append(indexes, int(x.(*object.NumberObject).Value))
 				} else {
-					return indexes, fmt.Errorf("Array indexes must be numbers")
+					return indexes, fmt.Errorf("array indexes must be numbers")
 				}
 			} else {
 
@@ -2632,7 +2631,7 @@ func (e *Interpreter) findIndex() ([]int, error) {
 				// then that's an error.
 				if e.program[e.offset].Type != token.COMMA {
 
-					return indexes, fmt.Errorf("Unexpected value found when looking for index: %s", e.program[e.offset].String())
+					return indexes, fmt.Errorf("unexpected value found when looking for index: %s", e.program[e.offset].String())
 				}
 			}
 			e.offset++
@@ -2672,12 +2671,12 @@ func (e *Interpreter) SetArrayVariable(id string, index []int, val object.Object
 
 	// If there was an error, then return it.
 	if x.Type() == object.ERROR {
-		return fmt.Errorf("Error handling %s - %s", id, x.(*object.ErrorObject).Value)
+		return fmt.Errorf("error handling %s - %s", id, x.(*object.ErrorObject).Value)
 	}
 
 	// Ensure we've got an index.
 	if x.Type() != object.ARRAY {
-		return (fmt.Errorf("Object is not an array, it is %s", x.String()))
+		return (fmt.Errorf("object is not an array, it is %s", x.String()))
 	}
 
 	// Otherwise assume we can index appropriately.

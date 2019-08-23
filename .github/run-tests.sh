@@ -3,12 +3,24 @@
 # This will allow the linter to be installed.  All a mess.
 rm go.mod
 
-# Install the lint-tool, and the shadow-tool
+# Install tools to test our code-quality.
 go get -u golang.org/x/lint/golint
 go get -u golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
+go get -u honnef.co/go/tools/cmd/staticcheck
 
 # Init the modules
 go mod init
+
+# Run the static-check tool - we ignore errors in goserver/static.go
+t=$(mktemp)
+staticcheck -checks all ./... | grep -v goserver/static.go > $t
+if [ -s $t ]; then
+    echo "Found errors via 'staticcheck'"
+    cat $t
+    rm $t
+    exit 1
+fi
+rm $t
 
 # At this point failures cause aborts
 set -e
