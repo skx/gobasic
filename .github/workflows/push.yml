@@ -1,5 +1,5 @@
 on: push
-  branches:
+branches:
   - master
 name: Push Event
 jobs:
