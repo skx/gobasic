@@ -13,7 +13,7 @@ go mod init
 
 # Run the static-check tool - we ignore errors in goserver/static.go
 t=$(mktemp)
-staticcheck -checks all ./... | grep -v goserver/static.go > $t
+staticcheck -checks all ./... > $t
 if [ -s $t ]; then
     echo "Found errors via 'staticcheck'"
     cat $t

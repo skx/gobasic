@@ -9,7 +9,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/hex"
-	"errors"
+	"fmt"
 	"io/ioutil"
 )
 
@@ -86,7 +86,7 @@ func getResource(path string) ([]byte, error) {
 			return raw.Bytes(), nil
 		}
 	}
-	return nil, errors.New("Failed to find resource")
+	return nil, fmt.Errorf("failed to find resource '%s'", path)
 }
 
 //

@@ -490,8 +490,25 @@ func handler(w http.ResponseWriter, r *http.Request) {
 //
 func main() {
 
+	//
+	// We'll bind a handler.
+	//
 	http.HandleFunc("/", handler)
+
+	//
+	// We'll show what we're going to launch, and hte
+	// embedded resources
+	//
 	fmt.Printf("goserver running on http://localhost:8080/\n")
+
+	tmp := getResources()
+	for _, ent := range tmp {
+		fmt.Printf("Embedded resource %s\n", ent.Filename)
+	}
+
+	//
+	// Launch the server.
+	//
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
 	}
