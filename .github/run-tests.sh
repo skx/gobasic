@@ -1,19 +1,13 @@
 #!/bin/bash
 
-# This will allow the linter to be installed.  All a mess.
-rm go.mod
-
 # Install tools to test our code-quality.
 go get -u golang.org/x/lint/golint
 go get -u golang.org/x/tools/go/analysis/passes/shadow/cmd/shadow
 go get -u honnef.co/go/tools/cmd/staticcheck
 
-# Init the modules
-go mod init
-
 # Run the static-check tool - we ignore errors in goserver/static.go
 t=$(mktemp)
-staticcheck -checks all ./... > $t
+staticcheck -checks all ./...  | grep -v "is deprecated"> $t
 if [ -s $t ]; then
     echo "Found errors via 'staticcheck'"
     cat $t
