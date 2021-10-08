@@ -606,52 +606,96 @@ func (e *Interpreter) term() object.Object {
 		if e.offset >= len(e.program) {
 			return object.Error("Hit end of program processing term()")
 		}
+
+		//
+		// Have we handled this operation?
+		//
+		handled := false
+
+		//
+		// We allow string "multiplication"
+		//
+		//  STRING * NUMBER
+		//
+		// "STEVE " * 4 => "STEVE STEVE STEVE STEVE "
+		//
+		if f1.Type() == object.STRING &&
+			f2.Type() == object.NUMBER &&
+			tok.Type == token.ASTERISK {
+
+			// original value
+			val := f1.(*object.StringObject).Value
+			orig := val
+			// repeat
+			rep := f2.(*object.NumberObject).Value
+
+			for rep > 0 {
+
+				orig = orig + val
+				rep--
+			}
+
+			// Save the updated value
+			f1 = &object.StringObject{Value: orig}
+
+			// We've handled this
+			handled = true
+		}
+
 		//
 		// We allow operations of the form:
 		//
 		//  NUMBER OP NUMBER
 		//
-		// We can error on strings.
-		//
-		if f1.Type() != object.NUMBER ||
-			f2.Type() != object.NUMBER {
-			return object.Error("term() only handles integers")
-		}
+		if f1.Type() == object.NUMBER &&
+			f2.Type() == object.NUMBER {
 
-		//
-		// Get the values.
-		//
-		v1 := f1.(*object.NumberObject).Value
-		v2 := f2.(*object.NumberObject).Value
+			//
+			// Get the values.
+			//
+			v1 := f1.(*object.NumberObject).Value
+			v2 := f2.(*object.NumberObject).Value
 
-		//
-		// Handle the operator.
-		//
-		if tok.Type == token.ASTERISK {
-			f1 = &object.NumberObject{Value: v1 * v2}
-		}
-		if tok.Type == token.POW {
-			f1 = &object.NumberObject{Value: math.Pow(v1, v2)}
-		}
-		if tok.Type == token.SLASH {
-			if v2 == 0 {
-				return object.Error("Division by zero")
+			//
+			// Handle the operator.
+			//
+			if tok.Type == token.ASTERISK {
+				f1 = &object.NumberObject{Value: v1 * v2}
 			}
-			f1 = &object.NumberObject{Value: v1 / v2}
-		}
-		if tok.Type == token.MOD {
-
-			d1 := int(v1)
-			d2 := int(v2)
-
-			if d2 == 0 {
-				return object.Error("MOD 0 is an error")
+			if tok.Type == token.POW {
+				f1 = &object.NumberObject{Value: math.Pow(v1, v2)}
 			}
-			f1 = &object.NumberObject{Value: float64(d1 % d2)}
+			if tok.Type == token.SLASH {
+				if v2 == 0 {
+					return object.Error("Division by zero")
+				}
+				f1 = &object.NumberObject{Value: v1 / v2}
+			}
+			if tok.Type == token.MOD {
+
+				d1 := int(v1)
+				d2 := int(v2)
+
+				if d2 == 0 {
+					return object.Error("MOD 0 is an error")
+				}
+				f1 = &object.NumberObject{Value: float64(d1 % d2)}
+			}
+
+			if e.offset >= len(e.program) {
+				return object.Error("Hit end of program processing term()")
+			}
+
+			// we've handled the operation now
+			handled = true
 		}
 
-		if e.offset >= len(e.program) {
-			return object.Error("Hit end of program processing term()")
+		//
+		// If we didn't handle the operation then the types
+		// were invalid, so report that.
+		//
+		if !handled {
+			return object.Error("term() only handles string-multiplication and integer-operations")
 		}
 
 		// repeat?
