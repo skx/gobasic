@@ -84,7 +84,7 @@ func circleFunction(env builtin.Environment, args []object.Object) object.Object
 	if img == nil {
 		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
 		black := color.RGBA{0, 0, 0, 255}
-		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.ZP, draw.Src)
+		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.Point{}, draw.Src)
 	}
 
 	// Create the colour
@@ -140,7 +140,7 @@ func plotFunction(env builtin.Environment, args []object.Object) object.Object {
 	if img == nil {
 		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
 		black := color.RGBA{0, 0, 0, 255}
-		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.ZP, draw.Src)
+		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.Point{}, draw.Src)
 	}
 
 	// Draw the dot
@@ -158,7 +158,7 @@ func saveFunction(env builtin.Environment, args []object.Object) object.Object {
 	if img == nil {
 		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
 		black := color.RGBA{0, 0, 0, 255}
-		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.ZP, draw.Src)
+		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.Point{}, draw.Src)
 	}
 
 	// Now write out the image.

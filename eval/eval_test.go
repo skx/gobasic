@@ -1157,7 +1157,7 @@ func TestMaths(t *testing.T) {
 // TestMismatchedTypes tests that expr() errors on mismatched types.
 func TestMismatchedTypes(t *testing.T) {
 	input := `10 LET a=3
-20 LET b="steve"
+20 LET b = "steve"
 30 LET c = a + b
 `
 	tokener := tokenizer.New(input)
@@ -1179,7 +1179,7 @@ func TestMismatchedTypes(t *testing.T) {
 // TestMismatchedTypesTerm tests that term() errors on mismatched types.
 func TestMismatchedTypesTerm(t *testing.T) {
 	input := `10 LET a="steve"
-20 LET b = ( a * 2 ) + ( a * 33 )
+20 LET b = ( a + 2 ) + ( a + 33 )
 `
 	tokener := tokenizer.New(input)
 	e, err := New(tokener)
@@ -1192,8 +1192,8 @@ func TestMismatchedTypesTerm(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected to see an error, but didn't.")
 	}
-	if !strings.Contains(err.Error(), "handles integers") {
-		t.Errorf("Our error-message wasn't what we expected")
+	if !strings.Contains(err.Error(), "type mismatch") {
+		t.Errorf("Our error-message wasn't what we expected: %s", err.Error())
 	}
 }
 
