@@ -68,7 +68,7 @@ func plotFunction(env builtin.Environment, args []object.Object) object.Object {
 	if img == nil {
 		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
 		c := color.RGBA{255, 255, 255, 255}
-		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.ZP, draw.Src)
+		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
 	}
 
 	// Draw the dot
@@ -88,7 +88,7 @@ func saveFunction(env builtin.Environment, args []object.Object) object.Object {
 	if img == nil {
 		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
 		c := color.RGBA{255, 255, 255, 255}
-		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.ZP, draw.Src)
+		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
 	}
 
 	// Generate a temporary filename
@@ -178,7 +178,7 @@ func circleFunction(env builtin.Environment, args []object.Object) object.Object
 	if img == nil {
 		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
 		c := color.RGBA{255, 255, 255, 255}
-		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.ZP, draw.Src)
+		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
 	}
 
 	// Now circle-magic happens.
@@ -249,7 +249,7 @@ func lineFunction(env builtin.Environment, args []object.Object) object.Object {
 	if img == nil {
 		img = image.NewRGBA(image.Rect(0, 0, 600, 400))
 		c := color.RGBA{255, 255, 255, 255}
-		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.ZP, draw.Src)
+		draw.Draw(img, img.Bounds(), &image.Uniform{c}, image.Point{}, draw.Src)
 	}
 
 	var dx, dy, e, slope int
