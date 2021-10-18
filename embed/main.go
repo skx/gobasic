@@ -37,45 +37,61 @@ var img *image.RGBA
 
 // peekFunction is the golang implementation of the PEEK primitive,
 // which is made available to BASIC.
-// We just log that we've been invoked here.
+//
+// We just log that we've been invoked here, along with any supplied arguments.
 func peekFunction(env builtin.Environment, args []object.Object) object.Object {
-	fmt.Printf("PEEK called with %v\n", args[0])
-	return &object.NumberObject{Value: 0.0}
-}
+	fmt.Printf("PEEK called.\n")
 
-// pokeFunction is the golang implementation of the PEEK primitive,
-// which is made available to BASIC.
-// We just log that we've been invoked here, along with the (three) args.
-func pokeFunction(env builtin.Environment, args []object.Object) object.Object {
-	fmt.Printf("POKE called.\n")
 	for i, e := range args {
 		fmt.Printf(" Arg %d -> %v\n", i, e)
 	}
+
+	return &object.NumberObject{Value: 0.0}
+}
+
+// pokeFunction is the golang implementation of the POKE primitive,
+// which is made available to BASIC.
+//
+// We just log that we've been invoked here, along with any supplied arguments.
+func pokeFunction(env builtin.Environment, args []object.Object) object.Object {
+	fmt.Printf("POKE called.\n")
+
+	for i, e := range args {
+		fmt.Printf(" Arg %d -> %v\n", i, e)
+	}
+
 	return &object.NumberObject{Value: 0.0}
 }
 
 // circleFunction allows drawing a circle upon our image.
 func circleFunction(env builtin.Environment, args []object.Object) object.Object {
 
+	// Ensure we have three arguments
+	if len(args) != 3 {
+		return object.Error("CIRCLE requires three arguments: X, Y, R")
+	}
+
 	var xx, yy, rr float64
 
 	if args[0].Type() == object.NUMBER {
 		xx = args[0].(*object.NumberObject).Value
+	} else {
+		return object.Error("Wrong type for X")
 	}
+
 	if args[1].Type() == object.NUMBER {
 		yy = args[1].(*object.NumberObject).Value
 	} else {
 		return object.Error("Wrong type for Y")
 	}
+
 	if args[2].Type() == object.NUMBER {
 		rr = args[2].(*object.NumberObject).Value
 	} else {
 		return object.Error("Wrong type for R")
 	}
 
-	//
-	// They need to be ints.
-	//
+	// We want the parameters as integers, rather than float64
 	x0 := int(xx)
 	y0 := int(yy)
 	r := int(rr)
@@ -125,11 +141,19 @@ func plotFunction(env builtin.Environment, args []object.Object) object.Object {
 
 	var x, y float64
 
+	// Ensure we have two arguments
+	if len(args) != 2 {
+		return object.Error("PLOT requires two arguments: X, Y")
+	}
+
+	// Get X
 	if args[0].Type() == object.NUMBER {
 		x = args[0].(*object.NumberObject).Value
 	} else {
 		return object.Error("Wrong type for X")
 	}
+
+	// Get Y
 	if args[1].Type() == object.NUMBER {
 		y = args[1].(*object.NumberObject).Value
 	} else {
@@ -143,7 +167,7 @@ func plotFunction(env builtin.Environment, args []object.Object) object.Object {
 		draw.Draw(img, img.Bounds(), &image.Uniform{black}, image.Point{}, draw.Src)
 	}
 
-	// Draw the dot
+	// Plot the pixel
 	img.Set(int(x), int(y), color.RGBA{255, 0, 0, 255})
 
 	return &object.NumberObject{Value: 0.0}
