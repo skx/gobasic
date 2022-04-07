@@ -15,6 +15,7 @@ package eval
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"math"
 	"os"
@@ -111,6 +112,9 @@ type Interpreter struct {
 
 	// fns contains a map of user-defined functions.
 	fns map[string]userFunction
+
+	// context for handling timeout
+	context context.Context
 }
 
 // StdInput allows access to the input-reading object.
@@ -184,6 +188,11 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	// Setup a map to hold user-defined functions.
 	//
 	t.fns = make(map[string]userFunction)
+
+	//
+	// No context by default
+	//
+	t.context = context.Background()
 
 	//
 	// The previous token we've seen, if any.
@@ -414,6 +423,22 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 	// Return our configured interpreter
 	//
 	return t, nil
+}
+
+// NewWithContext is a constructor which allows a context to be specified.
+//
+// It will defer to New for the basic constructor behaviour.
+func NewWithContext(ctx context.Context, stream *tokenizer.Tokenizer) (*Interpreter, error) {
+
+	// Create
+	i, err := New(stream)
+	if err != nil {
+		return nil, err
+	}
+
+	i.context = ctx
+
+	return i, nil
 }
 
 // FromString is a constructor which takes a string, and constructs
@@ -2606,6 +2631,20 @@ func (e *Interpreter) Run() error {
 	// We walk our series of tokens.
 	//
 	for e.offset < len(e.program) && !e.finished {
+
+		//
+		// We've been given a context, which we'll test at every
+		// iteration of our main-loop.
+		//
+		// This is a little slow and inefficient, but we need
+		// to allow our execution to be time-limited.
+		//
+		select {
+		case <-e.context.Done():
+			return fmt.Errorf("timeout during execution")
+		default:
+			// nop
+		}
 
 		err := e.RunOnce()
 
