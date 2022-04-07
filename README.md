@@ -20,6 +20,7 @@
 * [50 PRINT "Implementation"](#50-print-implementation)
 * [60 PRINT "Sample Code"](#60-print-sample-code)
 * [70 PRINT "Embedding"](#70-print-embedding)
+* [75 PRINT "DoS"](#75-print-dos)
 * [80 PRINT "Visual BASIC!"](#80-print-visual-basic)
 * [90 PRINT "Bugs?"](#90-print-bugs)
 * [100 PRINT "Project Goals / Links"](#100-print-project-goals--links)
@@ -361,6 +362,52 @@ in the standalone interpreter.)
 <br />
 <br />
 <br />
+
+
+
+## 75 PRINT "DoS"
+
+When it comes to security problems the most obvious issue we might suffer from is denial-of-service attacks; it is certainly possible for this library to be given faulty programs, for example invalid syntax, or references to undefined functions.   Failures such as those would be detected at parse/run time, as appropriate.
+
+In short running user-supplied scripts should be safe, but there is one obvious exception, the following program is valid:
+
+```
+10 PRINT "STEVE ROCKS!"
+20 GOTO 10
+```
+
+This program will __never__ terminate!  If you're handling untrusted user-scripts, you'll want to ensure that you explicitly setup a timeout period.
+
+The following will do what you expect:
+
+```
+// Setup a timeout period of five seconds
+ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+defer cancel()
+
+// Now create the interpreter, via the tokenizer
+t := tokenizer.New(string(`10 GOTO 10`))
+
+// Ensure we pass the context over
+e, err := eval.NewWithContext(t, ctx)
+if err != nil {
+   fmt.Printf("error creating interpreter: %s\n", err.Error())
+   panic(err)   // proper handling here
+}
+
+// Now run the program
+err = e.Run()
+if err != nil {
+  fmt.Printf("error running: %s\n", err.Error())
+  panic(err)   // proper handling here
+}
+
+// Here we'll see a timeout eror
+
+```
+
+The program will be terminated with an error after five seconds, which means that your host application will continue to run rather than being blocked forever!
+
 
 
 ## 80 PRINT "Visual BASIC!"
