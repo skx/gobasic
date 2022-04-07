@@ -389,7 +389,7 @@ defer cancel()
 t := tokenizer.New(string(`10 GOTO 10`))
 
 // Ensure we pass the context over
-e, err := eval.NewWithContext(t, ctx)
+e, err := eval.NewWithContext(ctx,t)
 if err != nil {
    fmt.Printf("error creating interpreter: %s\n", err.Error())
    panic(err)   // proper handling here

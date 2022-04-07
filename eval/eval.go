@@ -428,7 +428,7 @@ func New(stream *tokenizer.Tokenizer) (*Interpreter, error) {
 // NewWithContext is a constructor which allows a context to be specified.
 //
 // It will defer to New for the basic constructor behaviour.
-func NewWithContext(stream *tokenizer.Tokenizer, ctx context.Context) (*Interpreter, error) {
+func NewWithContext(ctx context.Context, stream *tokenizer.Tokenizer) (*Interpreter, error) {
 
 	// Create
 	i, err := New(stream)
