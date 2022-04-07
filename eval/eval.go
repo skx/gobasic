@@ -666,10 +666,10 @@ func (e *Interpreter) term() object.Object {
 			// Catch that in advance of the loop to avoid
 			// wasiting time
 			if len(orig) > 1 {
-				for rep > 0 {
-
-					orig = orig + val
-					rep--
+				if rep < 65535 {
+					orig = strings.Repeat(orig, int(rep))
+				} else {
+					fmt.Printf("WARNING: Repeating a string %d times is unsupported - max 65535\n", int(rep))
 				}
 			}
 
