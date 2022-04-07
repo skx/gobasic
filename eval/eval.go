@@ -654,10 +654,23 @@ func (e *Interpreter) term() object.Object {
 			// repeat
 			rep := f2.(*object.NumberObject).Value
 
-			for rep > 0 {
+			// The string repetition won't work if
+			// the input string is empty.
+			//
+			// For example:
+			//
+			//   "" * 55
+			//
+			// Will generate the output: ""
+			//
+			// Catch that in advance of the loop to avoid
+			// wasiting time
+			if len(orig) > 1 {
+				for rep > 0 {
 
-				orig = orig + val
-				rep--
+					orig = orig + val
+					rep--
+				}
 			}
 
 			// Save the updated value
