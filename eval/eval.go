@@ -664,12 +664,29 @@ func (e *Interpreter) term() object.Object {
 			// Will generate the output: ""
 			//
 			// Catch that in advance of the loop to avoid
-			// wasiting time
+			// wasting time - we also cap the maximum length
+			// of our string here.
 			if len(orig) > 1 {
-				if rep < 65535 {
-					orig = strings.Repeat(orig, int(rep))
-				} else {
-					fmt.Printf("WARNING: Repeating a string %d times is unsupported - max 65535\n", int(rep))
+
+				// while there are more repetitions
+				for rep > 0 {
+
+					// append
+					orig = orig + val
+
+					// reduce by one
+					rep--
+
+					// ensure we terminate if the string is too long
+					if len(orig) > 65535 {
+						fmt.Printf("WARNING: string too long, max length is 65535: %d currently\n", len(orig))
+
+						// Return early
+						// even with less than expected
+						// repetitions
+						f1 = &object.StringObject{Value: orig}
+						return f1
+					}
 				}
 			}
 
