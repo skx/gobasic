@@ -70,6 +70,7 @@ func FuzzEval(f *testing.F) {
 			"end of program processing",
 			"expected ident after ",
 			"expected assignment",
+			"length of strings cannot exceed",
 			"must be an integer",
 			"not supported for strings",
 			"only handles string-multiplication and integer-operations",

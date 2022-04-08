@@ -190,6 +190,9 @@ func SPC(env Environment, args []object.Object) object.Object {
 	if n < 0 {
 		return object.Error("Positive argument only")
 	}
+	if n > 65535 {
+		return object.Error("length of strings cannot exceed 65535 characters")
+	}
 
 	s := ""
 	for i := 0; i < n; i++ {
