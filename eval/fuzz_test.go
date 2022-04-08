@@ -54,34 +54,34 @@ func FuzzEval(f *testing.F) {
 
 		// Expected errors
 		expected := []string{
-			"end of program processing",
-			"DEF FN: expected ",
-			"unexpected token",
-            "without opening FOR",
-			" expect an integer ",
-			"unclosed FOR loop",
-			" got Token",
-			"must be an integer",
-			"Argument count mis-match",
-			"expected IDENT after ",
-			"does not exist",
-			"only handles string-multiplication and integer-operations",
-			"the variable ",
-			"doesn't exist",
-			"factor() - unhandled token",
-			"expected assignment",
-			"Unclosed bracket around",
-			"should be followed by an integer",
+			"expect an integer",
+			"got token",
+			"argument count mis-match",
+			"def fn: expected ",
+			"division by zero",
+			"mod 0 is an error",
+			"object is not an array",
+			"unclosed bracket around",
+			"wrong type",
 			"array indexes must be",
-			"type mismatch between",
-			"unexpected value found when looking for index",
-			"MOD 0 is an error",
+			"does not exist",
+			"doesn't exist",
+			"end of program processing",
+			"expected ident after ",
+			"expected assignment",
 			"expr() operation '-' not supported for strings",
-			"Wrong type",
-			"Division by zero",
+			"must be an integer",
+			"only handles string-multiplication and integer-operations",
+			"should be followed by an integer",
+			"the variable",
 			"timeout during execution",
+			"type mismatch between",
+			"unclosed for loop",
+			"unexpected token",
+			"unexpected value found when looking for index",
+			"unhandled token",
 			"while searching for argument",
-			"Object is not an array",
+			"without opening for",
 		}
 
 		//
@@ -99,8 +99,11 @@ func FuzzEval(f *testing.F) {
 
 			ignore := false
 
+			// Lower case the error
+			fail := strings.ToLower(err.Error())
+
 			for _, txt := range expected {
-				if strings.Contains(err.Error(), txt) {
+				if strings.Contains(fail, txt) {
 					ignore = true
 				}
 			}
@@ -117,8 +120,11 @@ func FuzzEval(f *testing.F) {
 		if err != nil {
 			ignore := false
 
+			// Lower case the error
+			fail := strings.ToLower(err.Error())
+
 			for _, txt := range expected {
-				if strings.Contains(err.Error(), txt) {
+				if strings.Contains(fail, txt) {
 					ignore = true
 				}
 			}
