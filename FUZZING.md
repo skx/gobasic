@@ -1,22 +1,14 @@
 # Fuzz-Testing
 
-If you don't have the appropriate tools installed you can fetch them via:
+The 1.18 release of the golang compiler/toolset has integrated support for
+fuzz-testing.
 
-    $ go get github.com/dvyukov/go-fuzz/go-fuzz
-    $ go get github.com/dvyukov/go-fuzz/go-fuzz-build
+Fuzz-testing is basically magical and involves generating new inputs "randomly"
+and running test-cases with those inputs.
 
-Now you can build the `eval` package with fuzzing enabled:
+## Running
 
-    $ go-fuzz-build github.com/skx/gobasic/eval
+Assuming you have go 1.18 or higher you can run the fuzz-testing of the
+`eval` package like so:
 
-Create a location to hold the work, and give it copies of some sample-programs:
-
-    $ mkdir -p workdir/corpus
-    $ cp examples/*.bas workdir/corpus
-
-Now you can actually launch the fuzzer - here I use `-procs 1` so that
-my desktop system isn't complete overloaded:
-
-    $ go-fuzz -procs 1 -bin=eval-fuzz.zip -workdir workdir/
-
-Now take a look at `workdir/crashers` to see the findings.
+    $ go test -fuzztime=60s -parallel=1 -fuzz=FuzzEval -v

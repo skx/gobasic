@@ -654,10 +654,23 @@ func (e *Interpreter) term() object.Object {
 			// repeat
 			rep := f2.(*object.NumberObject).Value
 
-			for rep > 0 {
-
-				orig = orig + val
-				rep--
+			// The string repetition won't work if
+			// the input string is empty.
+			//
+			// For example:
+			//
+			//   "" * 55
+			//
+			// Will generate the output: ""
+			//
+			// Catch that in advance of the loop to avoid
+			// wasiting time
+			if len(orig) > 1 {
+				if rep < 65535 {
+					orig = strings.Repeat(orig, int(rep))
+				} else {
+					fmt.Printf("WARNING: Repeating a string %d times is unsupported - max 65535\n", int(rep))
+				}
 			}
 
 			// Save the updated value
