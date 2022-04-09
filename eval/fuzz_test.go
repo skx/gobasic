@@ -60,6 +60,7 @@ func FuzzEval(f *testing.F) {
 			"def fn: expected ",
 			"dimension too large",
 			"division by zero",
+			"don't support operations",
 			"mod 0 is an error",
 			"object is not an array",
 			"unclosed bracket around",
