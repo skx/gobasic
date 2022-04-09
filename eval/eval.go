@@ -606,7 +606,7 @@ func (e *Interpreter) term() object.Object {
 	f1 := e.factor()
 
 	if f1 == nil {
-		return object.Error("term() - received a nil value from factor()")
+		return object.Error("term() - received a nil value from factor() - f1")
 	}
 
 	if f1.Type() == object.ERROR {
@@ -635,6 +635,10 @@ func (e *Interpreter) term() object.Object {
 
 		// get the second argument
 		f2 := e.factor()
+
+		if f2 == nil {
+			return object.Error("term() - received a nil value from factor() - f2")
+		}
 
 		if e.offset >= len(e.program) {
 			return object.Error("Hit end of program processing term()")
