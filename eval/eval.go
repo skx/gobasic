@@ -605,6 +605,14 @@ func (e *Interpreter) term() object.Object {
 	// First argument
 	f1 := e.factor()
 
+	if f1 == nil {
+		return object.Error("term() - received a nil value from factor()")
+	}
+
+	if f1.Type() == object.ERROR {
+		return f1
+	}
+
 	if e.offset >= len(e.program) {
 		return f1
 	}
@@ -2476,11 +2484,6 @@ func (e *Interpreter) runSWAP() error {
 	bIndex, bErr := e.findIndex()
 	if bErr != nil {
 		return bErr
-	}
-
-	// Ensure the index-finding didn't walk us off the end of the program
-	if e.offset >= len(e.program) {
-		return fmt.Errorf("hit end of program processing SWAP")
 	}
 
 	//
