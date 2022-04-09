@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("A=\"000000000000000000\"00L=(LEN A)0FOR I=0TO 0000A A0=MID$ A 0 0(I=A(NEXT I")

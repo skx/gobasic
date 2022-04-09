@@ -2436,6 +2436,11 @@ func (e *Interpreter) runSWAP() error {
 		return aErr
 	}
 
+	// Ensure the index-finding didn't walk us off the end of the program
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("hit end of program processing SWAP")
+	}
+
 	//
 	// Now we expect a ","
 	//
@@ -2471,6 +2476,11 @@ func (e *Interpreter) runSWAP() error {
 	bIndex, bErr := e.findIndex()
 	if bErr != nil {
 		return bErr
+	}
+
+	// Ensure the index-finding didn't walk us off the end of the program
+	if e.offset >= len(e.program) {
+		return fmt.Errorf("hit end of program processing SWAP")
 	}
 
 	//
