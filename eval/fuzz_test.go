@@ -75,6 +75,7 @@ func FuzzEval(f *testing.F) {
 			"not supported for strings",
 			"only handles string-multiplication and integer-operations",
 			"only integers are used for dimensions",
+			"positive argument only",
 			"should be followed by an integer",
 			"strconv.parse",
 			"the variable",
