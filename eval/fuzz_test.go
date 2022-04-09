@@ -6,6 +6,8 @@ package eval
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -50,6 +52,27 @@ func FuzzEval(f *testing.F) {
 120 NEXT I
 `))
 
+	//
+	// Load each of our examples as a seed too.
+	//
+	files, err := filepath.Glob("../examples/*.bas")
+	if err == nil {
+
+		// For each example
+		for _, name := range files {
+			var data []byte
+
+			// Read the contents
+			data, err = ioutil.ReadFile(name)
+
+			if err == nil {
+				// If no error then seed.
+				fmt.Printf("Seeded with %s\n", name)
+				f.Add(data)
+			}
+		}
+	}
+
 	f.Fuzz(func(t *testing.T, input []byte) {
 
 		// Expected errors
@@ -73,6 +96,7 @@ func FuzzEval(f *testing.F) {
 			"expected assignment",
 			"length of strings cannot exceed",
 			"must be an integer",
+			"must be >0",
 			"not supported for strings",
 			"only handles string-multiplication and integer-operations",
 			"only integers are used for dimensions",
