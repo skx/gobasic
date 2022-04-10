@@ -2796,6 +2796,14 @@ func (e *Interpreter) SetVariable(id string, val object.Object) {
 // Useful for testing/embedding
 func (e *Interpreter) SetArrayVariable(id string, index []int, val object.Object) error {
 
+	// Is the value we're setting nil, or an error?
+	if val == nil {
+		return fmt.Errorf("SetArrayVariable - Setting a nil value is a bug")
+	}
+	if val.Type() == object.ERROR {
+		return fmt.Errorf("SetArrayVariable - Setting an error inside an array is a bug: %s", val.String())
+	}
+
 	// get the current variable - i.e. the parent array
 	x := e.GetVariable(id)
 
