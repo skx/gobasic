@@ -75,7 +75,31 @@ func FuzzEval(f *testing.F) {
 
 	f.Fuzz(func(t *testing.T, input []byte) {
 
-		// Expected errors
+		//
+		// Expected errors, caused by bad syntax,
+		// invalid types, etc.
+		//
+		// We hope that the fuzz-tester will result
+		// in a panic, or error, but we know that
+		// some programs that are malformed aren't
+		// actually worth aborting for.
+		//
+		// For example this program:
+		//
+		//  10 PRINT "STEVE"
+		//  20 GOTO 100
+		//
+		// Is invalid, as there is no line 100.  That's
+		// not something the fuzz-tester should regard as
+		// an interesting result.
+		//
+		// Similarly this is gonna cause an error:
+		//
+		//  10 GOTO 10
+		//
+		// Because it'll get caught by the timeout we've defined,
+		// but that's not something we regard as interesting either.
+		//
 		expected := []string{
 			"expect an integer",
 			"got token",
@@ -112,6 +136,7 @@ func FuzzEval(f *testing.F) {
 			"read past the end of our data storage",
 			"received a nil value",
 			"return without gosub",
+			"setarrayvariable",
 			"should be followed by an integer",
 			"strconv.parse",
 			"the variable",
@@ -126,9 +151,12 @@ func FuzzEval(f *testing.F) {
 		}
 
 		//
-		// Setup a timeout period to avoid infinite loops
+		// Setup a timeout period to avoid infinite loops.
 		//
-		ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		ctx, cancel := context.WithTimeout(
+			context.Background(),
+			500*time.Millisecond,
+		)
 		defer cancel()
 
 		// Tokenize
@@ -138,42 +166,39 @@ func FuzzEval(f *testing.F) {
 		e, err := NewWithContext(ctx, toker)
 		if err != nil {
 
-			ignore := false
-
 			// Lower case the error
 			fail := strings.ToLower(err.Error())
 
+			// Is this failure a known one?  Then return
 			for _, txt := range expected {
 				if strings.Contains(fail, txt) {
-					ignore = true
+					return
 				}
 			}
 
-			if !ignore {
-				panic(fmt.Sprintf("input %s gave error %s", input, err))
-			}
-			return
+			// This is a panic caused by the fuzzer.
+			// Report it.
+			panic(fmt.Sprintf("input %s gave error %s", input, err))
 		}
 
 		// Run
 		err = e.Run()
 
 		if err != nil {
-			ignore := false
 
 			// Lower case the error
 			fail := strings.ToLower(err.Error())
 
+			// Is this failure a known one?  Then return
 			for _, txt := range expected {
 				if strings.Contains(fail, txt) {
-					ignore = true
+					return
 				}
 			}
 
-			if !ignore {
-				panic(fmt.Sprintf("input %s gave error %s", input, err))
-			}
+			// This is a panic caused by the fuzzer.
+			// Report it.
+			panic(fmt.Sprintf("input %s gave error %s", input, err))
 		}
 	})
-
 }
