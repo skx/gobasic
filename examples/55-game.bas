@@ -10,16 +10,15 @@
 
  10 LET b=RND 100
  20 LET count=1
- 30 PRINT "I have picked a random number, please guess it!!\n"
+ 30 PRINT "I have picked a random number (1-100), please guess it!!\n"
  40 INPUT "Enter your choice:", a
- 50 PRINT "\n"
- 60 IF b = a THEN GOTO 2000 ELSE PRINT "You were wrong: ":
- 70 IF a < b THEN PRINT "too low\n":
- 80 IF a > b THEN PRINT "too high\n":
+ 60 IF b = a THEN GOTO 2000 ELSE PRINT "You choice was ":
+ 70 IF a < b THEN PRINT "too low!\n\n":
+ 80 IF a > b THEN PRINT "too high!\n\n":
  90 LET count = count + 1
 100 GOTO 40
 
 
-2000 PRINT "You guessed my number!\n"
-2010 PRINT "You took", count, "attempts\n"
+2000 PRINT "\n\nYou guessed my number!\n"
+2010 PRINT "You took", count, "attempts.\n"
 2020 END
