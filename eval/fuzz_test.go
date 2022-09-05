@@ -6,7 +6,7 @@ package eval
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -63,7 +63,7 @@ func FuzzEval(f *testing.F) {
 			var data []byte
 
 			// Read the contents
-			data, err = ioutil.ReadFile(name)
+			data, err = os.ReadFile(name)
 
 			if err == nil {
 				// If no error then seed.

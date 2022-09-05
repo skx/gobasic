@@ -9,7 +9,6 @@
 // points, lines, circles, and view a rendered image containing the output.
 //
 // Graphing SIN and similar functions becomes very simple and natural.
-//
 package main
 
 import (
@@ -20,7 +19,6 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -29,7 +27,12 @@ import (
 	"github.com/skx/gobasic/eval"
 	"github.com/skx/gobasic/object"
 	"github.com/skx/gobasic/tokenizer"
+
+	_ "embed" // embedded-resource magic
 )
+
+//go:embed data/index.html
+var indexResource string
 
 // img holds the canvas we draw into.
 var img *image.RGBA
@@ -92,7 +95,7 @@ func saveFunction(env builtin.Environment, args []object.Object) object.Object {
 	}
 
 	// Generate a temporary filename
-	tmpfile, _ := ioutil.TempFile("", "goserver")
+	tmpfile, _ := os.CreateTemp("", "goserver")
 
 	// Now write out the image.
 	f, _ := os.OpenFile(tmpfile.Name(), os.O_WRONLY|os.O_CREATE, 0600)
@@ -371,13 +374,11 @@ func lineFunction(env builtin.Environment, args []object.Object) object.Object {
 	return &object.NumberObject{Value: 0.0}
 }
 
-//
 // Runs the script the user submitted.
 //
 // Returns the base64-encoded version of the output image.
 //
 // More reliable than it has any reason to be.
-//
 func runScript(code string) (string, error) {
 	t := tokenizer.New(code)
 
@@ -408,7 +409,7 @@ func runScript(code string) (string, error) {
 	path := pathObj.(*object.StringObject).Value
 
 	// Read the file
-	b, err := ioutil.ReadFile(path)
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
@@ -423,13 +424,11 @@ func runScript(code string) (string, error) {
 	return encoded, nil
 }
 
-//
 // Called via a HTTP-request.
 //
 // If GET serve `index.html`.
 //
 // If POST serve a PNG created by executing the user-submitted code.
-//
 func handler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.Error(w, "404 not found.", http.StatusNotFound)
@@ -438,12 +437,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		tmpl, err := getResource("data/index.html")
-		if err == nil {
-			fmt.Fprintf(w, "%s\n", string(tmpl))
-		} else {
-			http.Error(w, "404 not found.", http.StatusNotFound)
-		}
+		tmpl := []byte(indexResource)
+		fmt.Fprintf(w, "%s\n", string(tmpl))
 	case "POST":
 		if err := r.ParseForm(); err != nil {
 			fmt.Fprintf(w, "ParseForm() err: %v", err)
@@ -485,9 +480,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//
 // Entry-point.
-//
 func main() {
 
 	//
@@ -495,16 +488,7 @@ func main() {
 	//
 	http.HandleFunc("/", handler)
 
-	//
-	// We'll show what we're going to launch, and hte
-	// embedded resources
-	//
-	fmt.Printf("goserver running on http://localhost:8080/\n")
-
-	tmp := getResources()
-	for _, ent := range tmp {
-		fmt.Printf("Embedded resource %s\n", ent.Filename)
-	}
+	fmt.Printf("Listening on http://localhost:8080/\n")
 
 	//
 	// Launch the server.

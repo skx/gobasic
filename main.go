@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/skx/gobasic/eval"
@@ -47,7 +46,7 @@ func main() {
 	//
 	// Load the file.
 	//
-	data, err := ioutil.ReadFile(flag.Args()[0])
+	data, err := os.ReadFile(flag.Args()[0])
 	if err != nil {
 		fmt.Printf("Error reading %s - %s\n", flag.Args()[0], err.Error())
 		os.Exit(3)
