@@ -6,7 +6,6 @@
 //
 // Note that numbers are stored as `float64`, to allow holding both
 // integers and floating-point numbers.
-//
 package object
 
 import (
@@ -48,11 +47,6 @@ type ArrayObject struct {
 
 	// Y is the Y-size of the array, fixed at creation-time.
 	Y int
-}
-
-// Type returns the type of this object.
-func (a *ArrayObject) Type() Type {
-	return ARRAY
 }
 
 // Array creates a new array of the given dimensions
@@ -134,6 +128,11 @@ func (a *ArrayObject) String() string {
 	return (out)
 }
 
+// Type returns the type of this object.
+func (a *ArrayObject) Type() Type {
+	return ARRAY
+}
+
 // StringObject holds a string.
 type StringObject struct {
 
@@ -141,19 +140,14 @@ type StringObject struct {
 	Value string
 }
 
-// Type returns the type of this object.
-func (s *StringObject) Type() Type {
-	return STRING
-}
-
 // String returns a string representation of this object.
 func (s *StringObject) String() string {
 	return (fmt.Sprintf("Object{Type:string, Value:%s}", s.Value))
 }
 
-// String is a helper for creating a new string-object with the given value.
-func String(val string) *StringObject {
-	return &StringObject{Value: val}
+// Type returns the type of this object.
+func (s *StringObject) Type() Type {
+	return STRING
 }
 
 // NumberObject holds a number.
@@ -163,19 +157,14 @@ type NumberObject struct {
 	Value float64
 }
 
-// Type returns the type of this object.
-func (s *NumberObject) Type() Type {
-	return NUMBER
-}
-
 // String returns a string representation of this object.
-func (s *NumberObject) String() string {
-	return (fmt.Sprintf("Object{Type:number, Value:%f}", s.Value))
+func (no *NumberObject) String() string {
+	return (fmt.Sprintf("Object{Type:number, Value:%f}", no.Value))
 }
 
-// Number is a helper for creating a new number-object with the given value.
-func Number(val float64) *NumberObject {
-	return &NumberObject{Value: val}
+// Type returns the type of this object.
+func (no *NumberObject) Type() Type {
+	return NUMBER
 }
 
 // ErrorObject holds a string, which describes an error
@@ -185,18 +174,32 @@ type ErrorObject struct {
 	Value string
 }
 
+// String returns a string representation of this object.
+func (eo *ErrorObject) String() string {
+	return (fmt.Sprintf("Object{Type:error, Value:%s}", eo.Value))
+}
+
+// Type returns the type of this object.
+func (eo *ErrorObject) Type() Type {
+	return ERROR
+}
+
+//
+// Some simple constructors
+//
+
 // Error is a helper for creating a new error-object with the given message.
 func Error(format string, args ...interface{}) *ErrorObject {
 	msg := fmt.Sprintf(format, args...)
 	return &ErrorObject{Value: msg}
 }
 
-// Type returns the type of this object.
-func (s *ErrorObject) Type() Type {
-	return ERROR
+// Number is a helper for creating a new number-object with the given value.
+func Number(val float64) *NumberObject {
+	return &NumberObject{Value: val}
 }
 
-// String returns a string representation of this object.
-func (s *ErrorObject) String() string {
-	return (fmt.Sprintf("Object{Type:error, Value:%s}", s.Value))
+// String is a helper for creating a new string-object with the given value.
+func String(val string) *StringObject {
+	return &StringObject{Value: val}
 }
