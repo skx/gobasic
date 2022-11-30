@@ -305,3 +305,71 @@ func TestNullString(t *testing.T) {
 		}
 	}
 }
+
+// TestIssue120 tests that we parse subtraction vs. negative numbers
+// as expected.
+func TestIssue120(t *testing.T) {
+	input := `10 LET A=3
+20 A=A-3
+30 LET B=20-3
+40 LET C=-3
+50 LET D= 3 - -3
+`
+
+	tests := []struct {
+		expectedType    token.Type
+		expectedLiteral string
+	}{
+		{token.LINENO, "10"},
+		{token.LET, "LET"},
+		{token.IDENT, "A"},
+		{token.ASSIGN, "="},
+		{token.INT, "3"},
+		{token.NEWLINE, "\\n"},
+
+		{token.LINENO, "20"},
+		{token.IDENT, "A"},
+		{token.ASSIGN, "="},
+		{token.IDENT, "A"},
+		{token.MINUS, "-"},
+		{token.INT, "3"},
+		{token.NEWLINE, "\\n"},
+
+		{token.LINENO, "30"},
+		{token.LET, "LET"},
+		{token.IDENT, "B"},
+		{token.ASSIGN, "="},
+		{token.INT, "20"},
+		{token.MINUS, "-"},
+		{token.INT, "3"},
+		{token.NEWLINE, "\\n"},
+
+		{token.LINENO, "40"},
+		{token.LET, "LET"},
+		{token.IDENT, "C"},
+		{token.ASSIGN, "="},
+		{token.INT, "-3"},
+		{token.NEWLINE, "\\n"},
+
+		{token.LINENO, "50"},
+		{token.LET, "LET"},
+		{token.IDENT, "D"},
+		{token.ASSIGN, "="},
+		{token.INT, "3"},
+		{token.MINUS, "-"},
+		{token.INT, "-3"},
+		{token.NEWLINE, "\\n"},
+
+		{token.EOF, ""},
+	}
+	l := New(input)
+	for i, tt := range tests {
+		tok := l.NextToken()
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong, expected=%q, got=%v", i, tt.expectedType, tok)
+		}
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - Literal wrong, expected=%q, got=%q", i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
