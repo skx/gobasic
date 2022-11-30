@@ -5,7 +5,6 @@
 //
 // Our interpeter is intentionally naive, and executes tokens directly, without
 // any intermediary representation.
-//
 package tokenizer
 
 import (
@@ -89,7 +88,7 @@ func (l *Tokenizer) NextToken() token.Token {
 		// a "minus" rather than a negative number if the prev. token was
 		// an identifier, or a number.
 		//
-		if isDigit(l.peekChar()) &&  l.prevToken.Type != token.IDENT && l.prevToken.Type != token.INT {
+		if isDigit(l.peekChar()) && l.prevToken.Type != token.IDENT && l.prevToken.Type != token.INT {
 			// swallow the -
 			l.readChar()
 
