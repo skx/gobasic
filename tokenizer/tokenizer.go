@@ -79,7 +79,17 @@ func (l *Tokenizer) NextToken() token.Token {
 		tok = newToken(token.PLUS, l.ch)
 	case rune('-'):
 		// -3 is "-3".  "3 - 4" is -1.
-		if isDigit(l.peekChar()) {
+		//
+		// However we have to add a couple of special cases such that:
+		//
+		//     "... X-3" is "X - 3"
+		// and "3-3" is "3 - 3" not "3 -3"
+		//
+		// We do that by ensuring we look at the previous token and force
+		// a "minus" rather than a negative number if the prev. token was
+		// an identifier, or a number.
+		//
+		if isDigit(l.peekChar()) &&  l.prevToken.Type != token.IDENT && l.prevToken.Type != token.INT {
 			// swallow the -
 			l.readChar()
 
