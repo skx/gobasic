@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+# I don't even ..
+go env -w GOFLAGS="-buildvcs=false"
+
+
 # Install the tools we use to test our code-quality.
 #
 # Here we setup the tools to install only if the "CI" environmental variable
