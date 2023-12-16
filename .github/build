@@ -3,6 +3,9 @@
 # The basename of our binary
 BASE="gobasic"
 
+# I don't even ..
+go env -w GOFLAGS="-buildvcs=false"
+
 # Get the dependencies
 go mod init
 

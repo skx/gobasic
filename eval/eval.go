@@ -10,7 +10,6 @@
 // as REM, DATA, READ, etc.  Things that could be pushed outside the core,
 // such as the maths-primitives (SIN, COS, TAN, etc) have been moved into
 // their own package to keep this as simple and readable as possible.
-//
 package eval
 
 import (
@@ -597,7 +596,8 @@ func (e *Interpreter) factor() object.Object {
 }
 
 // terminal - handles parsing of the form
-//  ARG1 OP ARG2
+//
+//	ARG1 OP ARG2
 //
 // See also expr() which is similar.
 func (e *Interpreter) term() object.Object {
@@ -773,7 +773,9 @@ func (e *Interpreter) term() object.Object {
 }
 
 // expression - handles parsing of the form
-//  ARG1 OP ARG2
+//
+//	ARG1 OP ARG2
+//
 // See also term() which is similar.
 func (e *Interpreter) expr(allowBinOp bool) object.Object {
 
@@ -1811,8 +1813,9 @@ func (e *Interpreter) runGOTO() error {
 // runINPUT handles input of numbers from the user.
 //
 // NOTE:
-//   INPUT "Foo", a   -> Reads an integer
-//   INPUT "Foo", a$  -> Reads a string
+//
+//	INPUT "Foo", a   -> Reads an integer
+//	INPUT "Foo", a$  -> Reads a string
 func (e *Interpreter) runINPUT() error {
 
 	// Skip the INPUT-instruction
@@ -1909,10 +1912,9 @@ func (e *Interpreter) runINPUT() error {
 //
 // Here we _only_ allow:
 //
-//  IF $EXPR THEN $STATEMENT ELSE $STATEMENT NEWLINE
+//	IF $EXPR THEN $STATEMENT ELSE $STATEMENT NEWLINE
 //
 // $STATEMENT will only be a single expression
-//
 func (e *Interpreter) runIF() error {
 
 	// Bump past the IF token
@@ -2291,19 +2293,21 @@ func (e *Interpreter) runNEXT() error {
 //
 // This is used by:
 //
-//  REM
-//  DATA
-//  DEF FN
-//
+//	REM
+//	DATA
+//	DEF FN
 func (e *Interpreter) swallowLine() error {
 
-	run := true
+	// Look forwards
+	for e.offset < len(e.program) {
 
-	for e.offset < len(e.program) && run {
+		// If the token is a newline, or EOF we're done
 		tok := e.program[e.offset]
 		if tok.Type == token.NEWLINE || tok.Type == token.EOF {
-			run = false
+			return nil
 		}
+
+		// Otherwise keep going.
 		e.offset++
 	}
 
@@ -2786,7 +2790,6 @@ func (e *Interpreter) GetTrace() bool {
 // SetVariable sets the contents of a variable in the interpreter environment.
 //
 // Useful for testing/embedding.
-//
 func (e *Interpreter) SetVariable(id string, val object.Object) {
 	e.vars.Set(id, val)
 }
@@ -2844,7 +2847,6 @@ func (e *Interpreter) SetArrayVariable(id string, index []int, val object.Object
 // GetVariable returns the contents of the given variable.
 //
 // Useful for testing/embedding.
-//
 func (e *Interpreter) GetVariable(id string) object.Object {
 
 	val := e.vars.Get(id)
@@ -2888,7 +2890,6 @@ func (e *Interpreter) GetArrayVariable(id string, index []int) object.Object {
 // be called from the users' BASIC program.
 //
 // Useful for embedding.
-//
 func (e *Interpreter) RegisterBuiltin(name string, nArgs int, ft builtin.Signature) {
 
 	//

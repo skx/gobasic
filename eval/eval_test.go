@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/skx/gobasic/object"
+	"github.com/skx/gobasic/token"
 	"github.com/skx/gobasic/tokenizer"
 )
 
@@ -1729,4 +1730,39 @@ func TestZero(t *testing.T) {
 		}
 	}
 
+}
+
+// TestSwallowLine tests we don't eat too many tokens in the processing
+// of newlines.
+func TestSwallowLine(t *testing.T) {
+
+	input := `10 REM "This is a test"  So is this
+20 PRINT "OK"
+`
+
+	tokener := tokenizer.New(input)
+	e, err := New(tokener)
+	if err != nil {
+		t.Errorf("Error parsing %s - %s", input, err.Error())
+	}
+
+	// We start at offset 0
+	if e.offset != 0 {
+		t.Fatalf("we didn't start at the beginning")
+	}
+
+	err = e.swallowLine()
+	if err != nil {
+		t.Fatalf("error eating line")
+	}
+
+	// offset should now be bigger
+	if e.offset != 6 {
+		t.Fatalf("our offset was %d not %d", e.offset, 6)
+	}
+
+	// And we should have a newline as the next token
+	if e.program[e.offset].Type != token.NEWLINE {
+		t.Fatalf("did not get a line number got %v", e.program[e.offset])
+	}
 }
